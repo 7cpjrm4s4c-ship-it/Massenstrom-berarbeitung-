@@ -419,6 +419,35 @@ html,body{height:100%;background:var(--bg);color:var(--txt);
 <!-- ══ TAB 1 – LUFT ═══════════════════════════════════════ -->
 <div class="view" id="v1">
 
+  <!-- ① Lufteigenschaften – wie "Wärmeträger" bei HK -->
+  <div class="card">
+    <div class="card-lbl">Lufteigenschaften</div>
+    <div class="r2">
+      <div>
+        <div class="flbl" id="lu-tzl-lbl">Zulufttemperatur</div>
+        <div class="iw">
+          <input type="number" id="lu-tzl" inputmode="decimal" value="40"
+                 oninput="calcLuft()" onchange="calcLuft()">
+          <span class="iu">°C</span>
+        </div>
+      </div>
+      <div>
+        <div class="flbl">Raumtemperatur</div>
+        <div class="iw">
+          <input type="number" id="lu-tr" inputmode="decimal" value="20"
+                 oninput="calcLuft()" onchange="calcLuft()">
+          <span class="iu">°C</span>
+        </div>
+      </div>
+    </div>
+    <div class="mc-row">
+      <span class="mchip">c<sub>p,L</sub> = <b>1,006</b> kJ/(kg·K)</span>
+      <span class="mchip">ρ<sub>ZL</sub> = <b id="lu-rho">—</b> kg/m³</span>
+      <span class="mchip">ΔT = <b id="lu-dt-chip">—</b> K</span>
+    </div>
+  </div>
+
+  <!-- ② Mode toggle -->
   <div class="mtog">
     <button class="mbtn o active" id="lu-bh" onclick="setLuftMode('h')">
       <span class="dot dot-o"></span>Heizleistung
@@ -428,111 +457,62 @@ html,body{height:100%;background:var(--bg);color:var(--txt);
     </button>
   </div>
 
+  <!-- ③ Mode card – identischer Aufbau zu HK -->
   <div class="mode-card oc" id="lu-mc">
     <div class="card-lbl" id="lu-mc-lbl">
-      <span class="dot dot-o"></span>Heizleistung — Eingaben
+      <span class="dot dot-o"></span>Heizleistung
     </div>
     <div class="svrow">
       <button class="svbtn active" data-lsf="q"  onclick="setLuftSf('q')">Q Leistung</button>
       <button class="svbtn"        data-lsf="v"  onclick="setLuftSf('v')">V̇ Volumenstrom</button>
       <button class="svbtn"        data-lsf="dt" onclick="setLuftSf('dt')">Δt Temperatur</button>
     </div>
-
-    <!-- Main quantity input (V̇ or Q) -->
-    <div id="lu-row-v">
-      <div class="flbl">Luftvolumenstrom V̇</div>
-      <div class="iw">
-        <input type="number" id="lu-v" inputmode="decimal" placeholder="0"
-               oninput="calcLuft()" onchange="calcLuft()">
-        <span class="iu">m³/h</span>
-      </div>
-    </div>
-    <div id="lu-row-q" style="display:none">
-      <div class="flbl">Leistung Q</div>
-      <div class="iw">
-        <input type="number" id="lu-q" inputmode="decimal" placeholder="0"
-               oninput="calcLuft()" onchange="calcLuft()">
-        <span class="iu">kW</span>
-      </div>
-    </div>
-
-    <!-- Temperatures -->
-    <div class="r2">
-      <div>
-        <div class="flbl" id="lu-tzl-lbl">Zuluft T<sub>ZL</sub> (wärmer)</div>
-        <div class="iw">
-          <input type="number" id="lu-tzl" inputmode="decimal" value="40"
-                 oninput="calcLuft()" onchange="calcLuft()">
-          <span class="iu">°C</span>
-        </div>
-      </div>
-      <div>
-        <div class="flbl">Raum T<sub>R</sub></div>
-        <div class="iw">
-          <input type="number" id="lu-tr" inputmode="decimal" value="20"
-                 oninput="calcLuft()" onchange="calcLuft()">
-          <span class="iu">°C</span>
-        </div>
-      </div>
-    </div>
-    <div style="text-align:center;font-size:10px;color:var(--txt3);margin:-4px 0 6px">
-      Temperaturdifferenz &nbsp;ΔT = T<sub>ZL</sub> − T<sub>R</sub>
-    </div>
+    <!-- Eingabe A -->
+    <div class="flbl" id="lu-la">Luftvolumenstrom V̇</div>
     <div class="iw">
-      <input type="text" id="lu-dt-d" readonly placeholder="—"
-             style="color:var(--txt2);background:rgba(0,0,0,0.2)">
-      <span class="iu">K</span>
+      <input type="number" id="lu-a" inputmode="decimal" placeholder="0"
+             oninput="calcLuft()" onchange="calcLuft()">
+      <span class="iu" id="lu-ua">m³/h</span>
+    </div>
+    <!-- Eingabe B -->
+    <div class="flbl" id="lu-lb">Leistung Q</div>
+    <div class="iw">
+      <input type="number" id="lu-b" inputmode="decimal" placeholder="0"
+             oninput="calcLuft()" onchange="calcLuft()">
+      <span class="iu" id="lu-ub">kW</span>
     </div>
   </div>
 
-  <!-- Results -->
-  <div class="card">
-    <div class="card-lbl" id="lu-res-lbl">
-      <span class="dot dot-o"></span>Ergebnis — Heizleistung Luft
+  <!-- ④ Dual results – identisch zu HK -->
+  <div class="dual-res">
+    <div class="dc oc">
+      <div class="dc-title oc"><span class="dot dot-o"></span>Heizleistung</div>
+      <div class="dc-row">
+        <div class="dc-lbl">W</div>
+        <div class="dc-val" id="lu-res-qw">—<small>W</small></div>
+      </div>
+      <div class="dc-row">
+        <div class="dc-lbl">kW</div>
+        <div class="dc-val" id="lu-res-qkw">—<small>kW</small></div>
+      </div>
     </div>
-    <div class="flbl">Leistung Q</div>
-    <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:12px">
-      <span style="font-size:32px;font-weight:800;letter-spacing:-1px" id="lu-q-w">—</span>
-      <span style="font-size:16px;color:var(--txt2)">W</span>
-    </div>
-    <div style="height:1px;background:rgba(255,255,255,0.07);margin-bottom:10px"></div>
-    <div class="r2">
-      <div>
-        <div class="flbl">kW</div>
-        <div style="font-size:18px;font-weight:700" id="lu-q-kw">—</div>
-        <div style="font-size:10px;color:var(--txt2)">kW</div>
+    <div class="dc bc">
+      <div class="dc-title bc"><span class="dot dot-b"></span>V̇ &amp; ṁ</div>
+      <div class="dc-row">
+        <div class="dc-lbl">m³/h</div>
+        <div class="dc-val" id="lu-res-v">—<small>m³/h</small></div>
       </div>
-      <div>
-        <div class="flbl">V̇ m³/h</div>
-        <div style="font-size:18px;font-weight:700" id="lu-v-r">—</div>
-        <div style="font-size:10px;color:var(--txt2)">m³/h</div>
-      </div>
-      <div style="margin-top:8px">
-        <div class="flbl">ΔT K</div>
-        <div style="font-size:18px;font-weight:700" id="lu-dt-r">—</div>
-        <div style="font-size:10px;color:var(--txt2)">K</div>
-      </div>
-      <div style="margin-top:8px">
-        <div class="flbl">ṁ kg/h</div>
-        <div style="font-size:18px;font-weight:700" id="lu-m-r">—</div>
-        <div style="font-size:10px;color:var(--txt2)">kg/h</div>
+      <div class="dc-row">
+        <div class="dc-lbl">kg/h</div>
+        <div class="dc-val" id="lu-res-m">—<small>kg/h</small></div>
       </div>
     </div>
   </div>
 
   <div class="fbar">
-    Q = V̇ × ρ<sub>L</sub>(t<sub>ZL</sub>) × c<sub>p,L</sub> × Δt
+    Q = V̇ × ρ<sub>L</sub>(t<sub>ZL</sub>) × c<sub>p,L</sub> × ΔT
     &nbsp;·&nbsp;
     ρ<sub>L</sub>(t) = 353,05 / (t + 273,15) kg/m³
-  </div>
-
-  <div class="card">
-    <div class="card-lbl">Luftkennwerte (aktuell)</div>
-    <div class="kw-row">
-      <span class="kwchip">ρ<sub>ZL</sub> = <b id="lu-rho">—</b> kg/m³</span>
-      <span class="kwchip">c<sub>p,L</sub> = <b>1,006</b> kJ/(kg·K)</span>
-      <span class="kwchip">t<sub>ZL</sub> = <b id="lu-kw-t">—</b> °C</span>
-    </div>
   </div>
 
 </div><!-- /v1 -->
@@ -979,93 +959,101 @@ function rhoL(t){return 353.05/(t+273.15);}
 
 const LU={
   mode:'h',
-  h:{sf:'q',v:'',q:'',tzl:'40',tr:'20'},
-  k:{sf:'q',v:'',q:'',tzl:'16',tr:'26'},
+  h:{sf:'q',a:'',b:''},
+  k:{sf:'q',a:'',b:''},
 };
 
 function setLuftMode(mode){
   const p=LU[LU.mode];
-  p.v=document.getElementById('lu-v').value;
-  p.q=document.getElementById('lu-q').value;
-  p.tzl=document.getElementById('lu-tzl').value;
-  p.tr =document.getElementById('lu-tr').value;
+  p.a=document.getElementById('lu-a').value;
+  p.b=document.getElementById('lu-b').value;
   LU.mode=mode;
   document.getElementById('lu-bh').classList.toggle('active',mode==='h');
   document.getElementById('lu-bk').classList.toggle('active',mode==='k');
   const mc=document.getElementById('lu-mc');
   const lbl=document.getElementById('lu-mc-lbl');
-  const rl=document.getElementById('lu-res-lbl');
   const isH=mode==='h';
   mc.className='mode-card '+(isH?'oc':'bc');
-  lbl.innerHTML=`<span class="dot ${isH?'dot-o':'dot-b'}"></span>${isH?'Heizleistung':'Kühlleistung'} — Eingaben`;
-  rl.innerHTML=`<span class="dot ${isH?'dot-o':'dot-b'}"></span>Ergebnis — ${isH?'Heizleistung':'Kühlleistung'} Luft`;
-  document.getElementById('lu-tzl-lbl').textContent=isH?'Zuluft T\u2080 (wärmer)':'Zuluft T\u2080 (kühler)';
+  lbl.innerHTML=`<span class="dot ${isH?'dot-o':'dot-b'}"></span>${isH?'Heizleistung':'Kühlleistung'}`;
+  document.getElementById('lu-tzl-lbl').textContent=isH?'Zulufttemperatur':'Zulufttemperatur';
   const np=LU[mode];
-  document.getElementById('lu-v').value=np.v;
-  document.getElementById('lu-q').value=np.q;
-  document.getElementById('lu-tzl').value=np.tzl;
-  document.getElementById('lu-tr').value=np.tr;
+  document.getElementById('lu-a').value=np.a;
+  document.getElementById('lu-b').value=np.b;
   setLuftSf(np.sf);
 }
 
 function setLuftSf(sf){
   LU[LU.mode].sf=sf;
   document.querySelectorAll('[data-lsf]').forEach(b=>b.classList.toggle('active',b.dataset.lsf===sf));
-  document.getElementById('lu-row-v').style.display=(sf==='v')?'none':'';
-  document.getElementById('lu-row-q').style.display=(sf==='v')?'':'none';
+  const la=document.getElementById('lu-la'), lb=document.getElementById('lu-lb');
+  const ua=document.getElementById('lu-ua'), ub=document.getElementById('lu-ub');
+  // sf='q': A=V̇, B=Q(unbekannt→gelöst) — eigentlich A=V̇, B wird nicht gebraucht, aber
+  // Wir machen es analog zu HK:
+  // sf='q' (solve Q): A=V̇[m³/h], B= — (ΔT kommt aus Temperaturen, Q wird berechnet)
+  // Da ΔT aus T_ZL und T_R bereits fix ist, brauchen wir nur 1 Hauptgröße
+  // Aber "1:1 wie HK" = 2 Eingaben. Also:
+  // sf='q' → A=V̇, B=ΔT (überschreibt T-Differenz, T_ZL/T_R nur für ρ)
+  // sf='v' → A=Q[kW], B=ΔT
+  // sf='dt'→ A=V̇, B=Q[kW]
+  if(sf==='q'){
+    la.textContent='Luftvolumenstrom V̇'; ua.textContent='m³/h';
+    lb.textContent='Temperaturdifferenz ΔT'; ub.textContent='K';
+  } else if(sf==='v'){
+    la.textContent='Leistung Q'; ua.textContent='kW';
+    lb.textContent='Temperaturdifferenz ΔT'; ub.textContent='K';
+  } else {
+    la.textContent='Luftvolumenstrom V̇'; ua.textContent='m³/h';
+    lb.textContent='Leistung Q'; ub.textContent='kW';
+  }
   calcLuft();
 }
 
 function calcLuft(){
-  LU[LU.mode].v=document.getElementById('lu-v').value;
-  LU[LU.mode].q=document.getElementById('lu-q').value;
-  LU[LU.mode].tzl=document.getElementById('lu-tzl').value;
-  LU[LU.mode].tr=document.getElementById('lu-tr').value;
+  LU[LU.mode].a=document.getElementById('lu-a').value;
+  LU[LU.mode].b=document.getElementById('lu-b').value;
 
   const tzl=parseFloat(document.getElementById('lu-tzl').value);
   const tr =parseFloat(document.getElementById('lu-tr').value);
   const sf =LU[LU.mode].sf;
-  const dT =tzl-tr;
+  const a  =parseFloat(document.getElementById('lu-a').value);
+  const b  =parseFloat(document.getElementById('lu-b').value);
+
   const rho=isNaN(tzl)?NaN:rhoL(tzl);
+  const dTnative=tzl-tr; // ΔT from temp fields (used for ρ reference)
 
-  document.getElementById('lu-dt-d').value=(!isNaN(dT)&&sf!=='dt')?fDE(dT,1):'';
+  // Update top card chips
   document.getElementById('lu-rho').textContent=isNaN(rho)?'—':fDE(rho,4);
-  document.getElementById('lu-kw-t').textContent=isNaN(tzl)?'—':tzl;
+  document.getElementById('lu-dt-chip').textContent=isNaN(dTnative)?'—':fDE(dTnative,1);
 
-  let Q_W=NaN,Vm3h=NaN,mKgh=NaN;
+  let Q_W=NaN, Vm3h=NaN, mKgh=NaN, dT=NaN;
 
-  if(sf==='q'){
-    Vm3h=parseFloat(document.getElementById('lu-v').value);
-    if(!isNaN(Vm3h)&&Vm3h>0&&!isNaN(rho)&&!isNaN(dT)&&Math.abs(dT)>0.01){
+  if(!isNaN(a)&&a>0&&!isNaN(b)&&b!==0&&!isNaN(rho)){
+    if(sf==='q'){
+      // A=V̇, B=ΔT → solve Q
+      Vm3h=a; dT=b;
       const mKgs=Vm3h/3600*rho;
       Q_W=mKgs*CP_L*Math.abs(dT);
       mKgh=mKgs*3600;
-    }
-  } else if(sf==='v'){
-    const Qkw=parseFloat(document.getElementById('lu-q').value);
-    if(!isNaN(Qkw)&&Qkw>0&&!isNaN(rho)&&!isNaN(dT)&&Math.abs(dT)>0.01){
-      Q_W=Qkw*1000;
+    } else if(sf==='v'){
+      // A=Q[kW], B=ΔT → solve V̇
+      Q_W=a*1000; dT=b;
       const mKgs=Q_W/(CP_L*Math.abs(dT));
       Vm3h=mKgs/rho*3600;
       mKgh=mKgs*3600;
-    }
-  } else {
-    Vm3h=parseFloat(document.getElementById('lu-v').value);
-    const Qkw=parseFloat(document.getElementById('lu-q').value);
-    if(!isNaN(Vm3h)&&Vm3h>0&&!isNaN(Qkw)&&Qkw>0&&!isNaN(rho)){
-      Q_W=Qkw*1000;
+    } else {
+      // A=V̇, B=Q[kW] → solve ΔT
+      Vm3h=a; Q_W=b*1000;
       const mKgs=Vm3h/3600*rho;
-      const dtCalc=Q_W/(mKgs*CP_L);
-      document.getElementById('lu-dt-d').value=fDE(dtCalc,1);
+      dT=Q_W/(mKgs*CP_L);
       mKgh=mKgs*3600;
     }
   }
 
-  document.getElementById('lu-q-w').textContent=isNaN(Q_W)?'—':fDE(Q_W,0);
-  document.getElementById('lu-q-kw').textContent=isNaN(Q_W)?'—':fDE(Q_W/1000,2);
-  document.getElementById('lu-v-r').textContent=isNaN(Vm3h)?'—':fDE(Vm3h,0);
-  document.getElementById('lu-dt-r').textContent=(!isNaN(dT)&&sf!=='dt')?fDE(Math.abs(dT),1):document.getElementById('lu-dt-d').value||'—';
-  document.getElementById('lu-m-r').textContent=isNaN(mKgh)?'—':fDE(mKgh,1);
+  // Update dual result cards
+  document.getElementById('lu-res-qw').innerHTML =isNaN(Q_W) ?'—<small>W</small>'  :fDE(Q_W,0)+'<small>W</small>';
+  document.getElementById('lu-res-qkw').innerHTML=isNaN(Q_W) ?'—<small>kW</small>' :fDE(Q_W/1000,2)+'<small>kW</small>';
+  document.getElementById('lu-res-v').innerHTML  =isNaN(Vm3h)?'—<small>m³/h</small>':fDE(Vm3h,0)+'<small>m³/h</small>';
+  document.getElementById('lu-res-m').innerHTML  =isNaN(mKgh)?'—<small>kg/h</small>':fDE(mKgh,1)+'<small>kg/h</small>';
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -1085,13 +1073,23 @@ function calcRohr(){
   const sData=PR.map(r=>({...r.s,dn:r.dn}));
   const mData=PR.map(r=>r.m?{...r.m,dn:r.dn}:null);
 
+  // Find stahl recommended index
   const sRec=findRec(sData,ES,Vm3s,fl.rho,fl.nu,maxR);
+
+  // Mapress recommended – map flat index back to PR index
   const mFlat=PR.map((r,i)=>r.m?{...r.m,dn:r.dn,idx:i}:null).filter(p=>p);
   const mRecFlat=findRec(mFlat,EM,Vm3s,fl.rho,fl.nu,maxR);
   const mRecIdx=mFlat[mRecFlat]?.idx??-1;
 
+  // Show only: recommended ± 1  (max 3 rows, clamped to valid range)
+  const lo=Math.max(0, sRec-1);
+  const hi=Math.min(PR.length-1, sRec+1);
+  const visIdx=[];
+  for(let i=lo;i<=hi;i++) visIdx.push(i);
+
   let html='';
-  PR.forEach((row,idx)=>{
+  visIdx.forEach(idx=>{
+    const row=PR[idx];
     const sp=sData[idx];
     const sm=pm(sp.di,ES,Vm3s,fl.rho,fl.nu);
     const sIsRec=idx===sRec;
@@ -1217,6 +1215,7 @@ function fSci(v){
 ═══════════════════════════════════════════════════════════ */
 onHkMed();
 calcHK();
+setLuftSf('q');
 calcLuft();
 calcRohr();
 popEiSel();
