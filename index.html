@@ -11,30 +11,28 @@
 <link rel="apple-touch-icon" href="/icon-192.svg">
 <title>Massenstromrechner</title>
 <style>
-/* ─── Reset ───────────────────────────────────────────────── */
+/* ─── Reset & Tokens ──────────────────────────────────────── */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
   --bg:#0b0b0b;
-  --bg2:#111111;
   --card:rgba(255,255,255,0.065);
   --card-b:rgba(255,255,255,0.10);
   --inp:rgba(255,255,255,0.08);
   --inp-b:rgba(255,255,255,0.12);
-  --inp-focus:rgba(255,255,255,0.15);
-  --txt:#ffffff;
-  --txt2:rgba(255,255,255,0.52);
-  --txt3:rgba(255,255,255,0.30);
+  --txt:#f0f0f5;
+  --txt2:rgba(240,240,245,0.52);
+  --txt3:rgba(240,240,245,0.30);
   --orange:#e07040;
   --orange-bg:rgba(180,80,30,0.22);
-  --orange-dim:rgba(224,112,64,0.12);
+  --orange-dim:rgba(224,112,64,0.10);
   --blue:#4a9de0;
   --blue-bg:rgba(30,80,160,0.22);
-  --blue-dim:rgba(74,157,224,0.12);
+  --blue-dim:rgba(74,157,224,0.10);
   --green:#3dcf8e;
-  --green-bg:rgba(61,207,142,0.14);
-  --r:14px;--r-sm:10px;--r-xs:8px;
-  --hdr:56px;
-  --tabs:44px;
+  --yellow:#d4b84a;
+  --red:#e04030;
+  --r:14px;--r-sm:10px;
+  --hdr:54px;--tabs:44px;
   --safe-t:env(safe-area-inset-top,0px);
   --safe-b:env(safe-area-inset-bottom,0px);
   --blur:blur(24px) saturate(160%);
@@ -48,27 +46,21 @@ html,body{height:100%;background:var(--bg);color:var(--txt);
 #hdr{
   position:fixed;top:0;left:0;right:0;z-index:100;
   padding-top:var(--safe-t);
-  background:rgba(11,11,11,0.85);
+  background:rgba(11,11,11,0.88);
   backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);
   border-bottom:1px solid rgba(255,255,255,0.07);
+  transition:transform 0.3s cubic-bezier(0.4,0,0.2,1);
 }
-.hdr-inner{
-  height:var(--hdr);display:flex;align-items:center;
-  padding:0 16px;gap:12px;
-}
+.hdr-inner{height:var(--hdr);display:flex;align-items:center;padding:0 16px;gap:12px}
 .hdr-icon{
-  width:34px;height:34px;border-radius:9px;
-  background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.10);
-  display:flex;align-items:center;justify-content:center;
-  font-size:15px;font-weight:700;flex-shrink:0;
+  width:34px;height:34px;border-radius:9px;flex-shrink:0;
   background:linear-gradient(135deg,#1a1a2a,#0f0f1a);
-  color:var(--blue);letter-spacing:-0.5px;
+  border:1px solid rgba(255,255,255,0.10);
+  display:flex;align-items:center;justify-content:center;
+  font-size:15px;font-weight:700;color:var(--blue);
 }
-.hdr-titles{flex:1;min-width:0}
 .hdr-title{font-size:16px;font-weight:700;letter-spacing:-0.2px}
-.hdr-sub{font-size:11px;color:var(--txt3);letter-spacing:0.1px;margin-top:1px}
-
-/* ─── Tab Bar ─────────────────────────────────────────────── */
+.hdr-sub{font-size:11px;color:var(--txt3);margin-top:1px}
 #tabbar{
   display:flex;border-bottom:1px solid rgba(255,255,255,0.07);
   overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;
@@ -80,221 +72,106 @@ html,body{height:100%;background:var(--bg);color:var(--txt);
   font-size:13px;font-weight:500;color:var(--txt3);
   border:none;background:none;cursor:pointer;
   position:relative;white-space:nowrap;padding:0 4px;
-  -webkit-tap-highlight-color:transparent;transition:color 0.2s;
-  font-family:inherit;
+  -webkit-tap-highlight-color:transparent;transition:color 0.2s;font-family:inherit;
 }
 .tab-btn::after{
-  content:'';position:absolute;bottom:0;left:8px;right:8px;
-  height:2px;border-radius:2px;background:var(--blue);
+  content:'';position:absolute;bottom:0;left:8px;right:8px;height:2px;
+  border-radius:2px;background:var(--blue);
   transform:scaleX(0);transition:transform 0.25s cubic-bezier(0.4,0,0.2,1);
 }
 .tab-btn.active{color:var(--blue);font-weight:600}
 .tab-btn.active::after{transform:scaleX(1)}
 
-/* ─── Scroll Root / Views ─────────────────────────────────── */
+/* ─── Views ────────────────────────────────────────────────── */
 #scroll-root{
   position:fixed;inset:0;z-index:1;overflow:hidden;
   top:calc(var(--safe-t) + var(--hdr) + var(--tabs));
 }
 #views-wrap{
   display:flex;width:400%;height:100%;
-  transition:transform 0.38s cubic-bezier(0.4,0,0.2,1);
-  will-change:transform;
+  transition:transform 0.38s cubic-bezier(0.4,0,0.2,1);will-change:transform;
 }
 #views-wrap.no-anim{transition:none}
 .view{
-  width:25%;height:100%;
-  overflow-y:auto;overflow-x:hidden;
-  -webkit-overflow-scrolling:touch;
-  overscroll-behavior-y:contain;
-  padding:14px 14px calc(32px + var(--safe-b));
+  width:25%;height:100%;overflow-y:auto;overflow-x:hidden;
+  -webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;
+  padding:14px 14px calc(40px + var(--safe-b));
 }
 .view::-webkit-scrollbar{display:none}
 
-/* ─── Cards ───────────────────────────────────────────────── */
+/* ─── Cards ─────────────────────────────────────────────────── */
 .card{
   background:var(--card);border:1px solid var(--card-b);
   border-radius:var(--r);padding:16px;margin-bottom:12px;
 }
 .card-lbl{
   font-size:11px;font-weight:600;color:var(--txt3);
-  text-transform:uppercase;letter-spacing:0.7px;
-  margin-bottom:12px;display:flex;align-items:center;gap:7px;
+  text-transform:uppercase;letter-spacing:0.7px;margin-bottom:12px;
+  display:flex;align-items:center;gap:7px;
 }
 .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-.dot-orange{background:var(--orange)}
-.dot-blue{background:var(--blue)}
-.dot-green{background:var(--green)}
+.dot-o{background:var(--orange)}.dot-b{background:var(--blue)}
 
-/* ─── Mode Toggle (Heizung/Kälte etc.) ───────────────────── */
-.mode-toggle{
-  display:grid;grid-template-columns:1fr 1fr;
-  gap:6px;margin-bottom:12px;
-}
-.mode-btn{
-  padding:10px 8px;border-radius:var(--r-sm);
-  border:1px solid var(--card-b);background:transparent;
-  color:var(--txt2);font-size:13px;font-weight:500;
-  font-family:inherit;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;gap:6px;
-  transition:all 0.22s;-webkit-tap-highlight-color:transparent;
-}
-.mode-btn.orange.active{background:var(--orange-bg);border-color:rgba(224,112,64,0.45);color:var(--orange)}
-.mode-btn.blue.active  {background:var(--blue-bg);  border-color:rgba(74,157,224,0.45); color:var(--blue)}
+/* ─── Mode card ─────────────────────────────────────────────── */
+.mode-card{border-radius:var(--r);padding:14px;margin-bottom:12px;border:1px solid}
+.mode-card.oc{background:rgba(180,80,30,0.09);border-color:rgba(224,112,64,0.22)}
+.mode-card.bc{background:rgba(30,80,160,0.09);border-color:rgba(74,157,224,0.22)}
 
-/* ─── 3-way Solver Selector ──────────────────────────────── */
-.solver-row{
+/* ─── Mode toggle ────────────────────────────────────────────── */
+.mtog{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:12px}
+.mbtn{
+  padding:10px 8px;border-radius:var(--r-sm);border:1px solid var(--card-b);
+  background:transparent;color:var(--txt2);font-size:13px;font-weight:500;
+  font-family:inherit;cursor:pointer;display:flex;align-items:center;
+  justify-content:center;gap:6px;transition:all 0.2s;
+  -webkit-tap-highlight-color:transparent;
+}
+.mbtn.o.active{background:var(--orange-bg);border-color:rgba(224,112,64,0.45);color:var(--orange)}
+.mbtn.b.active{background:var(--blue-bg); border-color:rgba(74,157,224,0.45); color:var(--blue)}
+
+/* ─── Solver row ─────────────────────────────────────────────── */
+.svrow{
   display:flex;background:rgba(0,0,0,0.3);border-radius:var(--r-sm);
-  padding:3px;gap:2px;margin-bottom:14px;
-  border:1px solid rgba(255,255,255,0.06);
+  padding:3px;gap:2px;margin-bottom:14px;border:1px solid rgba(255,255,255,0.06);
 }
-.solver-btn{
-  flex:1;padding:7px 4px;border-radius:7px;border:none;
-  background:none;color:var(--txt3);font-size:12px;font-weight:500;
-  font-family:inherit;cursor:pointer;text-align:center;
-  transition:all 0.2s;-webkit-tap-highlight-color:transparent;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+.svbtn{
+  flex:1;padding:7px 4px;border-radius:7px;border:none;background:none;
+  color:var(--txt3);font-size:12px;font-weight:500;font-family:inherit;
+  cursor:pointer;text-align:center;transition:all 0.2s;
+  -webkit-tap-highlight-color:transparent;white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis;
 }
-.solver-btn.active{
-  background:rgba(255,255,255,0.10);color:var(--txt);
-  font-weight:600;
-}
+.svbtn.active{background:rgba(255,255,255,0.10);color:var(--txt);font-weight:600}
 
-/* ─── Inputs ──────────────────────────────────────────────── */
-.field-lbl{font-size:11px;font-weight:600;color:var(--txt3);
+/* ─── Inputs ─────────────────────────────────────────────────── */
+.flbl{font-size:11px;font-weight:600;color:var(--txt3);
   text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px}
-.inp-wrap{position:relative;display:flex;align-items:center;margin-bottom:10px}
-.inp-wrap input,.inp-wrap select{
+.iw{position:relative;display:flex;align-items:center;margin-bottom:10px}
+.iw input,.iw select{
   width:100%;background:var(--inp);border:1px solid var(--inp-b);
   border-radius:var(--r-sm);color:var(--txt);font-size:16px;font-weight:500;
   padding:11px 44px 11px 13px;outline:none;
   appearance:none;-webkit-appearance:none;
   transition:border-color 0.2s,background 0.2s;font-family:inherit;
 }
-.inp-wrap input:focus,.inp-wrap select:focus{
-  border-color:var(--blue);background:rgba(74,157,224,0.07);
-}
-.inp-wrap input[type=number]{-moz-appearance:textfield}
-.inp-wrap input[type=number]::-webkit-inner-spin-button,
-.inp-wrap input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none}
-.inp-unit{
-  position:absolute;right:11px;font-size:12px;
-  color:var(--txt3);pointer-events:none;font-weight:500;
-}
-/* select chevron */
-.sel-wrap::after{
-  content:'⌄';position:absolute;right:12px;font-size:13px;
-  color:var(--txt3);pointer-events:none;line-height:1;
-}
-/* wide select full row */
-.inp-wrap.full-row{margin-bottom:10px}
-.inp-wrap.full-row select{padding-right:36px}
-/* row with 2 inputs */
-.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-/* result field (read-only look) */
-.inp-wrap input.result-inp{
-  border-color:rgba(61,207,142,0.35);
-  background:rgba(61,207,142,0.08);
-  color:var(--green);
-}
-/* medium info chips below dropdown */
-.medium-chips{display:flex;gap:7px;flex-wrap:wrap;margin-top:8px}
-.mchip{
-  font-size:11px;font-weight:600;color:var(--txt2);
+.iw input:focus,.iw select:focus{border-color:var(--blue);background:rgba(74,157,224,0.07)}
+.iw input[type=number]{-moz-appearance:textfield}
+.iw input[type=number]::-webkit-inner-spin-button,
+.iw input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none}
+.iu{position:absolute;right:11px;font-size:12px;color:var(--txt3);
+  pointer-events:none;font-weight:500}
+.sw::after{content:'⌄';position:absolute;right:12px;font-size:13px;
+  color:var(--txt3);pointer-events:none;line-height:1}
+.r2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.iw.full select{padding-right:36px}
+/* medium chips */
+.mc-row{display:flex;gap:7px;flex-wrap:wrap;margin-top:8px}
+.mchip{font-size:11px;font-weight:600;color:var(--txt2);
   background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);
-  border-radius:6px;padding:3px 8px;
-  font-variant-numeric:tabular-nums;
-}
-.mchip span{color:var(--blue)}
-
-/* ─── Active card wrapper (orange/blue border on mode) ──── */
-.mode-card{border-radius:var(--r);padding:14px;margin-bottom:12px;
-  border:1px solid}
-.mode-card.orange{background:rgba(180,80,30,0.09);border-color:rgba(224,112,64,0.22)}
-.mode-card.blue  {background:rgba(30,80,160,0.09);border-color:rgba(74,157,224,0.22)}
-
-/* ─── Result Cards ────────────────────────────────────────── */
-.res-card{background:var(--card);border:1px solid var(--card-b);
-  border-radius:var(--r);padding:14px;margin-bottom:12px}
-.res-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.res-item{display:flex;flex-direction:column;gap:2px}
-.res-lbl{font-size:10px;font-weight:600;color:var(--txt3);
-  text-transform:uppercase;letter-spacing:0.6px}
-.res-val{font-size:20px;font-weight:700;letter-spacing:-0.5px;line-height:1.2}
-.res-unit{font-size:11px;color:var(--txt2);font-weight:500}
-.res-big{font-size:32px;font-weight:700;letter-spacing:-1px}
-.res-divider{height:1px;background:rgba(255,255,255,0.07);margin:10px 0}
-
-/* Dual result (HEIZUNG | KÄLTE) */
-.dual-res{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
-.dual-card{border-radius:var(--r-sm);padding:12px;border:1px solid}
-.dual-card.orange{background:var(--orange-dim);border-color:rgba(224,112,64,0.2)}
-.dual-card.blue  {background:var(--blue-dim);  border-color:rgba(74,157,224,0.2)}
-.dual-title{font-size:10px;font-weight:700;letter-spacing:0.7px;
-  text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:5px}
-.dual-title.orange{color:var(--orange)}
-.dual-title.blue  {color:var(--blue)}
-.dual-row{display:flex;flex-direction:column;gap:3px;margin-bottom:6px}
-.dual-sublbl{font-size:9px;font-weight:600;color:var(--txt3);
-  text-transform:uppercase;letter-spacing:0.5px}
-.dual-val{font-size:15px;font-weight:700;line-height:1.1}
-.dual-subunit{font-size:10px;color:var(--txt2)}
-
-/* ─── Placeholder state ───────────────────────────────────── */
-.placeholder{
-  text-align:center;padding:20px 12px;
-  font-size:13px;color:var(--txt3);
-}
-.placeholder::after{content:' →'}
-
-/* ─── Formula bar ─────────────────────────────────────────── */
-.formula-bar{
-  font-size:12px;color:var(--txt3);
-  padding:10px 14px;margin-bottom:12px;
-  text-align:center;line-height:1.7;
-}
-
-/* ─── Info section ────────────────────────────────────────── */
-.info-note{
-  font-size:11px;color:var(--txt3);line-height:1.6;
-  padding-top:10px;margin-top:2px;
-}
-
-/* ─── Pipe table ──────────────────────────────────────────── */
-.pipe-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:0 -2px}
-table.ptbl{width:100%;border-collapse:separate;border-spacing:0;font-size:12px}
-.ptbl th{padding:6px 8px;text-align:left;font-size:10px;font-weight:600;
-  color:var(--txt3);text-transform:uppercase;letter-spacing:0.4px;
-  border-bottom:1px solid rgba(255,255,255,0.06)}
-.ptbl td{padding:8px 8px;color:var(--txt2);
-  border-bottom:1px solid rgba(255,255,255,0.04);
-  font-variant-numeric:tabular-nums}
-.ptbl tr.rec td{color:var(--txt);background:rgba(74,157,224,0.08)}
-.ptbl tr.rec td:first-child{border-radius:6px 0 0 6px}
-.ptbl tr.rec td:last-child {border-radius:0 6px 6px 0}
-.ptbl tr.rec-m td{background:rgba(61,207,142,0.07)}
-.dn-chip{display:inline-block;background:rgba(74,157,224,0.12);
-  border:1px solid rgba(74,157,224,0.25);color:var(--blue);
-  border-radius:5px;padding:1px 6px;font-weight:700;font-size:11px}
-.dn-chip.green{background:rgba(61,207,142,0.12);
-  border-color:rgba(61,207,142,0.25);color:var(--green)}
-.v-ok  {color:var(--green);font-weight:600}
-.v-warn{color:#e0c040;font-weight:600}
-.v-bad {color:#e04040;font-weight:600}
-
-/* ─── Einheiten ───────────────────────────────────────────── */
-.cat-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-bottom:12px}
-.cat-btn{
-  padding:10px 6px;border-radius:var(--r-sm);
-  border:1px solid var(--card-b);background:var(--card);
-  color:var(--txt2);font-size:12px;font-weight:500;
-  font-family:inherit;cursor:pointer;text-align:center;
-  -webkit-tap-highlight-color:transparent;transition:all 0.2s;
-}
-.cat-btn.active{border-color:rgba(74,157,224,0.4);background:var(--blue-dim);color:var(--txt)}
-.cat-dot{width:7px;height:7px;border-radius:50%;margin:0 auto 4px;display:block}
-
-.swap-row{display:flex;align-items:center;gap:0;margin:-2px 0;z-index:1;position:relative}
+  border-radius:6px;padding:3px 8px;font-variant-numeric:tabular-nums}
+.mchip b{color:var(--blue)}
+/* swap button */
+.swap-row{display:flex;align-items:center;gap:0;margin:-2px 0;position:relative;z-index:1}
 .swap-line{flex:1;height:1px;background:rgba(255,255,255,0.06)}
 .swap-btn{
   width:34px;height:34px;border-radius:50%;
@@ -303,41 +180,127 @@ table.ptbl{width:100%;border-collapse:separate;border-spacing:0;font-size:12px}
   font-size:14px;cursor:pointer;-webkit-tap-highlight-color:transparent;
   transition:background 0.18s;color:var(--txt2);
 }
-.swap-btn:active{background:rgba(255,255,255,0.15)}
+.swap-btn:active{background:rgba(255,255,255,0.16)}
 
-.alle-row{
-  display:flex;justify-content:space-between;align-items:baseline;
-  padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);
+/* ─── Dual result cards ──────────────────────────────────────── */
+.dual-res{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.dc{border-radius:var(--r-sm);padding:13px;border:1px solid}
+.dc.oc{background:var(--orange-dim);border-color:rgba(224,112,64,0.22)}
+.dc.bc{background:var(--blue-dim);  border-color:rgba(74,157,224,0.22)}
+.dc-title{font-size:10px;font-weight:700;letter-spacing:0.7px;
+  text-transform:uppercase;margin-bottom:9px;display:flex;align-items:center;gap:5px}
+.dc-title.oc{color:var(--orange)}.dc-title.bc{color:var(--blue)}
+.dc-lbl{font-size:9px;font-weight:600;color:var(--txt3);
+  text-transform:uppercase;letter-spacing:0.5px;margin-bottom:1px}
+.dc-val{font-size:18px;font-weight:700;line-height:1.15;letter-spacing:-0.3px;
+  font-variant-numeric:tabular-nums}
+.dc-val small{font-size:11px;font-weight:500;color:var(--txt2);margin-left:2px}
+.dc-row{margin-bottom:7px}
+
+/* ─── Formula bar ────────────────────────────────────────────── */
+.fbar{
+  font-size:11px;color:var(--txt3);text-align:center;
+  line-height:1.7;padding:6px 0 10px;
 }
-.alle-row:last-child{border-bottom:none}
-.alle-unit{font-size:12px;color:var(--txt3);font-weight:500}
-.alle-val {font-size:14px;font-weight:600;font-variant-numeric:tabular-nums}
-.alle-val.highlight{color:var(--blue)}
 
-/* ─── Luft Kennwerte ─────────────────────────────────────── */
-.kw-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:2px}
-.kw-chip{
+/* ─── Pipe Cards ─────────────────────────────────────────────── */
+.pipe-grp{margin-bottom:14px}
+.pipe-dn-hdr{font-size:12px;color:var(--txt3);font-weight:600;
+  text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;padding-left:2px}
+.pipe-pair{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.pc{
+  background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.10);
+  border-radius:14px;padding:11px;position:relative;overflow:hidden;
+  display:flex;flex-direction:column;
+}
+.pc.over{border-color:rgba(224,60,40,0.42);background:rgba(224,60,40,0.06)}
+.pc.rec {border-color:rgba(74,157,224,0.48);background:rgba(74,157,224,0.07)}
+.pc.dim {opacity:0.55}
+.pc.hh  {border-color:rgba(224,80,40,0.48);background:rgba(224,80,40,0.08)}
+.pc.hk  {border-color:rgba(74,157,224,0.48);background:rgba(74,157,224,0.07)}
+.pc.na  {opacity:0.40}
+.pc-top {display:flex;align-items:center;justify-content:space-between;margin-bottom:5px}
+.pc-sys {font-size:9px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:var(--txt3)}
+.pc-sys.mp{color:rgba(74,157,224,0.85)}
+.pc-star{
+  width:20px;height:20px;border-radius:5px;flex-shrink:0;
+  background:rgba(74,157,224,0.18);border:1px solid rgba(74,157,224,0.35);
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;color:var(--blue);
+}
+.pc-dn{font-size:22px;font-weight:800;letter-spacing:-0.5px;margin-bottom:3px;line-height:1.1}
+.pc-dim{font-size:10px;color:var(--txt3);line-height:1.6}
+.pc-metrics{margin-top:8px;flex:1}
+.pc-mr{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:2px}
+.pc-ml{font-size:10px;color:var(--txt3);font-weight:500}
+.pc-mv{font-size:12px;font-weight:700;font-variant-numeric:tabular-nums}
+.pc-bar-bg{margin-top:9px;height:3px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden}
+.pc-bar{height:100%;border-radius:3px;transition:width 0.35s ease}
+.pc-na-txt{font-size:11px;color:var(--txt3);margin-top:6px;font-style:italic;line-height:1.5}
+
+/* ─── HK pipe section ───────────────────────────────────────── */
+.hk-circ-hdr{
+  display:flex;align-items:center;gap:7px;
+  font-size:11px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;
+  margin-bottom:8px;padding:4px 0;
+}
+.hk-circ-sub{font-size:11px;color:var(--txt3);font-weight:400;margin-left:4px}
+.auslegung-card{
+  background:var(--card);border:1px solid var(--card-b);
+  border-radius:var(--r);padding:14px;margin-bottom:12px;
+}
+.auslegung-hdr{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:10px;
+}
+.auslegung-title{font-size:11px;font-weight:700;color:var(--txt3);
+  text-transform:uppercase;letter-spacing:0.7px}
+.auslegung-r-wrap{display:flex;align-items:center;gap:6px}
+.auslegung-r-lbl{font-size:11px;color:var(--txt3);white-space:nowrap}
+.auslegung-r-inp{
+  background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);
+  border-radius:7px;color:var(--txt);font-size:13px;font-weight:600;
+  padding:4px 30px 4px 8px;width:80px;outline:none;font-family:inherit;
+  -moz-appearance:textfield;text-align:right;
+}
+.auslegung-r-inp::-webkit-inner-spin-button,.auslegung-r-inp::-webkit-outer-spin-button{-webkit-appearance:none}
+.auslegung-r-unit{position:absolute;right:8px;font-size:10px;color:var(--txt3);pointer-events:none}
+.auslegung-body{font-size:11px;color:var(--txt3);line-height:1.7}
+.auslegung-body b{color:var(--txt2);font-weight:600}
+
+/* ─── Einheiten ─────────────────────────────────────────────── */
+.alle-row{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:10px 13px;border-radius:10px;
+  background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);
+  margin-bottom:6px;font-size:13px;
+}
+.alle-row.hl{background:rgba(61,207,142,0.08);border-color:rgba(61,207,142,0.3)}
+.alle-row .au{color:var(--txt2);font-weight:500}
+.alle-row.hl .au{color:var(--green);font-weight:600}
+.alle-row .av{color:var(--txt);font-weight:600;font-variant-numeric:tabular-nums}
+.alle-row.hl .av{color:var(--green)}
+
+/* ─── Info note ──────────────────────────────────────────────── */
+.infonote{font-size:11px;color:var(--txt3);line-height:1.7;margin-bottom:12px}
+.infonote b{color:var(--txt2)}
+
+/* ─── Kennwerte chips ───────────────────────────────────────── */
+.kw-row{display:flex;gap:7px;flex-wrap:wrap;margin-top:4px}
+.kwchip{
   font-size:11px;background:rgba(255,255,255,0.05);
   border:1px solid rgba(255,255,255,0.07);border-radius:6px;
-  padding:4px 9px;color:var(--txt2);font-weight:500;
-  font-variant-numeric:tabular-nums;
+  padding:4px 9px;color:var(--txt2);font-weight:500;font-variant-numeric:tabular-nums;
 }
-.kw-chip b{color:var(--txt)}
-
-/* ─── Note / Warning ─────────────────────────────────────── */
+.kwchip b{color:var(--txt)}
+/* note */
 .note{font-size:11px;color:var(--txt3);line-height:1.6;margin-top:8px;
   padding-top:8px;border-top:1px solid rgba(255,255,255,0.05)}
-.note.warn{color:rgba(224,192,64,0.9)}
-.note.err {color:rgba(224,80,64,0.9)}
 
-/* ─── Section heading within card ───────────────────────── */
-.sec-lbl{font-size:10px;font-weight:600;color:var(--txt3);
-  text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px}
-
-/* ─── Animations ─────────────────────────────────────────── */
-@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
-.view>.card,.view>.mode-card,.view>.res-card,.view>.dual-res,
-.view>.formula-bar,.view>.info-note{animation:fadeUp 0.32s ease both}
+/* ─── Anim ───────────────────────────────────────────────────── */
+@keyframes fu{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.view>.card,.view>.mode-card,.view>.dual-res,.view>.fbar,.view>.pipe-grp,
+.view>.auslegung-card,.view>#hk-pipe-sec{animation:fu 0.3s ease both}
 </style>
 </head>
 <body>
@@ -346,12 +309,11 @@ table.ptbl{width:100%;border-collapse:separate;border-spacing:0;font-size:12px}
 <div id="hdr">
   <div class="hdr-inner">
     <div class="hdr-icon">ṁ</div>
-    <div class="hdr-titles">
+    <div>
       <div class="hdr-title">Massenstromrechner</div>
       <div class="hdr-sub">HLS-Anlagen · Heizung · Kälte · Rohr</div>
     </div>
   </div>
-  <!-- Tab Bar -->
   <div id="tabbar">
     <button class="tab-btn active" onclick="goTo(0)">Heizung/Kälte</button>
     <button class="tab-btn"        onclick="goTo(1)">Luft</button>
@@ -360,264 +322,247 @@ table.ptbl{width:100%;border-collapse:separate;border-spacing:0;font-size:12px}
   </div>
 </div>
 
-<!-- ─── Views ──────────────────────────────────────────────── -->
 <div id="scroll-root">
 <div id="views-wrap">
 
-<!-- ══ TAB 0: HEIZUNG / KÄLTE ══════════════════════════════ -->
+<!-- ══ TAB 0 – HEIZUNG / KÄLTE ═══════════════════════════ -->
 <div class="view" id="v0">
 
-  <!-- Wärmeträger -->
   <div class="card">
     <div class="card-lbl">Wärmeträger</div>
-    <div class="inp-wrap full-row sel-wrap">
-      <select id="hk-medium" onchange="onHkMedium()">
-        <option value="water">Wasser</option>
-        <option value="water60">Wasser (60°C)</option>
-        <option value="water80">Wasser (80°C)</option>
+    <div class="iw full sw">
+      <select id="hk-med" onchange="onHkMed()">
+        <option value="w20">Wasser</option>
+        <option value="w60">Wasser (60 °C)</option>
+        <option value="w80">Wasser (80 °C)</option>
         <option value="g25">25 % Ethylenglykol</option>
         <option value="g33">33 % Ethylenglykol</option>
         <option value="g40">40 % Ethylenglykol</option>
         <option value="g50">50 % Ethylenglykol</option>
       </select>
-      <span class="inp-unit" style="right:28px"></span>
     </div>
-    <div class="medium-chips">
-      <span class="mchip">c<sub>p</sub> = <span id="hk-cp-val">4.180</span> kJ/(kg·K)</span>
-      <span class="mchip">ρ = <span id="hk-rho-val">998</span> kg/m³</span>
+    <div class="mc-row">
+      <span class="mchip">c<sub>p</sub> = <b id="hk-cp-v">4,180</b> kJ/(kg·K)</span>
+      <span class="mchip">ρ = <b id="hk-rho-v">998</b> kg/m³</span>
     </div>
   </div>
 
-  <!-- Mode toggle -->
-  <div class="mode-toggle">
-    <button class="mode-btn orange active" id="btn-hz" onclick="setHkMode('h')">
-      <span class="dot dot-orange"></span>Heizung
+  <div class="mtog">
+    <button class="mbtn o active" id="hk-bh" onclick="setHkMode('h')">
+      <span class="dot dot-o"></span>Heizung
     </button>
-    <button class="mode-btn blue" id="btn-kk" onclick="setHkMode('k')">
-      <span class="dot dot-blue"></span>Kühlkreis
+    <button class="mbtn b" id="hk-bk" onclick="setHkMode('k')">
+      <span class="dot dot-b"></span>Kühlkreis
     </button>
   </div>
 
-  <!-- Active mode card -->
-  <div class="mode-card orange" id="hk-mode-card">
-    <div class="card-lbl" id="hk-mode-lbl">
-      <span class="dot dot-orange"></span>Heizung
+  <div class="mode-card oc" id="hk-mc">
+    <div class="card-lbl" id="hk-mc-lbl">
+      <span class="dot dot-o"></span>Heizung
     </div>
-
-    <!-- 3-way solver selector -->
-    <div class="solver-row">
-      <button class="solver-btn active" data-sf="m" onclick="setHkSolve('m')">ṁ Massenstrom</button>
-      <button class="solver-btn"        data-sf="q" onclick="setHkSolve('q')">Q Leistung</button>
-      <button class="solver-btn"        data-sf="dt"onclick="setHkSolve('dt')">ΔT Temperatur</button>
+    <div class="svrow">
+      <button class="svbtn active" data-sf="m" onclick="setHkSf('m')">ṁ Massenstrom</button>
+      <button class="svbtn"        data-sf="q" onclick="setHkSf('q')">Q Leistung</button>
+      <button class="svbtn"        data-sf="d" onclick="setHkSf('d')">ΔT Temperatur</button>
     </div>
-
-    <!-- Input A -->
-    <div class="field-lbl" id="hk-lbl-a">Heizlast [W]</div>
-    <div class="inp-wrap">
-      <input type="number" id="hk-inp-a" inputmode="decimal" placeholder="0"
-             value="" onchange="calcHK()" oninput="calcHK()">
-      <span class="inp-unit" id="hk-unit-a">W</span>
+    <div class="flbl" id="hk-la">Heizlast</div>
+    <div class="iw">
+      <input type="number" id="hk-a" inputmode="decimal" placeholder="0"
+             oninput="calcHK()" onchange="calcHK()">
+      <span class="iu" id="hk-ua">W</span>
     </div>
-
-    <!-- Input B -->
-    <div class="field-lbl" id="hk-lbl-b">ΔT [K]</div>
-    <div class="inp-wrap">
-      <input type="number" id="hk-inp-b" inputmode="decimal" placeholder="0"
-             value="10" onchange="calcHK()" oninput="calcHK()">
-      <span class="inp-unit" id="hk-unit-b">K</span>
+    <div class="flbl" id="hk-lb">ΔT</div>
+    <div class="iw">
+      <input type="number" id="hk-b" inputmode="decimal" placeholder="0" value="10"
+             oninput="calcHK()" onchange="calcHK()">
+      <span class="iu" id="hk-ub">K</span>
     </div>
   </div>
 
-  <!-- Dual results HEIZUNG | KÄLTE -->
+  <!-- Dual results -->
   <div class="dual-res">
-    <div class="dual-card orange">
-      <div class="dual-title orange"><span class="dot dot-orange"></span>Heizung</div>
-      <div class="dual-row">
-        <span class="dual-sublbl">kg/h</span>
-        <span class="dual-val" id="res-h-kgh">— kg/h</span>
+    <div class="dc oc">
+      <div class="dc-title oc"><span class="dot dot-o"></span>Heizung</div>
+      <div class="dc-row">
+        <div class="dc-lbl">kg/h</div>
+        <div class="dc-val" id="rh-kgh">—<small>kg/h</small></div>
       </div>
-      <div class="dual-row">
-        <span class="dual-sublbl">m³/h</span>
-        <span class="dual-val" id="res-h-m3h">— m³/h</span>
+      <div class="dc-row">
+        <div class="dc-lbl">m³/h</div>
+        <div class="dc-val" id="rh-m3h">—<small>m³/h</small></div>
       </div>
     </div>
-    <div class="dual-card blue">
-      <div class="dual-title blue"><span class="dot dot-blue"></span>Kälte</div>
-      <div class="dual-row">
-        <span class="dual-sublbl">kg/h</span>
-        <span class="dual-val" id="res-k-kgh">— kg/h</span>
+    <div class="dc bc">
+      <div class="dc-title bc"><span class="dot dot-b"></span>Kälte</div>
+      <div class="dc-row">
+        <div class="dc-lbl">kg/h</div>
+        <div class="dc-val" id="rk-kgh">—<small>kg/h</small></div>
       </div>
-      <div class="dual-row">
-        <span class="dual-sublbl">m³/h</span>
-        <span class="dual-val" id="res-k-m3h">— m³/h</span>
+      <div class="dc-row">
+        <div class="dc-lbl">m³/h</div>
+        <div class="dc-val" id="rk-m3h">—<small>m³/h</small></div>
       </div>
     </div>
   </div>
 
-  <div class="formula-bar">
-    Q = ṁ × c<sub>p</sub> × ΔT &nbsp;|&nbsp;
-    ṁ = Q / (c<sub>p</sub> × ΔT) &nbsp;|&nbsp;
-    V̇ = ṁ / ρ
+  <div class="fbar">
+    ṁ = Q / (c<sub>p</sub> × ΔT) &nbsp;·&nbsp;
+    Q = ṁ × c<sub>p</sub> × ΔT &nbsp;·&nbsp;
+    ΔT = Q / (ṁ × c<sub>p</sub>)
   </div>
+
+  <!-- Pipe recommendation section (JS-rendered) -->
+  <div id="hk-pipe-sec" style="display:none"></div>
+
 </div><!-- /v0 -->
 
-<!-- ══ TAB 1: LUFT ══════════════════════════════════════════ -->
+<!-- ══ TAB 1 – LUFT ═══════════════════════════════════════ -->
 <div class="view" id="v1">
 
-  <!-- Heiz / Kühlleistung toggle -->
-  <div class="mode-toggle">
-    <button class="mode-btn orange active" id="luft-btn-h" onclick="setLuftMode('h')">
-      <span class="dot dot-orange"></span>Heizleistung
+  <div class="mtog">
+    <button class="mbtn o active" id="lu-bh" onclick="setLuftMode('h')">
+      <span class="dot dot-o"></span>Heizleistung
     </button>
-    <button class="mode-btn blue" id="luft-btn-k" onclick="setLuftMode('k')">
-      <span class="dot dot-blue"></span>Kühlleistung
+    <button class="mbtn b" id="lu-bk" onclick="setLuftMode('k')">
+      <span class="dot dot-b"></span>Kühlleistung
     </button>
   </div>
 
-  <!-- 3-way solver -->
-  <div class="solver-row">
-    <button class="solver-btn active" data-lsf="q"  onclick="setLuftSolve('q')">Q Leistung</button>
-    <button class="solver-btn"        data-lsf="v"  onclick="setLuftSolve('v')">V̇ Volumenstrom</button>
-    <button class="solver-btn"        data-lsf="dt" onclick="setLuftSolve('dt')">Δt Temperatur</button>
-  </div>
-
-  <!-- Active mode card -->
-  <div class="mode-card orange" id="luft-mode-card">
-    <div class="card-lbl" id="luft-mode-lbl">
-      <span class="dot dot-orange"></span>Heizleistung — Eingaben
+  <div class="mode-card oc" id="lu-mc">
+    <div class="card-lbl" id="lu-mc-lbl">
+      <span class="dot dot-o"></span>Heizleistung — Eingaben
+    </div>
+    <div class="svrow">
+      <button class="svbtn active" data-lsf="q"  onclick="setLuftSf('q')">Q Leistung</button>
+      <button class="svbtn"        data-lsf="v"  onclick="setLuftSf('v')">V̇ Volumenstrom</button>
+      <button class="svbtn"        data-lsf="dt" onclick="setLuftSf('dt')">Δt Temperatur</button>
     </div>
 
-    <!-- V̇ -->
-    <div id="luft-row-v">
-      <div class="field-lbl">Luftvolumenstrom V̇</div>
-      <div class="inp-wrap">
-        <input type="number" id="luft-v" inputmode="decimal" placeholder="0"
-               value="" onchange="calcLuft()" oninput="calcLuft()">
-        <span class="inp-unit">m³/h</span>
+    <!-- Main quantity input (V̇ or Q) -->
+    <div id="lu-row-v">
+      <div class="flbl">Luftvolumenstrom V̇</div>
+      <div class="iw">
+        <input type="number" id="lu-v" inputmode="decimal" placeholder="0"
+               oninput="calcLuft()" onchange="calcLuft()">
+        <span class="iu">m³/h</span>
       </div>
     </div>
-
-    <!-- Q -->
-    <div id="luft-row-q" style="display:none">
-      <div class="field-lbl">Leistung Q</div>
-      <div class="inp-wrap">
-        <input type="number" id="luft-q" inputmode="decimal" placeholder="0"
-               value="" onchange="calcLuft()" oninput="calcLuft()">
-        <span class="inp-unit">kW</span>
+    <div id="lu-row-q" style="display:none">
+      <div class="flbl">Leistung Q</div>
+      <div class="iw">
+        <input type="number" id="lu-q" inputmode="decimal" placeholder="0"
+               oninput="calcLuft()" onchange="calcLuft()">
+        <span class="iu">kW</span>
       </div>
     </div>
 
     <!-- Temperatures -->
-    <div class="row2">
+    <div class="r2">
       <div>
-        <div class="field-lbl" id="luft-tzl-lbl">Zuluft T<sub>ZL</sub> (wärmer)</div>
-        <div class="inp-wrap">
-          <input type="number" id="luft-tzl" inputmode="decimal" value="40"
-                 placeholder="z.B. 40" onchange="calcLuft()" oninput="calcLuft()">
-          <span class="inp-unit">°C</span>
+        <div class="flbl" id="lu-tzl-lbl">Zuluft T<sub>ZL</sub> (wärmer)</div>
+        <div class="iw">
+          <input type="number" id="lu-tzl" inputmode="decimal" value="40"
+                 oninput="calcLuft()" onchange="calcLuft()">
+          <span class="iu">°C</span>
         </div>
       </div>
       <div>
-        <div class="field-lbl">Raum T<sub>R</sub></div>
-        <div class="inp-wrap">
-          <input type="number" id="luft-tr" inputmode="decimal" value="20"
-                 placeholder="20" onchange="calcLuft()" oninput="calcLuft()">
-          <span class="inp-unit">°C</span>
+        <div class="flbl">Raum T<sub>R</sub></div>
+        <div class="iw">
+          <input type="number" id="lu-tr" inputmode="decimal" value="20"
+                 oninput="calcLuft()" onchange="calcLuft()">
+          <span class="iu">°C</span>
         </div>
       </div>
     </div>
-
-    <!-- ΔT display -->
-    <div style="text-align:center;font-size:11px;color:var(--txt3);margin:-4px 0 8px">
+    <div style="text-align:center;font-size:10px;color:var(--txt3);margin:-4px 0 6px">
       Temperaturdifferenz &nbsp;ΔT = T<sub>ZL</sub> − T<sub>R</sub>
     </div>
-    <div class="inp-wrap">
-      <input type="text" id="luft-dt-disp" readonly placeholder="—"
+    <div class="iw">
+      <input type="text" id="lu-dt-d" readonly placeholder="—"
              style="color:var(--txt2);background:rgba(0,0,0,0.2)">
-      <span class="inp-unit">K</span>
+      <span class="iu">K</span>
     </div>
   </div>
 
   <!-- Results -->
-  <div class="res-card" id="luft-res-card">
-    <div class="card-lbl" id="luft-res-lbl">Ergebnis — Heizleistung Luft</div>
-    <div class="field-lbl">Leistung Q</div>
+  <div class="card">
+    <div class="card-lbl" id="lu-res-lbl">
+      <span class="dot dot-o"></span>Ergebnis — Heizleistung Luft
+    </div>
+    <div class="flbl">Leistung Q</div>
     <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:12px">
-      <span class="res-big" id="luft-q-w">—</span>
+      <span style="font-size:32px;font-weight:800;letter-spacing:-1px" id="lu-q-w">—</span>
       <span style="font-size:16px;color:var(--txt2)">W</span>
     </div>
-    <div class="res-divider"></div>
-    <div class="res-grid">
-      <div class="res-item">
-        <span class="res-lbl">kW</span>
-        <span class="res-val" id="luft-q-kw">—</span>
-        <span class="res-unit">kW</span>
+    <div style="height:1px;background:rgba(255,255,255,0.07);margin-bottom:10px"></div>
+    <div class="r2">
+      <div>
+        <div class="flbl">kW</div>
+        <div style="font-size:18px;font-weight:700" id="lu-q-kw">—</div>
+        <div style="font-size:10px;color:var(--txt2)">kW</div>
       </div>
-      <div class="res-item">
-        <span class="res-lbl">V̇ m³/h</span>
-        <span class="res-val" id="luft-res-v">—</span>
-        <span class="res-unit">m³/h</span>
+      <div>
+        <div class="flbl">V̇ m³/h</div>
+        <div style="font-size:18px;font-weight:700" id="lu-v-r">—</div>
+        <div style="font-size:10px;color:var(--txt2)">m³/h</div>
       </div>
-      <div class="res-item">
-        <span class="res-lbl">ΔT K</span>
-        <span class="res-val" id="luft-res-dt">—</span>
-        <span class="res-unit">K</span>
+      <div style="margin-top:8px">
+        <div class="flbl">ΔT K</div>
+        <div style="font-size:18px;font-weight:700" id="lu-dt-r">—</div>
+        <div style="font-size:10px;color:var(--txt2)">K</div>
       </div>
-      <div class="res-item">
-        <span class="res-lbl">ṁ kg/h</span>
-        <span class="res-val" id="luft-res-m">—</span>
-        <span class="res-unit">kg/h</span>
+      <div style="margin-top:8px">
+        <div class="flbl">ṁ kg/h</div>
+        <div style="font-size:18px;font-weight:700" id="lu-m-r">—</div>
+        <div style="font-size:10px;color:var(--txt2)">kg/h</div>
       </div>
     </div>
   </div>
 
-  <div class="formula-bar">
+  <div class="fbar">
     Q = V̇ × ρ<sub>L</sub>(t<sub>ZL</sub>) × c<sub>p,L</sub> × Δt
     &nbsp;·&nbsp;
     ρ<sub>L</sub>(t) = 353,05 / (t + 273,15) kg/m³
   </div>
 
-  <!-- Luftkennwerte -->
   <div class="card">
     <div class="card-lbl">Luftkennwerte (aktuell)</div>
     <div class="kw-row">
-      <span class="kw-chip">ρ<sub>ZL</sub> = <b id="luft-rho">—</b> kg/m³</span>
-      <span class="kw-chip">c<sub>p,L</sub> = <b>1,006</b> kJ/(kg·K)</span>
-      <span class="kw-chip">t<sub>ZL</sub> = <b id="luft-kw-t">—</b> °C</span>
+      <span class="kwchip">ρ<sub>ZL</sub> = <b id="lu-rho">—</b> kg/m³</span>
+      <span class="kwchip">c<sub>p,L</sub> = <b>1,006</b> kJ/(kg·K)</span>
+      <span class="kwchip">t<sub>ZL</sub> = <b id="lu-kw-t">—</b> °C</span>
     </div>
   </div>
 
 </div><!-- /v1 -->
 
-<!-- ══ TAB 2: ROHR ══════════════════════════════════════════ -->
+<!-- ══ TAB 2 – ROHR ═══════════════════════════════════════ -->
 <div class="view" id="v2">
 
   <div class="card">
-    <!-- Two inputs side by side -->
-    <div class="row2" style="margin-bottom:0">
+    <div class="r2">
       <div>
-        <div class="field-lbl">Volumenstrom</div>
-        <div class="inp-wrap">
-          <input type="number" id="rohr-v" inputmode="decimal" placeholder="0.00"
-                 min="0" step="0.01" onchange="calcRohr()" oninput="calcRohr()">
-          <span class="inp-unit">m³/h</span>
+        <div class="flbl">Volumenstrom</div>
+        <div class="iw">
+          <input type="number" id="ro-v" inputmode="decimal" placeholder="0.00"
+                 oninput="calcRohr()" onchange="calcRohr()">
+          <span class="iu">m³/h</span>
         </div>
       </div>
       <div>
-        <div class="field-lbl">Max. Druckverlust</div>
-        <div class="inp-wrap">
-          <input type="number" id="rohr-maxr" inputmode="decimal"
-                 value="100" min="1" step="10" onchange="calcRohr()" oninput="calcRohr()">
-          <span class="inp-unit">Pa/m</span>
+        <div class="flbl">Max. Druckverlust</div>
+        <div class="iw">
+          <input type="number" id="ro-mr" inputmode="decimal" value="100"
+                 oninput="calcRohr()" onchange="calcRohr()">
+          <span class="iu">Pa/m</span>
         </div>
       </div>
     </div>
-
-    <!-- Optional fluid selector (compact) -->
-    <div style="margin-top:10px">
-      <div class="field-lbl">Medium (für ρ, ν)</div>
-      <div class="inp-wrap sel-wrap">
-        <select id="rohr-fluid" onchange="calcRohr()">
+    <div style="margin-top:6px">
+      <div class="flbl">Medium (für ρ, ν)</div>
+      <div class="iw sw full">
+        <select id="ro-fl" onchange="calcRohr()">
           <option value="w20">Wasser 20 °C</option>
           <option value="w40">Wasser 40 °C</option>
           <option value="w70" selected>Wasser 70 °C</option>
@@ -629,113 +574,80 @@ table.ptbl{width:100%;border-collapse:separate;border-spacing:0;font-size:12px}
     </div>
   </div>
 
-  <!-- Result — Stahl -->
-  <div class="res-card" id="rohr-stahl-card">
+  <div class="card" id="ro-res-card">
     <div class="card-lbl">Ergebnis — Stahl · Mapress Edelstahl</div>
-    <div class="placeholder" id="rohr-placeholder">Volumenstrom eingeben</div>
-    <div id="rohr-tables" style="display:none">
-
-      <!-- Stahl table -->
-      <div class="sec-lbl" style="margin-bottom:6px">Stahl (DN 15–50: DIN EN 10255 M · DN 65–300: DIN EN 10220)</div>
-      <div class="pipe-wrap">
-        <table class="ptbl">
-          <thead>
-            <tr>
-              <th>DN</th><th>dᵢ mm</th><th>v m/s</th><th>R Pa/m</th><th></th>
-            </tr>
-          </thead>
-          <tbody id="rohr-stahl-tbody"></tbody>
-        </table>
-      </div>
-
-      <div class="res-divider"></div>
-
-      <!-- Mapress table -->
-      <div class="sec-lbl" style="margin-bottom:6px">Mapress Edelstahl 1.4401 · DIN EN 10312 · max. d108</div>
-      <div class="pipe-wrap">
-        <table class="ptbl">
-          <thead>
-            <tr>
-              <th>d×s</th><th>dᵢ mm</th><th>v m/s</th><th>R Pa/m</th><th></th>
-            </tr>
-          </thead>
-          <tbody id="rohr-mapress-tbody"></tbody>
-        </table>
-      </div>
-
+    <div id="ro-ph" style="text-align:center;padding:16px 0;font-size:13px;color:var(--txt3)">
+      Volumenstrom eingeben →
     </div>
+    <div id="ro-tables" style="display:none"></div>
   </div>
 
-  <div class="info-note">
+  <div class="infonote">
     Stahl ≤ DN50: DIN EN 10255 Reihe M · Stahl ≥ DN65: DIN EN 10220 ·
-    Mapress Edelstahl 1.4401: DIN EN 10312 · Mapress max. d108 ·
-    λ nach Colebrook-White · Empfehlung: v 0,3–1,5 m/s &amp; R ≤ max. R
+    Mapress Edelstahl 1.4401: DIN EN 10312 · <b>Mapress max. DN 100</b> ·
+    λ nach Colebrook-White
   </div>
 
 </div><!-- /v2 -->
 
-<!-- ══ TAB 3: EINHEITEN ══════════════════════════════════════ -->
+<!-- ══ TAB 3 – EINHEITEN ══════════════════════════════════ -->
 <div class="view" id="v3">
 
-  <!-- Category -->
   <div class="card">
     <div class="card-lbl">Kategorie wählen</div>
-    <div class="inp-wrap full-row sel-wrap">
-      <select id="ein-cat" onchange="onEinCat()">
+    <div class="iw full sw">
+      <select id="ei-cat" onchange="onEiCat()">
         <option value="druck">💧 Druck</option>
         <option value="temp">🌡 Temperatur</option>
-        <option value="leistung">⚡ Leistung</option>
-        <option value="vflow">💨 Volumenstrom</option>
-        <option value="mflow">⚖️ Massenstrom</option>
-        <option value="energie">🔋 Energie</option>
-        <option value="laenge">📏 Länge</option>
+        <option value="leist">⚡ Leistung</option>
+        <option value="ener">🔋 Energie</option>
+        <option value="vflow">💦 Volumenstrom</option>
+        <option value="gew">⚖️ Gewicht</option>
+        <option value="vol">📦 Volumen</option>
+        <option value="flae">📐 Fläche</option>
       </select>
     </div>
   </div>
 
-  <!-- Converter -->
   <div class="card">
-    <div class="card-lbl" id="ein-conv-lbl">Druck — Umrechnung</div>
-
-    <div class="field-lbl">Eingabe</div>
-    <div class="row2" style="margin-bottom:0">
-      <div class="inp-wrap" style="margin-bottom:0">
-        <input type="number" id="ein-inp" inputmode="decimal" placeholder="0"
-               onchange="calcEin()" oninput="calcEin()">
+    <div class="card-lbl" id="ei-clbl">Druck — Umrechnung</div>
+    <div class="flbl">Eingabe</div>
+    <div class="r2" style="margin-bottom:0">
+      <div class="iw" style="margin-bottom:0">
+        <input type="number" id="ei-inp" inputmode="decimal" placeholder="0"
+               oninput="calcEi()" onchange="calcEi()">
       </div>
-      <div class="inp-wrap sel-wrap" style="margin-bottom:0">
-        <select id="ein-from" onchange="calcEin()"></select>
+      <div class="iw sw" style="margin-bottom:0">
+        <select id="ei-fr" onchange="calcEi()"></select>
       </div>
     </div>
-
     <div class="swap-row" style="margin:10px 0">
       <div class="swap-line"></div>
-      <button class="swap-btn" onclick="swapEin()">⇅</button>
+      <button class="swap-btn" onclick="swapEi()">⇅</button>
       <div class="swap-line"></div>
     </div>
-
-    <div class="field-lbl">Ergebnis</div>
-    <div class="row2">
-      <div class="inp-wrap">
-        <input type="text" id="ein-out" readonly placeholder="—"
-               style="background:var(--green-bg);border-color:rgba(61,207,142,0.25);color:var(--green)">
+    <div class="flbl">Ergebnis</div>
+    <div class="r2">
+      <div class="iw">
+        <input type="text" id="ei-out" readonly placeholder="—"
+               style="background:rgba(61,207,142,0.08);border-color:rgba(61,207,142,0.28);color:var(--green)">
       </div>
-      <div class="inp-wrap sel-wrap">
-        <select id="ein-to" onchange="calcEin()"></select>
+      <div class="iw sw">
+        <select id="ei-to" onchange="calcEi()"></select>
       </div>
     </div>
   </div>
 
-  <!-- All values -->
   <div class="card">
     <div class="card-lbl">Alle Werte</div>
-    <div id="ein-alle">
-      <div class="placeholder" style="padding:10px 0">Wert eingeben</div>
+    <div id="ei-alle">
+      <div style="text-align:center;padding:14px 0;font-size:13px;color:var(--txt3)">
+        Wert eingeben →
+      </div>
     </div>
   </div>
 
 </div><!-- /v3 -->
-
 </div><!-- /views-wrap -->
 </div><!-- /scroll-root -->
 
@@ -744,581 +656,578 @@ table.ptbl{width:100%;border-collapse:separate;border-spacing:0;font-size:12px}
    NAVIGATION
 ═══════════════════════════════════════════════════════════ */
 const wrap = document.getElementById('views-wrap');
-const tabBtns = document.querySelectorAll('.tab-btn');
-let curTab = 0;
+const tabs = document.querySelectorAll('.tab-btn');
+const hdr  = document.getElementById('hdr');
+let cur = 0;
 
-function goTo(idx, instant) {
-  curTab = Math.max(0, Math.min(3, idx));
-  if (instant) wrap.classList.add('no-anim');
-  wrap.style.transform = `translateX(${-curTab * 25}%)`;
-  tabBtns.forEach((b,i) => b.classList.toggle('active', i === curTab));
-  if (instant) requestAnimationFrame(() => wrap.classList.remove('no-anim'));
+function goTo(i, instant) {
+  cur = Math.max(0,Math.min(3,i));
+  if(instant) wrap.classList.add('no-anim');
+  wrap.style.transform = `translateX(${-cur*25}%)`;
+  tabs.forEach((b,j) => b.classList.toggle('active',j===cur));
+  if(instant) requestAnimationFrame(()=>wrap.classList.remove('no-anim'));
 }
 
-/* Swipe */
-let sx=0, sy=0, dragging=false, axis=null;
-const sr = document.getElementById('scroll-root');
-
-sr.addEventListener('touchstart', e => {
-  sx=e.touches[0].clientX; sy=e.touches[0].clientY;
-  dragging=false; axis=null;
-  wrap.classList.add('no-anim');
-}, {passive:true});
-
-sr.addEventListener('touchmove', e => {
-  const dx=e.touches[0].clientX-sx, dy=e.touches[0].clientY-sy;
-  if(!axis) axis = Math.abs(dx)>Math.abs(dy) ? 'x' : 'y';
-  if(axis!=='x') { wrap.classList.remove('no-anim'); return; }
-  e.preventDefault(); dragging=true;
-  const resist = (curTab===0&&dx>0)||(curTab===3&&dx<0) ? 0.2 : 1;
-  const base = -curTab*25;
-  wrap.style.transform = `translateX(calc(${base}% + ${dx*resist}px))`;
-}, {passive:false});
-
-sr.addEventListener('touchend', e => {
+let sx=0,sy=0,drag=false,ax=null;
+const sr=document.getElementById('scroll-root');
+sr.addEventListener('touchstart',e=>{sx=e.touches[0].clientX;sy=e.touches[0].clientY;drag=false;ax=null;wrap.classList.add('no-anim')},{passive:true});
+sr.addEventListener('touchmove',e=>{
+  const dx=e.touches[0].clientX-sx,dy=e.touches[0].clientY-sy;
+  if(!ax)ax=Math.abs(dx)>Math.abs(dy)?'x':'y';
+  if(ax!=='x'){wrap.classList.remove('no-anim');return;}
+  e.preventDefault();drag=true;
+  const res=(cur===0&&dx>0)||(cur===3&&dx<0)?0.2:1;
+  wrap.style.transform=`translateX(calc(${-cur*25}% + ${dx*res}px))`;
+},{passive:false});
+sr.addEventListener('touchend',e=>{
   wrap.classList.remove('no-anim');
-  if (!dragging || axis!=='x') { goTo(curTab); return; }
-  const dx = e.changedTouches[0].clientX - sx;
-  if (Math.abs(dx)>48) goTo(curTab + (dx<0?1:-1));
-  else goTo(curTab);
-}, {passive:true});
-
-/* Auto-hide header on scroll */
-const hdr = document.getElementById('hdr');
-let lastSY=0;
-document.querySelectorAll('.view').forEach(v => {
-  v.addEventListener('scroll', () => {
-    const sy=v.scrollTop;
-    hdr.style.transform = (sy>lastSY&&sy>50) ? 'translateY(-100%)' : '';
-    lastSY=sy;
-  },{passive:true});
-});
+  if(!drag||ax!=='x'){goTo(cur);return;}
+  const dx=e.changedTouches[0].clientX-sx;
+  if(Math.abs(dx)>48)goTo(cur+(dx<0?1:-1));else goTo(cur);
+},{passive:true});
 hdr.style.transition='transform 0.3s cubic-bezier(0.4,0,0.2,1)';
+let lastSY=0;
+document.querySelectorAll('.view').forEach(v=>v.addEventListener('scroll',()=>{
+  const sy=v.scrollTop;
+  hdr.style.transform=(sy>lastSY&&sy>50)?'translateY(-100%)':'';
+  lastSY=sy;
+},{passive:true}));
 
 /* ═══════════════════════════════════════════════════════════
-   MEDIA DATA
+   PIPE DATA
 ═══════════════════════════════════════════════════════════ */
-const MEDIA_HK = {
-  water:  {cp:4.180, rho:998,  name:'Wasser'},
-  water60:{cp:4.183, rho:983,  name:'Wasser 60°C'},
-  water80:{cp:4.196, rho:972,  name:'Wasser 80°C'},
-  g25:    {cp:3.930, rho:1035, name:'Glykol 25%'},
-  g33:    {cp:3.760, rho:1048, name:'Glykol 33%'},
-  g40:    {cp:3.600, rho:1060, name:'Glykol 40%'},
-  g50:    {cp:3.340, rho:1075, name:'Glykol 50%'},
+// [dn_label, stahl:{da,w,di,std}, mapress:{da,w,di}|null]
+const PR = [
+  {dn:'DN 15', s:{da:21.3, w:2.60,di:16.1,std:'DIN EN 10255'},m:{da:18.0,w:1.0, di:16.0}},
+  {dn:'DN 20', s:{da:26.9, w:2.60,di:21.7,std:'DIN EN 10255'},m:{da:22.0,w:1.2, di:19.6}},
+  {dn:'DN 25', s:{da:33.7, w:3.20,di:27.3,std:'DIN EN 10255'},m:{da:28.0,w:1.2, di:25.6}},
+  {dn:'DN 32', s:{da:42.4, w:3.20,di:36.0,std:'DIN EN 10255'},m:{da:35.0,w:1.5, di:32.0}},
+  {dn:'DN 40', s:{da:48.3, w:3.25,di:41.8,std:'DIN EN 10255'},m:{da:42.0,w:1.5, di:39.0}},
+  {dn:'DN 50', s:{da:60.3, w:3.65,di:53.0,std:'DIN EN 10255'},m:{da:54.0,w:1.5, di:51.0}},
+  {dn:'DN 65', s:{da:76.1, w:2.90,di:70.3,std:'DIN EN 10220'},m:{da:76.1,w:2.0, di:72.1}},
+  {dn:'DN 80', s:{da:88.9, w:3.20,di:82.5,std:'DIN EN 10220'},m:{da:88.9,w:2.0, di:84.9}},
+  {dn:'DN 100',s:{da:114.3,w:3.60,di:107.1,std:'DIN EN 10220'},m:{da:108.0,w:2.0,di:104.0}},
+  {dn:'DN 125',s:{da:139.7,w:4.00,di:131.7,std:'DIN EN 10220'},m:null},
+  {dn:'DN 150',s:{da:168.3,w:4.50,di:159.3,std:'DIN EN 10220'},m:null},
+  {dn:'DN 200',s:{da:219.1,w:5.00,di:209.1,std:'DIN EN 10220'},m:null},
+  {dn:'DN 250',s:{da:273.0,w:6.30,di:260.4,std:'DIN EN 10220'},m:null},
+  {dn:'DN 300',s:{da:323.9,w:7.10,di:309.7,std:'DIN EN 10220'},m:null},
+];
+const ES = 0.046e-3, EM = 0.015e-3;
+const FL_R = {
+  w20:{rho:998.2,nu:1.004e-6},w40:{rho:992.2,nu:0.658e-6},
+  w70:{rho:977.8,nu:0.415e-6},w90:{rho:965.3,nu:0.326e-6},
+  g25:{rho:1035, nu:2.10e-6 },g40:{rho:1060, nu:4.20e-6 },
 };
+
+/* ═══════════════════════════════════════════════════════════
+   MEDIA (HK)
+═══════════════════════════════════════════════════════════ */
+const MED = {
+  w20:{cp:4.180,rho:998, nu:1.004e-6,name:'Wasser (20 °C)'},
+  w60:{cp:4.183,rho:983, nu:0.474e-6,name:'Wasser (60 °C)'},
+  w80:{cp:4.196,rho:972, nu:0.364e-6,name:'Wasser (80 °C)'},
+  g25:{cp:3.930,rho:1035,nu:2.100e-6,name:'Glykol 25 %'},
+  g33:{cp:3.760,rho:1048,nu:2.800e-6,name:'Glykol 33 %'},
+  g40:{cp:3.600,rho:1060,nu:4.200e-6,name:'Glykol 40 %'},
+  g50:{cp:3.340,rho:1075,nu:7.500e-6,name:'Glykol 50 %'},
+};
+
+/* ═══════════════════════════════════════════════════════════
+   COLEBROOK-WHITE
+═══════════════════════════════════════════════════════════ */
+function cw(Re,eps,D){
+  if(Re<1)return 64;
+  if(Re<2300)return 64/Re;
+  const r=eps/(3.7*D);let lam=0.02;
+  for(let i=0;i<10;i++)lam=Math.pow(-2*Math.log10(r+2.51/(Re*Math.sqrt(lam))),-2);
+  return lam;
+}
+function pm(di_mm,eps,Vm3s,rho,nu){
+  const di=di_mm/1e3,A=Math.PI*di*di/4,v=Vm3s/A,Re=v*di/nu;
+  const R=cw(Re,eps,di)*(1/di)*(rho*v*v/2);
+  return{v,R};
+}
+function findRec(arr,eps,Vm3s,rho,nu,maxR){
+  for(let i=0;i<arr.length;i++){
+    const p=arr[i]; if(!p)continue;
+    const{v,R}=pm(p.di,eps,Vm3s,rho,nu);
+    if(v<=1.5&&R<=maxR&&v>=0.3)return i;
+  }
+  for(let i=0;i<arr.length;i++){
+    const p=arr[i]; if(!p)continue;
+    const{v}=pm(p.di,eps,Vm3s,rho,nu);
+    if(v<=1.5)return i;
+  }
+  return arr.filter(p=>p).length-1;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   PIPE CARD HTML
+═══════════════════════════════════════════════════════════ */
+function rColor(R,maxR){
+  if(R<=maxR*0.75)return 'var(--green)';
+  if(R<=maxR)     return 'var(--yellow)';
+  return 'var(--red)';
+}
+function pcHTML(sys,pipe,v,R,maxR,isRec,accentCls,brand){
+  const rc=rColor(R,maxR);
+  const barW=Math.min(R/maxR,1)*100;
+  let cls='pc';
+  if(accentCls)cls+=' '+accentCls;
+  else if(R>maxR)cls+=' over';
+  else if(isRec) cls+=' rec';
+  else if(R<maxR*0.4)cls+=' dim';
+  const star=isRec?'<span class="pc-star">★</span>':'';
+  const sysLbl=brand==='m'?'<span class="pc-sys mp">Mapress Edelstahl</span>':`<span class="pc-sys">${sys.std}</span>`;
+  return`<div class="${cls}">
+  <div class="pc-top">${sysLbl}${star}</div>
+  <div class="pc-dn">${pipe.dn}</div>
+  <div class="pc-dim">Ø ${pipe.da} × ${pipe.w} mm</div>
+  <div class="pc-dim">d<sub>i</sub> ${pipe.di} mm</div>
+  <div class="pc-metrics">
+    <div class="pc-mr"><span class="pc-ml">ΔP/M</span>
+      <span class="pc-mv" style="color:${rc}">${fDE(R,0)} Pa/m</span></div>
+    <div class="pc-mr"><span class="pc-ml">V</span>
+      <span class="pc-mv">${fDE(v,2)} m/s</span></div>
+  </div>
+  <div class="pc-bar-bg"><div class="pc-bar" style="width:${barW}%;background:${rc}"></div></div>
+</div>`;
+}
+function pcNA(dn){
+  return`<div class="pc na">
+  <div class="pc-top"><span class="pc-sys mp">Mapress Edelstahl</span></div>
+  <div class="pc-dn">${dn}</div>
+  <div class="pc-na-txt">Nicht verfügbar<br>(max. DN 100)</div>
+</div>`;
+}
 
 /* ═══════════════════════════════════════════════════════════
    HEIZUNG / KÄLTE
 ═══════════════════════════════════════════════════════════ */
-const HK = {
-  medium:'water',
-  mode:'h',    // 'h' or 'k'
-  h: {sf:'m', a:'', b:'10'},  // sf=solveFor, a=inputA, b=inputB
-  k: {sf:'m', a:'', b:'6'},
+const HK={
+  med:'w20',mode:'h',
+  h:{sf:'m',a:'',b:'10'},
+  k:{sf:'m',a:'',b:'6'},
 };
 
-function onHkMedium() {
-  HK.medium = document.getElementById('hk-medium').value;
-  const m = MEDIA_HK[HK.medium];
-  document.getElementById('hk-cp-val').textContent = m.cp.toFixed(3);
-  document.getElementById('hk-rho-val').textContent = m.rho;
+function onHkMed(){
+  HK.med=document.getElementById('hk-med').value;
+  const m=MED[HK.med];
+  document.getElementById('hk-cp-v').textContent=m.cp.toFixed(3).replace('.',',');
+  document.getElementById('hk-rho-v').textContent=m.rho;
   calcHK();
 }
 
-function setHkMode(mode) {
-  // Save current inputs before switching
-  const p = HK[HK.mode];
-  p.a = document.getElementById('hk-inp-a').value;
-  p.b = document.getElementById('hk-inp-b').value;
-  HK.mode = mode;
+function setHkMode(mode){
+  const p=HK[HK.mode];
+  p.a=document.getElementById('hk-a').value;
+  p.b=document.getElementById('hk-b').value;
+  HK.mode=mode;
+  document.getElementById('hk-bh').classList.toggle('active',mode==='h');
+  document.getElementById('hk-bk').classList.toggle('active',mode==='k');
+  const mc=document.getElementById('hk-mc');
+  const lbl=document.getElementById('hk-mc-lbl');
+  const isH=mode==='h';
+  mc.className='mode-card '+(isH?'oc':'bc');
+  lbl.innerHTML=`<span class="dot ${isH?'dot-o':'dot-b'}"></span>${isH?'Heizung':'Kühlkreis'}`;
+  const np=HK[mode];
+  document.getElementById('hk-a').value=np.a;
+  document.getElementById('hk-b').value=np.b;
+  setHkSf(np.sf);
+}
 
-  document.getElementById('btn-hz').classList.toggle('active', mode==='h');
-  document.getElementById('btn-kk').classList.toggle('active', mode==='k');
-  const mc = document.getElementById('hk-mode-card');
-  const lbl = document.getElementById('hk-mode-lbl');
-  mc.className = 'mode-card ' + (mode==='h'?'orange':'blue');
-  lbl.innerHTML = `<span class="dot dot-${mode==='h'?'orange':'blue'}"></span>${mode==='h'?'Heizung':'Kühlkreis'}`;
-
-  // Restore inputs for new mode
-  const np = HK[mode];
-  document.getElementById('hk-inp-a').value = np.a;
-  document.getElementById('hk-inp-b').value = np.b;
-  setHkSolve(np.sf);
+function setHkSf(sf){
+  HK[HK.mode].sf=sf;
+  document.querySelectorAll('[data-sf]').forEach(b=>b.classList.toggle('active',b.dataset.sf===sf));
+  const la=document.getElementById('hk-la'),lb=document.getElementById('hk-lb');
+  const ua=document.getElementById('hk-ua'),ub=document.getElementById('hk-ub');
+  if(sf==='m'){la.textContent='Heizlast';ua.textContent='W';lb.textContent='ΔT';ub.textContent='K';}
+  else if(sf==='q'){la.textContent='Massenstrom ṁ';ua.textContent='kg/h';lb.textContent='ΔT';ub.textContent='K';}
+  else{la.textContent='Heizlast';ua.textContent='W';lb.textContent='Massenstrom ṁ';ub.textContent='kg/h';}
   calcHK();
 }
 
-function setHkSolve(sf) {
-  HK[HK.mode].sf = sf;
-  document.querySelectorAll('[data-sf]').forEach(b =>
-    b.classList.toggle('active', b.dataset.sf===sf));
-
-  const lblA = document.getElementById('hk-lbl-a');
-  const lblB = document.getElementById('hk-lbl-b');
-  const uA   = document.getElementById('hk-unit-a');
-  const uB   = document.getElementById('hk-unit-b');
-  const inpA = document.getElementById('hk-inp-a');
-  const inpB = document.getElementById('hk-inp-b');
-
-  if (sf==='m') {
-    lblA.textContent='Heizlast [W]'; uA.textContent='W';
-    lblB.textContent='ΔT [K]';       uB.textContent='K';
-    inpA.readOnly=false; inpB.readOnly=false;
-    inpA.className=''; inpB.className='';
-  } else if (sf==='q') {
-    lblA.textContent='Massenstrom ṁ'; uA.textContent='kg/h';
-    lblB.textContent='ΔT [K]';        uB.textContent='K';
-    inpA.readOnly=false; inpB.readOnly=false;
-    inpA.className=''; inpB.className='';
-  } else {
-    lblA.textContent='Heizlast [W]';  uA.textContent='W';
-    lblB.textContent='Massenstrom ṁ'; uB.textContent='kg/h';
-    inpA.readOnly=false; inpB.readOnly=false;
-    inpA.className=''; inpB.className='';
-  }
-  calcHK();
-}
-
-function calcHK() {
-  // Save current inputs
-  HK[HK.mode].a = document.getElementById('hk-inp-a').value;
-  HK[HK.mode].b = document.getElementById('hk-inp-b').value;
-  const med = MEDIA_HK[HK.medium];
-
-  // Calculate for BOTH modes
-  ['h','k'].forEach(mode => {
-    const p = HK[mode];
-    let mKgs=NaN, mKgh=NaN, vM3h=NaN;
-    const a = parseFloat(mode===HK.mode
-      ? document.getElementById('hk-inp-a').value : p.a);
-    const b = parseFloat(mode===HK.mode
-      ? document.getElementById('hk-inp-b').value : p.b);
-
-    if (!isNaN(a) && !isNaN(b) && a>0 && b!==0) {
-      const sf = p.sf;
-      if (sf==='m') {
-        // a=Q[W], b=ΔT[K] → ṁ
-        mKgs = a / (med.cp * 1000 * b);
-      } else if (sf==='q') {
-        // a=ṁ[kg/h], b=ΔT[K] → Q (store as ṁ)
-        mKgs = a / 3600;
-      } else {
-        // a=Q[W], b=ṁ[kg/h] → ΔT (store as ṁ from b)
-        mKgs = b / 3600;
-      }
-      mKgh = mKgs * 3600;
-      vM3h = mKgh / med.rho;
+function calcHK(){
+  HK[HK.mode].a=document.getElementById('hk-a').value;
+  HK[HK.mode].b=document.getElementById('hk-b').value;
+  const med=MED[HK.med];
+  ['h','k'].forEach(mode=>{
+    const p=HK[mode];
+    const a=parseFloat(mode===HK.mode?document.getElementById('hk-a').value:p.a);
+    const b=parseFloat(mode===HK.mode?document.getElementById('hk-b').value:p.b);
+    let mKgs=NaN;
+    if(!isNaN(a)&&!isNaN(b)&&a>0&&b!==0){
+      if(p.sf==='m')     mKgs=a/(med.cp*1000*b);
+      else if(p.sf==='q')mKgs=a/3600;
+      else               mKgs=b/3600;
     }
-
-    const kghEl = document.getElementById(`res-${mode}-kgh`);
-    const m3hEl = document.getElementById(`res-${mode}-m3h`);
-    kghEl.textContent = isNaN(mKgh) ? '— kg/h' : fmtDE(mKgh,2)+' kg/h';
-    m3hEl.textContent = isNaN(vM3h) ? '— m³/h' : fmtDE(vM3h,3)+' m³/h';
+    const mKgh=mKgs*3600, vM3h=mKgh/med.rho;
+    const kg=document.getElementById(`r${mode}-kgh`);
+    const m3=document.getElementById(`r${mode}-m3h`);
+    kg.innerHTML=isNaN(mKgh)?'—<small>kg/h</small>':fDE(mKgh,1)+'<small>kg/h</small>';
+    m3.innerHTML=isNaN(vM3h)?'—<small>m³/h</small>':fDE(vM3h,3)+'<small>m³/h</small>';
   });
+  renderHKPipes();
+}
+
+function renderHKPipes(){
+  const sec=document.getElementById('hk-pipe-sec');
+  const med=MED[HK.med];
+  // Get volume flows
+  const vH=getHKVm3h('h'), vK=getHKVm3h('k');
+  if(isNaN(vH)&&isNaN(vK)){sec.style.display='none';return;}
+  const maxR=parseFloat(document.getElementById('hk-maxr-inp')||100);
+  const mr=parseFloat((document.getElementById('hk-maxr-inp')||{value:'100'}).value)||100;
+
+  let html=`
+  <div class="auslegung-card">
+    <div class="auslegung-hdr">
+      <span class="auslegung-title">Auslegung</span>
+      <div class="auslegung-r-wrap">
+        <span class="auslegung-r-lbl">Max.</span>
+        <div style="position:relative;display:flex;align-items:center">
+          <input type="number" id="hk-maxr-inp" class="auslegung-r-inp"
+                 value="${mr}" min="10" step="10"
+                 oninput="renderHKPipesFromInput()" onchange="renderHKPipesFromInput()">
+          <span class="auslegung-r-unit">Pa/m</span>
+        </div>
+      </div>
+    </div>
+    <div class="auslegung-body">
+      Darcy-Weisbach · Colebrook-White · ${med.name}<br>
+      ε Stahl 0,046 mm · ε Mapress 0,015 mm<br>
+      ≤DN50: DIN EN 10255 Reihe M · ≥DN65: DIN EN 10220<br>
+      Mapress Edelstahl 1.4401 (DIN EN 10312): <b>bis max. DN 100</b>
+    </div>
+  </div>`;
+
+  if(!isNaN(vH)&&vH>0){
+    html+=renderCircPipes(vH,'h',med,mr);
+  }
+  if(!isNaN(vK)&&vK>0){
+    html+=renderCircPipes(vK,'k',med,mr);
+  }
+
+  sec.innerHTML=html;
+  sec.style.display='';
+}
+
+function renderHKPipesFromInput(){
+  renderHKPipes();
+}
+
+function getHKVm3h(mode){
+  const med=MED[HK.med];
+  const p=HK[mode];
+  const a=parseFloat(mode===HK.mode?document.getElementById('hk-a').value:p.a);
+  const b=parseFloat(mode===HK.mode?document.getElementById('hk-b').value:p.b);
+  if(isNaN(a)||isNaN(b)||a<=0||b===0)return NaN;
+  let mKgs;
+  if(p.sf==='m')     mKgs=a/(med.cp*1000*b);
+  else if(p.sf==='q')mKgs=a/3600;
+  else               mKgs=b/3600;
+  return mKgs*3600/med.rho;
+}
+
+function renderCircPipes(Vm3h,mode,med,maxR){
+  const isH=mode==='h';
+  const accentCls=isH?'hh':'hk';
+  const label=isH?'Heizung':'Kälte';
+  const Vm3s=Vm3h/3600;
+  // Find recommended for stahl
+  const sData=PR.map(r=>r.s?{...r.s,dn:r.dn}:null);
+  const mData=PR.map(r=>r.m?{...r.m,dn:r.dn,std:'Mapress'}:null);
+  const sRec=findRec(sData,ES,Vm3s,med.rho,med.nu,maxR);
+  const mRec=findRec(mData.filter(p=>p),EM,Vm3s,med.rho,med.nu,maxR);
+
+  // Map mRec index back to PR index
+  let mRecPR=-1,mi=0;
+  for(let i=0;i<PR.length;i++){
+    if(PR[i].m){if(mi===mRec)mRecPR=i;mi++;}
+  }
+
+  const sp=sData[sRec];
+  const sm=pm(sp.di,ES,Vm3s,med.rho,med.nu);
+  let sCard=pcHTML(sp,{dn:PR[sRec].dn,da:PR[sRec].s.da,w:PR[sRec].s.w,di:PR[sRec].s.di},sm.v,sm.R,maxR,true,accentCls,'s');
+
+  let mCard;
+  if(mRecPR>=0){
+    const mp2=PR[mRecPR].m;
+    const mm=pm(mp2.di,EM,Vm3s,med.rho,med.nu);
+    mCard=pcHTML({std:'Mapress'},{dn:PR[mRecPR].dn,da:mp2.da,w:mp2.w,di:mp2.di},mm.v,mm.R,maxR,true,accentCls,'m');
+  } else {
+    mCard=pcNA(PR[sRec].dn);
+  }
+
+  return`
+  <div class="hk-circ-hdr">
+    <span class="dot ${isH?'dot-o':'dot-b'}"></span>
+    <span style="color:${isH?'var(--orange)':'var(--blue)'}">${label}</span>
+    <span class="hk-circ-sub">(${fDE(Vm3h,3)} m³/h)</span>
+  </div>
+  <div class="pipe-pair" style="margin-bottom:14px">
+    ${sCard}${mCard}
+  </div>`;
 }
 
 /* ═══════════════════════════════════════════════════════════
    LUFT
 ═══════════════════════════════════════════════════════════ */
-const LUFT = {
-  mode:'h',  // h=Heizleistung, k=Kühlleistung
-  sf:'q',    // q, v, dt
-  h:{tzl:'40', tr:'20', v:'', q:''},
-  k:{tzl:'16', tr:'26', v:'', q:''},
+const CP_L=1006;
+function rhoL(t){return 353.05/(t+273.15);}
+
+const LU={
+  mode:'h',
+  h:{sf:'q',v:'',q:'',tzl:'40',tr:'20'},
+  k:{sf:'q',v:'',q:'',tzl:'16',tr:'26'},
 };
 
-const CP_LUFT = 1006; // J/(kg·K)
+function setLuftMode(mode){
+  const p=LU[LU.mode];
+  p.v=document.getElementById('lu-v').value;
+  p.q=document.getElementById('lu-q').value;
+  p.tzl=document.getElementById('lu-tzl').value;
+  p.tr =document.getElementById('lu-tr').value;
+  LU.mode=mode;
+  document.getElementById('lu-bh').classList.toggle('active',mode==='h');
+  document.getElementById('lu-bk').classList.toggle('active',mode==='k');
+  const mc=document.getElementById('lu-mc');
+  const lbl=document.getElementById('lu-mc-lbl');
+  const rl=document.getElementById('lu-res-lbl');
+  const isH=mode==='h';
+  mc.className='mode-card '+(isH?'oc':'bc');
+  lbl.innerHTML=`<span class="dot ${isH?'dot-o':'dot-b'}"></span>${isH?'Heizleistung':'Kühlleistung'} — Eingaben`;
+  rl.innerHTML=`<span class="dot ${isH?'dot-o':'dot-b'}"></span>Ergebnis — ${isH?'Heizleistung':'Kühlleistung'} Luft`;
+  document.getElementById('lu-tzl-lbl').textContent=isH?'Zuluft T\u2080 (wärmer)':'Zuluft T\u2080 (kühler)';
+  const np=LU[mode];
+  document.getElementById('lu-v').value=np.v;
+  document.getElementById('lu-q').value=np.q;
+  document.getElementById('lu-tzl').value=np.tzl;
+  document.getElementById('lu-tr').value=np.tr;
+  setLuftSf(np.sf);
+}
 
-function rhoLuft(t){ return 353.05 / (t + 273.15); }
-
-function setLuftMode(mode) {
-  const p = LUFT[LUFT.mode];
-  p.tzl = document.getElementById('luft-tzl').value;
-  p.tr  = document.getElementById('luft-tr').value;
-  p.v   = document.getElementById('luft-v').value;
-  p.q   = document.getElementById('luft-q').value;
-  LUFT.mode = mode;
-
-  document.getElementById('luft-btn-h').classList.toggle('active',mode==='h');
-  document.getElementById('luft-btn-k').classList.toggle('active',mode==='k');
-  const mc  = document.getElementById('luft-mode-card');
-  const lbl = document.getElementById('luft-mode-lbl');
-  const rLbl= document.getElementById('luft-res-lbl');
-  const isH = mode==='h';
-  mc.className = 'mode-card '+(isH?'orange':'blue');
-  lbl.innerHTML = `<span class="dot dot-${isH?'orange':'blue'}"></span>${isH?'Heizleistung':'Kühlleistung'} — Eingaben`;
-  rLbl.innerHTML= `<span class="dot dot-${isH?'orange':'blue'}"></span>Ergebnis — ${isH?'Heizleistung':'Kühlleistung'} Luft`;
-  document.getElementById('luft-tzl-lbl').textContent =
-    isH ? 'Zuluft T\u2080 (wärmer)' : 'Zuluft T\u2080 (kühler)';
-
-  const np = LUFT[mode];
-  document.getElementById('luft-tzl').value = np.tzl;
-  document.getElementById('luft-tr').value  = np.tr;
-  document.getElementById('luft-v').value   = np.v;
-  document.getElementById('luft-q').value   = np.q;
+function setLuftSf(sf){
+  LU[LU.mode].sf=sf;
+  document.querySelectorAll('[data-lsf]').forEach(b=>b.classList.toggle('active',b.dataset.lsf===sf));
+  document.getElementById('lu-row-v').style.display=(sf==='v')?'none':'';
+  document.getElementById('lu-row-q').style.display=(sf==='v')?'':'none';
   calcLuft();
 }
 
-function setLuftSolve(sf) {
-  LUFT.sf = sf;
-  document.querySelectorAll('[data-lsf]').forEach(b =>
-    b.classList.toggle('active', b.dataset.lsf===sf));
-  document.getElementById('luft-row-v').style.display = sf==='v' ? 'none' : '';
-  document.getElementById('luft-row-q').style.display = sf==='q' ? 'none' : 'none';
-  // Show V̇ input unless solving for V̇; show Q input if solving for V̇
-  if (sf==='v') {
-    document.getElementById('luft-row-v').style.display='none';
-    document.getElementById('luft-row-q').style.display='';
-  } else {
-    document.getElementById('luft-row-v').style.display='';
-    document.getElementById('luft-row-q').style.display='none';
-  }
-  calcLuft();
-}
+function calcLuft(){
+  LU[LU.mode].v=document.getElementById('lu-v').value;
+  LU[LU.mode].q=document.getElementById('lu-q').value;
+  LU[LU.mode].tzl=document.getElementById('lu-tzl').value;
+  LU[LU.mode].tr=document.getElementById('lu-tr').value;
 
-function calcLuft() {
-  const tzl = parseFloat(document.getElementById('luft-tzl').value);
-  const tr  = parseFloat(document.getElementById('luft-tr').value);
-  const sf  = LUFT.sf;
+  const tzl=parseFloat(document.getElementById('lu-tzl').value);
+  const tr =parseFloat(document.getElementById('lu-tr').value);
+  const sf =LU[LU.mode].sf;
+  const dT =tzl-tr;
+  const rho=isNaN(tzl)?NaN:rhoL(tzl);
 
-  const dT  = tzl - tr; // could be negative for cooling
-  document.getElementById('luft-dt-disp').value = isNaN(dT)?'' : fmtDE(dT,1);
+  document.getElementById('lu-dt-d').value=(!isNaN(dT)&&sf!=='dt')?fDE(dT,1):'';
+  document.getElementById('lu-rho').textContent=isNaN(rho)?'—':fDE(rho,4);
+  document.getElementById('lu-kw-t').textContent=isNaN(tzl)?'—':tzl;
 
-  const rho = isNaN(tzl) ? NaN : rhoLuft(tzl);
-  document.getElementById('luft-rho').textContent = isNaN(rho)?'—':fmtDE(rho,4);
-  document.getElementById('luft-kw-t').textContent = isNaN(tzl)?'—':tzl;
+  let Q_W=NaN,Vm3h=NaN,mKgh=NaN;
 
-  let Q_W=NaN, V_m3h=NaN, m_kgh=NaN;
-
-  if (sf==='q') {
-    // Solve for Q: V̇, ΔT known
-    V_m3h = parseFloat(document.getElementById('luft-v').value);
-    if (!isNaN(V_m3h)&&V_m3h>0&&!isNaN(rho)&&!isNaN(dT)&&dT!==0) {
-      const m_kgs = V_m3h/3600 * rho;
-      Q_W  = m_kgs * CP_LUFT * Math.abs(dT);
-      m_kgh= m_kgs * 3600;
+  if(sf==='q'){
+    Vm3h=parseFloat(document.getElementById('lu-v').value);
+    if(!isNaN(Vm3h)&&Vm3h>0&&!isNaN(rho)&&!isNaN(dT)&&Math.abs(dT)>0.01){
+      const mKgs=Vm3h/3600*rho;
+      Q_W=mKgs*CP_L*Math.abs(dT);
+      mKgh=mKgs*3600;
     }
-  } else if (sf==='v') {
-    // Solve for V̇: Q, ΔT known
-    const Q_kW = parseFloat(document.getElementById('luft-q').value);
-    if (!isNaN(Q_kW)&&Q_kW>0&&!isNaN(rho)&&!isNaN(dT)&&dT!==0) {
-      Q_W  = Q_kW * 1000;
-      const m_kgs = Q_W / (CP_LUFT * Math.abs(dT));
-      V_m3h= m_kgs / rho * 3600;
-      m_kgh= m_kgs * 3600;
+  } else if(sf==='v'){
+    const Qkw=parseFloat(document.getElementById('lu-q').value);
+    if(!isNaN(Qkw)&&Qkw>0&&!isNaN(rho)&&!isNaN(dT)&&Math.abs(dT)>0.01){
+      Q_W=Qkw*1000;
+      const mKgs=Q_W/(CP_L*Math.abs(dT));
+      Vm3h=mKgs/rho*3600;
+      mKgh=mKgs*3600;
     }
   } else {
-    // Solve for ΔT: V̇, Q known
-    V_m3h= parseFloat(document.getElementById('luft-v').value);
-    const Q_kW= parseFloat(document.getElementById('luft-q').value);
-    if (!isNaN(V_m3h)&&V_m3h>0&&!isNaN(Q_kW)&&Q_kW>0&&!isNaN(rho)) {
-      Q_W  = Q_kW*1000;
-      const m_kgs = V_m3h/3600*rho;
-      const dt_calc = Q_W/(m_kgs*CP_LUFT);
-      document.getElementById('luft-dt-disp').value = fmtDE(dt_calc,1);
-      m_kgh= m_kgs*3600;
+    Vm3h=parseFloat(document.getElementById('lu-v').value);
+    const Qkw=parseFloat(document.getElementById('lu-q').value);
+    if(!isNaN(Vm3h)&&Vm3h>0&&!isNaN(Qkw)&&Qkw>0&&!isNaN(rho)){
+      Q_W=Qkw*1000;
+      const mKgs=Vm3h/3600*rho;
+      const dtCalc=Q_W/(mKgs*CP_L);
+      document.getElementById('lu-dt-d').value=fDE(dtCalc,1);
+      mKgh=mKgs*3600;
     }
   }
 
-  const show = !isNaN(Q_W);
-  document.getElementById('luft-q-w').textContent   = show ? fmtDE(Q_W,0)    : '—';
-  document.getElementById('luft-q-kw').textContent  = show ? fmtDE(Q_W/1000,2):'—';
-  document.getElementById('luft-res-v').textContent = !isNaN(V_m3h) ? fmtDE(V_m3h,0)  :'—';
-  document.getElementById('luft-res-dt').textContent= !isNaN(dT)    ? fmtDE(Math.abs(dT),1):'—';
-  document.getElementById('luft-res-m').textContent = !isNaN(m_kgh) ? fmtDE(m_kgh,1)  :'—';
+  document.getElementById('lu-q-w').textContent=isNaN(Q_W)?'—':fDE(Q_W,0);
+  document.getElementById('lu-q-kw').textContent=isNaN(Q_W)?'—':fDE(Q_W/1000,2);
+  document.getElementById('lu-v-r').textContent=isNaN(Vm3h)?'—':fDE(Vm3h,0);
+  document.getElementById('lu-dt-r').textContent=(!isNaN(dT)&&sf!=='dt')?fDE(Math.abs(dT),1):document.getElementById('lu-dt-d').value||'—';
+  document.getElementById('lu-m-r').textContent=isNaN(mKgh)?'—':fDE(mKgh,1);
 }
 
 /* ═══════════════════════════════════════════════════════════
-   ROHR – Darcy-Weisbach + Colebrook-White
+   ROHR
 ═══════════════════════════════════════════════════════════ */
+function calcRohr(){
+  const Vm3h=parseFloat(document.getElementById('ro-v').value);
+  const maxR=parseFloat(document.getElementById('ro-mr').value)||100;
+  const fl=FL_R[document.getElementById('ro-fl').value];
+  const ph=document.getElementById('ro-ph');
+  const tbl=document.getElementById('ro-tables');
 
-// Stahl pipes [label, da_mm, di_mm, standard]
-const STAHL = [
-  ['DN 15', 21.3, 16.1,'10255 M'],
-  ['DN 20', 26.9, 21.7,'10255 M'],
-  ['DN 25', 33.7, 27.3,'10255 M'],
-  ['DN 32', 42.4, 36.0,'10255 M'],
-  ['DN 40', 48.3, 41.9,'10255 M'],
-  ['DN 50', 60.3, 53.1,'10255 M'],
-  ['DN 65',  76.1, 70.3,'10220'],
-  ['DN 80',  88.9, 82.5,'10220'],
-  ['DN 100', 114.3,107.1,'10220'],
-  ['DN 125', 139.7,131.7,'10220'],
-  ['DN 150', 168.3,159.3,'10220'],
-  ['DN 200', 219.1,209.1,'10220'],
-  ['DN 250', 273.0,260.4,'10220'],
-  ['DN 300', 323.9,309.7,'10220'],
-];
-const EPS_STAHL = 0.046e-3; // m
-
-// Mapress Edelstahl [label, da_mm, di_mm]
-const MAPRESS = [
-  ['d12',   12.0, 10.0],
-  ['d15',   15.0, 13.0],
-  ['d18',   18.0, 16.0],
-  ['d22',   22.0, 19.6],
-  ['d28',   28.0, 25.6],
-  ['d35',   35.0, 32.0],
-  ['d42',   42.0, 39.0],
-  ['d54',   54.0, 51.0],
-  ['d76.1', 76.1, 72.1],
-  ['d88.9', 88.9, 84.9],
-  ['d108',  108.0,104.0],
-];
-const EPS_MAPRESS = 0.015e-3; // m
-
-const FLUIDS_R = {
-  w20:{rho:998.2, nu:1.004e-6},
-  w40:{rho:992.2, nu:0.658e-6},
-  w70:{rho:977.8, nu:0.415e-6},
-  w90:{rho:965.3, nu:0.326e-6},
-  g25:{rho:1035,  nu:2.10e-6 },
-  g40:{rho:1060,  nu:4.20e-6 },
-};
-
-function colebrook(Re, eps, D) {
-  if (Re<1) return 64;
-  if (Re<2300) return 64/Re;
-  const r=eps/(3.7*D); let lam=0.02;
-  for(let i=0;i<10;i++)
-    lam=Math.pow(-2*Math.log10(r+2.51/(Re*Math.sqrt(lam))),-2);
-  return lam;
-}
-
-function pipeRow(di_mm, eps, V_m3s, rho, nu, maxR) {
-  const di=di_mm/1e3;
-  const A=Math.PI*di*di/4;
-  const v=V_m3s/A;
-  const Re=v*di/nu;
-  const lam=colebrook(Re,eps,di);
-  const R=lam*(1/di)*(rho*v*v/2);
-  const ok=v>=0.3&&v<=1.5&&R<=maxR;
-  const warn=v>1.5||R>maxR;
-  return {v,Re,R,ok,warn};
-}
-
-function velClass(v){ return v<0.3?'v-warn':v>1.5?'v-bad':'v-ok'; }
-
-function buildPipeTable(pipes, eps, V_m3s, rho, nu, maxR, tbodyId, isMapress) {
-  const tbody = document.getElementById(tbodyId);
-  // Find best recommendation
-  let recIdx = pipes.findIndex(p => {
-    const r = pipeRow(p[isMapress?2:2], eps, V_m3s, rho, nu, maxR);
-    return r.ok;
-  });
-  if (recIdx<0) recIdx = pipes.findIndex(p => {
-    const r=pipeRow(p[2],eps,V_m3s,rho,nu,maxR);
-    return r.v>=0.3;
-  });
-  if (recIdx<0) recIdx=0;
-
-  tbody.innerHTML = pipes.map(([lbl,da,di], idx) => {
-    const r=pipeRow(di,eps,V_m3s,rho,nu,maxR);
-    const isRec=idx===recIdx;
-    const vCls=velClass(r.v);
-    const rOk=r.R<=maxR?'':'v-warn';
-    const chipCls=isRec?(isMapress?'dn-chip green':'dn-chip'):'';
-    return `<tr class="${isRec?(isMapress?'rec-m':'rec'):''}">
-      <td>${isRec?`<span class="${chipCls}">${lbl}</span>`:lbl}</td>
-      <td>${di.toFixed(1)}</td>
-      <td class="${vCls}">${fmtDE(r.v,2)}</td>
-      <td class="${rOk}">${fmtDE(r.R,0)}</td>
-      <td>${isRec?'✅':r.warn?'🟡':'➖'}</td>
-    </tr>`;
-  }).join('');
-}
-
-function calcRohr() {
-  const Vm3h= parseFloat(document.getElementById('rohr-v').value);
-  const maxR= parseFloat(document.getElementById('rohr-maxr').value)||100;
-  const fl  = FLUIDS_R[document.getElementById('rohr-fluid').value];
-
-  const ph=document.getElementById('rohr-placeholder');
-  const tbl=document.getElementById('rohr-tables');
-
-  if (isNaN(Vm3h)||Vm3h<=0) {
-    ph.style.display='';tbl.style.display='none'; return;
-  }
+  if(isNaN(Vm3h)||Vm3h<=0){ph.style.display='';tbl.style.display='none';return;}
   ph.style.display='none'; tbl.style.display='';
 
-  const V_m3s=Vm3h/3600;
-  buildPipeTable(STAHL,  EPS_STAHL,  V_m3s, fl.rho, fl.nu, maxR, 'rohr-stahl-tbody',  false);
-  buildPipeTable(MAPRESS,EPS_MAPRESS,V_m3s, fl.rho, fl.nu, maxR, 'rohr-mapress-tbody',true);
+  const Vm3s=Vm3h/3600;
+  const sData=PR.map(r=>({...r.s,dn:r.dn}));
+  const mData=PR.map(r=>r.m?{...r.m,dn:r.dn}:null);
+
+  const sRec=findRec(sData,ES,Vm3s,fl.rho,fl.nu,maxR);
+  const mFlat=PR.map((r,i)=>r.m?{...r.m,dn:r.dn,idx:i}:null).filter(p=>p);
+  const mRecFlat=findRec(mFlat,EM,Vm3s,fl.rho,fl.nu,maxR);
+  const mRecIdx=mFlat[mRecFlat]?.idx??-1;
+
+  let html='';
+  PR.forEach((row,idx)=>{
+    const sp=sData[idx];
+    const sm=pm(sp.di,ES,Vm3s,fl.rho,fl.nu);
+    const sIsRec=idx===sRec;
+    const sCard=pcHTML(sp,{dn:row.dn,da:sp.da,w:sp.w,di:sp.di},sm.v,sm.R,maxR,sIsRec,'','s');
+
+    let mCard;
+    if(row.m){
+      const mp=mData[idx];
+      const mm=pm(mp.di,EM,Vm3s,fl.rho,fl.nu);
+      const mIsRec=idx===mRecIdx;
+      mCard=pcHTML({std:'Mapress'},{dn:row.dn,da:mp.da,w:mp.w,di:mp.di},mm.v,mm.R,maxR,mIsRec,'','m');
+    } else {
+      mCard=pcNA(row.dn);
+    }
+    html+=`<div class="pipe-grp">
+      <div class="pipe-dn-hdr">${row.dn}</div>
+      <div class="pipe-pair">${sCard}${mCard}</div>
+    </div>`;
+  });
+  tbl.innerHTML=html;
 }
 
 /* ═══════════════════════════════════════════════════════════
-   EINHEITEN CONVERTER
+   EINHEITEN
 ═══════════════════════════════════════════════════════════ */
-const CATS = {
-  druck:  {name:'Druck — Umrechnung',
-    units:[
-      {k:'Pa',    f:1},
-      {k:'hPa',   f:100},
-      {k:'kPa',   f:1e3},
-      {k:'MPa',   f:1e6},
-      {k:'bar',   f:1e5},
-      {k:'mbar',  f:100},
-      {k:'mmH₂O', f:9.80665},
-      {k:'mmHg',  f:133.322},
-      {k:'psi',   f:6894.757},
-    ]},
-  temp:{name:'Temperatur — Umrechnung', special:'temp',
-    units:[{k:'°C'},{k:'K'},{k:'°F'}]},
-  leistung:{name:'Leistung — Umrechnung',
-    units:[
-      {k:'W',      f:1},
-      {k:'kW',     f:1e3},
-      {k:'MW',     f:1e6},
-      {k:'kcal/h', f:1.163},
-      {k:'BTU/h',  f:0.29307},
-      {k:'PS',     f:745.7},
-    ]},
-  vflow:{name:'Volumenstrom — Umrechnung',
-    units:[
-      {k:'m³/s', f:1},
-      {k:'m³/h', f:1/3600},
-      {k:'l/s',  f:1e-3},
-      {k:'l/h',  f:1/3600000},
-      {k:'l/min',f:1/60000},
-    ]},
-  mflow:{name:'Massenstrom — Umrechnung',
-    units:[
-      {k:'kg/s',  f:1},
-      {k:'kg/h',  f:1/3600},
-      {k:'kg/min',f:1/60},
-      {k:'t/h',   f:1000/3600},
-      {k:'g/s',   f:1e-3},
-    ]},
-  energie:{name:'Energie — Umrechnung',
-    units:[
-      {k:'J',   f:1},
-      {k:'kJ',  f:1e3},
-      {k:'MJ',  f:1e6},
-      {k:'kWh', f:3.6e6},
-      {k:'MWh', f:3.6e9},
-      {k:'kcal',f:4186.8},
-      {k:'BTU', f:1055.06},
-    ]},
-  laenge:{name:'Länge — Umrechnung',
-    units:[
-      {k:'mm',  f:1e-3},
-      {k:'cm',  f:1e-2},
-      {k:'m',   f:1},
-      {k:'km',  f:1e3},
-      {k:'in',  f:0.0254},
-      {k:'ft',  f:0.3048},
-    ]},
+const CATS={
+  druck:{n:'Druck — Umrechnung',
+    u:[{k:'bar',f:1e5},{k:'mbar',f:100},{k:'mWs',f:9806.65},
+       {k:'Pa',f:1},{k:'hPa',f:100},{k:'kPa',f:1e3}]},
+  temp:{n:'Temperatur — Umrechnung',sp:'temp',
+    u:[{k:'°C'},{k:'K'},{k:'°F'}]},
+  leist:{n:'Leistung — Umrechnung',
+    u:[{k:'W',f:1},{k:'kW',f:1e3},{k:'MW',f:1e6},{k:'J/s',f:1},{k:'kJ/s',f:1e3}]},
+  ener:{n:'Energie — Umrechnung',
+    u:[{k:'J',f:1},{k:'kJ',f:1e3},{k:'Ws',f:1},{k:'Wh',f:3600},{k:'kWh',f:3.6e6}]},
+  vflow:{n:'Volumenstrom — Umrechnung',
+    u:[{k:'m³/h',f:1/3600},{k:'m³/min',f:1/60},{k:'m³/s',f:1},
+       {k:'l/s',f:1e-3},{k:'l/min',f:1e-3/60},{k:'l/h',f:1e-3/3600}]},
+  gew:{n:'Gewicht — Umrechnung',
+    u:[{k:'mg',f:1e-6},{k:'g',f:1e-3},{k:'kg',f:1},{k:'t',f:1e3}]},
+  vol:{n:'Volumen — Umrechnung',
+    u:[{k:'mm³',f:1e-9},{k:'cm³',f:1e-6},{k:'dm³',f:1e-3},
+       {k:'Liter',f:1e-3},{k:'m³',f:1}]},
+  flae:{n:'Fläche — Umrechnung',
+    u:[{k:'mm²',f:1e-6},{k:'cm²',f:1e-4},{k:'dm²',f:1e-2},
+       {k:'m²',f:1},{k:'ha',f:1e4},{k:'km²',f:1e6}]},
 };
+let eiCat='druck',eiFrom='mbar',eiTo='kPa';
 
-let einCat='druck', einFrom='mbar', einTo='kPa';
-
-function populateEinSelects() {
-  const cat=CATS[einCat];
-  const fr=document.getElementById('ein-from');
-  const to=document.getElementById('ein-to');
-  fr.innerHTML=to.innerHTML=cat.units.map(u=>`<option value="${u.k}">${u.k}</option>`).join('');
-  fr.value=cat.units.some(u=>u.k===einFrom)?einFrom:cat.units[0].k;
-  to.value=cat.units.some(u=>u.k===einTo)  ?einTo  :(cat.units[1]||cat.units[0]).k;
-  document.getElementById('ein-conv-lbl').textContent=cat.name;
+function toK_t(v,u){if(u==='°C')return v+273.15;if(u==='°F')return (v-32)*5/9+273.15;return v;}
+function frK_t(K,u){if(u==='°C')return K-273.15;if(u==='°F')return (K-273.15)*9/5+32;return K;}
+function conv(val,fr,to,cat){
+  if(cat.sp==='temp')return frK_t(toK_t(val,fr),to);
+  const ff=cat.u.find(u=>u.k===fr)?.f||1;
+  const tf=cat.u.find(u=>u.k===to)?.f||1;
+  return val*ff/tf;
 }
 
-function onEinCat() {
-  einCat=document.getElementById('ein-cat').value;
-  einFrom=CATS[einCat].units[0].k;
-  einTo=(CATS[einCat].units[1]||CATS[einCat].units[0]).k;
-  populateEinSelects();
-  calcEin();
+function popEiSel(){
+  const cat=CATS[eiCat];
+  const fe=document.getElementById('ei-fr'),te=document.getElementById('ei-to');
+  const opts=cat.u.map(u=>`<option value="${u.k}">${u.k}</option>`).join('');
+  fe.innerHTML=te.innerHTML=opts;
+  fe.value=cat.u.some(u=>u.k===eiFrom)?eiFrom:cat.u[0].k;
+  te.value=cat.u.some(u=>u.k===eiTo)?eiTo:(cat.u[1]||cat.u[0]).k;
+  document.getElementById('ei-clbl').textContent=cat.n;
 }
 
-function toK_temp(val,unit){
-  if(unit==='°C')return val+273.15;
-  if(unit==='K') return val;
-  if(unit==='°F')return (val-32)*5/9+273.15;
-  return val;
-}
-function fromK_temp(K,unit){
-  if(unit==='°C')return K-273.15;
-  if(unit==='K') return K;
-  if(unit==='°F')return (K-273.15)*9/5+32;
-  return K;
+function onEiCat(){
+  eiCat=document.getElementById('ei-cat').value;
+  eiFrom=CATS[eiCat].u[0].k;
+  eiTo=(CATS[eiCat].u[1]||CATS[eiCat].u[0]).k;
+  popEiSel(); calcEi();
 }
 
-function convertVal(val,from,to,cat){
-  if(cat.special==='temp'){
-    return fromK_temp(toK_temp(val,from),to);
-  }
-  const fF=cat.units.find(u=>u.k===from)?.f||1;
-  const tF=cat.units.find(u=>u.k===to)?.f||1;
-  return val*fF/tF;
-}
-
-function calcEin(){
-  einFrom=document.getElementById('ein-from').value;
-  einTo  =document.getElementById('ein-to').value;
-  const valS=document.getElementById('ein-inp').value;
-  const val=parseFloat(valS);
-  const cat=CATS[einCat];
-  const outEl=document.getElementById('ein-out');
-  const alleEl=document.getElementById('ein-alle');
-
-  if(isNaN(val)){outEl.value='';alleEl.innerHTML='<div class="placeholder" style="padding:10px 0">Wert eingeben</div>';return;}
-
-  const res=convertVal(val,einFrom,einTo,cat);
-  outEl.value=fmtSci(res);
-
-  alleEl.innerHTML=cat.units.map(u=>{
-    const v=convertVal(val,einFrom,u.k,cat);
-    const hi=u.k===einFrom||u.k===einTo;
-    return `<div class="alle-row">
-      <span class="alle-unit">${u.k}</span>
-      <span class="alle-val${hi?' highlight':''}">${fmtSci(v)}</span>
+function calcEi(){
+  eiFrom=document.getElementById('ei-fr').value;
+  eiTo  =document.getElementById('ei-to').value;
+  const val=parseFloat(document.getElementById('ei-inp').value);
+  const cat=CATS[eiCat];
+  const out=document.getElementById('ei-out');
+  const alle=document.getElementById('ei-alle');
+  if(isNaN(val)){out.value='';alle.innerHTML='<div style="text-align:center;padding:14px 0;font-size:13px;color:var(--txt3)">Wert eingeben →</div>';return;}
+  out.value=fSci(conv(val,eiFrom,eiTo,cat));
+  alle.innerHTML=cat.u.map(u=>{
+    const v=conv(val,eiFrom,u.k,cat);
+    const isF=u.k===eiFrom,isT=u.k===eiTo;
+    const lbl=isF?u.k+' ←':isT?u.k+' →':u.k;
+    return`<div class="alle-row${(isF||isT)?' hl':''}">
+      <span class="au">${lbl}</span>
+      <span class="av">${fSci(v)}</span>
     </div>`;
   }).join('');
 }
 
-function swapEin(){
-  const tmp=einFrom; einFrom=einTo; einTo=tmp;
-  document.getElementById('ein-from').value=einFrom;
-  document.getElementById('ein-to').value=einTo;
-  calcEin();
+function swapEi(){
+  const t=eiFrom;eiFrom=eiTo;eiTo=t;
+  document.getElementById('ei-fr').value=eiFrom;
+  document.getElementById('ei-to').value=eiTo;
+  calcEi();
 }
 
 /* ═══════════════════════════════════════════════════════════
-   FORMAT HELPERS
+   FORMAT
 ═══════════════════════════════════════════════════════════ */
-function fmtDE(v,dec){
+function fDE(v,d){
   if(!isFinite(v))return '—';
-  return v.toLocaleString('de-DE',{minimumFractionDigits:dec,maximumFractionDigits:dec});
+  return v.toLocaleString('de-DE',{minimumFractionDigits:d,maximumFractionDigits:d});
 }
-function fmtSci(v){
+function fSci(v){
   if(!isFinite(v))return '—';
   const a=Math.abs(v);
   if(a===0)return '0';
-  if(a>=1e-4&&a<1e7){
-    // Smart decimal places
-    const dec=a>=1000?0:a>=100?1:a>=10?2:a>=1?3:a>=0.1?4:5;
-    return v.toLocaleString('de-DE',{minimumFractionDigits:0,maximumFractionDigits:dec});
+  if(a>=1e-4&&a<1e8){
+    const d=a>=10000?0:a>=1000?0:a>=100?1:a>=10?2:a>=1?3:a>=0.1?4:5;
+    return v.toLocaleString('de-DE',{minimumFractionDigits:0,maximumFractionDigits:d});
   }
-  return v.toExponential(4).replace('e+','e').replace('.',',');
+  return v.toExponential(4).replace('.',',');
 }
 
 /* ═══════════════════════════════════════════════════════════
    INIT
 ═══════════════════════════════════════════════════════════ */
-onHkMedium();
+onHkMed();
 calcHK();
 calcLuft();
 calcRohr();
-populateEinSelects();
-goTo(0, true);
+popEiSel();
+goTo(0,true);
 
-/* Service Worker */
 if('serviceWorker' in navigator){
   window.addEventListener('load',()=>{
     navigator.serviceWorker.register('/sw.js').then(reg=>{
       reg.update();
       reg.addEventListener('updatefound',()=>{
-        const nw=reg.installing; if(!nw)return;
+        const nw=reg.installing;if(!nw)return;
         nw.addEventListener('statechange',()=>{
           if(nw.state==='installed'&&navigator.serviceWorker.controller)
             window.location.reload();

@@ -1,48 +1,53 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
   <defs>
     <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#09090f"/>
-      <stop offset="100%" style="stop-color:#111120"/>
+      <stop offset="0%"   stop-color="#1c2e3e"/>
+      <stop offset="100%" stop-color="#0a1520"/>
     </linearGradient>
-    <linearGradient id="glow" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#4fa3e8"/>
-      <stop offset="100%" style="stop-color:#4fe8b3"/>
+    <linearGradient id="gl" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"   stop-color="rgba(255,255,255,0.18)"/>
+      <stop offset="100%" stop-color="rgba(255,255,255,0.04)"/>
     </linearGradient>
-    <radialGradient id="halo" cx="50%" cy="40%" r="50%">
-      <stop offset="0%" style="stop-color:#4fa3e8;stop-opacity:0.18"/>
-      <stop offset="100%" style="stop-color:#4fa3e8;stop-opacity:0"/>
-    </radialGradient>
-    <filter id="blur-glow">
-      <feGaussianBlur stdDeviation="8" result="blur"/>
-      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
-    </filter>
+    <linearGradient id="h" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%"   stop-color="#ff6b35"/>
+      <stop offset="100%" stop-color="#ff9a5c"/>
+    </linearGradient>
+    <linearGradient id="c" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%"   stop-color="#00b8d9"/>
+      <stop offset="100%" stop-color="#4dd8f0"/>
+    </linearGradient>
+    <filter id="glow-h"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <filter id="glow-c"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <clipPath id="r"><rect width="512" height="512" rx="115"/></clipPath>
   </defs>
 
   <!-- Background -->
-  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+  <rect width="512" height="512" rx="115" fill="url(#bg)"/>
 
-  <!-- Halo -->
-  <ellipse cx="256" cy="200" rx="220" ry="180" fill="url(#halo)"/>
+  <!-- Glass layer -->
+  <rect width="512" height="512" rx="115" fill="url(#gl)" clip-path="url(#r)"/>
 
-  <!-- Glass card -->
-  <rect x="80" y="140" width="352" height="232" rx="32"
-        fill="rgba(255,255,255,0.055)"
-        stroke="rgba(255,255,255,0.12)"
-        stroke-width="1.5"/>
+  <!-- Subtle border shimmer -->
+  <rect x="1" y="1" width="510" height="510" rx="114"
+        fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="1.5"/>
 
-  <!-- Main symbol ṁ -->
-  <text x="256" y="290"
-        fill="url(#glow)"
-        dominant-baseline="middle"
-        text-anchor="middle"
-        font-family="-apple-system, Helvetica Neue, sans-serif"
-        font-size="160"
-        font-weight="700"
-        filter="url(#blur-glow)">ṁ</text>
+  <!-- Heat pipe -->
+  <rect x="80" y="188" width="160" height="28" rx="14" fill="url(#h)" filter="url(#glow-h)" opacity=".95"/>
+  <rect x="80" y="226" width="160" height="14" rx="7"  fill="#ff6b35" opacity=".35"/>
 
-  <!-- Subtle border highlight -->
-  <rect x="80" y="140" width="352" height="232" rx="32"
-        fill="none"
-        stroke="rgba(255,255,255,0.05)"
-        stroke-width="3"/>
+  <!-- Cold pipe -->
+  <rect x="272" y="188" width="160" height="28" rx="14" fill="url(#c)" filter="url(#glow-c)" opacity=".95"/>
+  <rect x="272" y="226" width="160" height="14" rx="7"  fill="#00b8d9" opacity=".35"/>
+
+  <!-- Centre divider -->
+  <rect x="251" y="160" width="2" height="120" rx="1" fill="rgba(255,255,255,0.12)"/>
+
+  <!-- ṁ glyph -->
+  <text x="256" y="356" font-family="Georgia,serif" font-size="110" font-weight="bold"
+        fill="rgba(255,255,255,0.92)" text-anchor="middle" letter-spacing="-2">ṁ</text>
+
+  <!-- Bottom label -->
+  <text x="256" y="430" font-family="'Helvetica Neue',Helvetica,sans-serif"
+        font-size="26" font-weight="600" fill="rgba(255,255,255,0.28)"
+        text-anchor="middle" letter-spacing="6">MASSENSTROM</text>
 </svg>
