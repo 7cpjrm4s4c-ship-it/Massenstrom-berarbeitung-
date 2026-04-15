@@ -1,56 +1,95 @@
-/* ─── Massenstrom PWA – Calculation Worker ───────────────────
-   Nimmt Berechnungsaufgaben vom Hauptthread entgegen,
-   führt sie im Hintergrund aus und sendet Ergebnisse zurück.
-   Einsatz: aufwändige Iterationen (z. B. Colebrook-White über
-   viele DN-Stufen oder Netzwerkberechnungen).
-─────────────────────────────────────────────────────────── */
+/**
+ * Massenstromrechner — Analytics Worker
+ * Cloudflare Worker + KV Storage
+ *
+ * Zählt eindeutige tägliche Besucher (unique visitors per day).
+ * Speichert KEINE personenbezogenen Daten — nur anonyme UUIDs als Schlüssel.
+ *
+ * KV Namespace: VISITS (im Cloudflare Dashboard anlegen)
+ */
 
-self.onmessage = (e) => {
-  const { type, payload, id } = e.data;
+export default {
+  async fetch(request, env) {
 
-  try {
-    switch (type) {
-      case 'colebrook': {
-        const result = colebrook(payload.Re, payload.eps, payload.D);
-        self.postMessage({ id, type, result });
-        break;
-      }
-      case 'pipe_table': {
-        const result = calcPipeTable(payload);
-        self.postMessage({ id, type, result });
-        break;
-      }
-      default:
-        self.postMessage({ id, error: `Unknown type: ${type}` });
+    /* ── CORS Preflight ── */
+    if (request.method === 'OPTIONS') {
+      return new Response(null, {
+        status: 204,
+        headers: corsHeaders(),
+      });
     }
-  } catch (err) {
-    self.postMessage({ id, error: err.message });
-  }
+
+    const url    = new URL(request.url);
+    const uid    = url.searchParams.get('uid')  || 'anonymous';
+    const page   = url.searchParams.get('page') || '/';
+    const ref    = url.searchParams.get('ref')  || 'direct';
+    const today  = new Date().toISOString().slice(0, 10);  // YYYY-MM-DD
+
+    /* ── Keys ── */
+    const visitKey   = `visit:${today}:${uid}`;       // Wurde dieser User heute schon gezählt?
+    const countKey   = `count:${today}`;              // Tages-Gesamtzähler
+    const pageKey    = `page:${today}:${page}`;       // Seitenaufrufe (gesamt, nicht unique)
+    const totalKey   = `total:all`;                   // Kumulierter Gesamtzähler
+
+    /* ── Unique Visit zählen ── */
+    const alreadyCounted = await env.VISITS.get(visitKey);
+
+    if (!alreadyCounted) {
+      /* Neuer unique visitor heute */
+      await env.VISITS.put(visitKey, '1', {
+        expirationTtl: 60 * 60 * 24 * 90,  // 90 Tage aufbewahren
+      });
+
+      /* Tages-Counter hochzählen */
+      const todayCount = await env.VISITS.get(countKey);
+      const newCount   = todayCount ? parseInt(todayCount) + 1 : 1;
+      await env.VISITS.put(countKey, newCount.toString(), {
+        expirationTtl: 60 * 60 * 24 * 365,  // 1 Jahr
+      });
+
+      /* Gesamt-Counter hochzählen */
+      const totalCount = await env.VISITS.get(totalKey);
+      const newTotal   = totalCount ? parseInt(totalCount) + 1 : 1;
+      await env.VISITS.put(totalKey, newTotal.toString());
+    }
+
+    /* ── Seitenaufruf zählen (jeder Aufruf, nicht unique) ── */
+    const pageCount    = await env.VISITS.get(pageKey);
+    const newPageCount = pageCount ? parseInt(pageCount) + 1 : 1;
+    await env.VISITS.put(pageKey, newPageCount.toString(), {
+      expirationTtl: 60 * 60 * 24 * 365,
+    });
+
+    /* ── Aktuelle Zähler lesen ── */
+    const uniqueToday  = parseInt(await env.VISITS.get(countKey) || '0');
+    const totalVisits  = parseInt(await env.VISITS.get(totalKey) || '0');
+    const pageViews    = parseInt(await env.VISITS.get(pageKey)  || '0');
+
+    /* ── Antwort ── */
+    return new Response(
+      JSON.stringify({
+        date:                today,
+        unique_visits_today: uniqueToday,
+        total_visits_all:    totalVisits,
+        page_views_today:    pageViews,
+        page:                page,
+        counted:             !alreadyCounted,
+      }),
+      {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json',
+          ...corsHeaders(),
+        },
+      }
+    );
+  },
 };
 
-/* ─── Colebrook-White ────────────────────────────────────── */
-function colebrook(Re, eps, D) {
-  if (Re <= 0)   return 64;
-  if (Re < 2300) return 64 / Re;   // Laminar
-  const r = eps / (3.7 * D);
-  let lam = 0.02;
-  for (let i = 0; i < 12; i++) {
-    lam = Math.pow(-2 * Math.log10(r + 2.51 / (Re * Math.sqrt(lam))), -2);
-  }
-  return lam;
-}
-
-/* ─── Full pipe table calculation ───────────────────────── */
-function calcPipeTable({ mKgs, rho, nu, eps, pipes, L }) {
-  return pipes.map(([DN, di_mm]) => {
-    const di  = di_mm / 1000;
-    const A   = Math.PI * di * di / 4;
-    const v   = mKgs / (rho * A);
-    const Re  = v * di / nu;
-    const lam = colebrook(Re, eps, di);
-    const R   = lam * (1 / di) * (rho * v * v / 2);
-    const dP  = R * L;
-    const ok  = v >= 0.3 && v <= 1.5 && R >= 50 && R <= 300;
-    return { DN, di_mm, v, Re, lam, R, dP, ok };
-  });
+function corsHeaders() {
+  return {
+    'Access-Control-Allow-Origin':  '*',
+    'Access-Control-Allow-Methods': 'GET, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type',
+  };
 }

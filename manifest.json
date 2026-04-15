@@ -1,41 +1,25 @@
 {
-  "name": "Massenstrom PWA – HLS Rechner",
+  "name": "Massenstromrechner",
   "short_name": "Massenstrom",
-  "description": "Massenstrom-, Rohr- und Luftmengenberechnung für HLS-Anlagen (Heizung, Lüftung, Sanitär). Darcy-Weisbach, DIN EN 10255.",
-  "start_url": "/",
-  "scope": "/",
+  "description": "Massenstrom- und Rohrdimensionierung f\u00fcr HLS-Anlagen",
+  "start_url": "./",
   "display": "standalone",
-  "orientation": "portrait-primary",
-  "background_color": "#09090f",
-  "theme_color": "#09090f",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "orientation": "any",
   "lang": "de",
-  "categories": ["utilities", "productivity"],
   "icons": [
     {
-      "src": "/icon-192.svg",
+      "src": "icon-192.svg",
       "sizes": "192x192",
       "type": "image/svg+xml",
       "purpose": "any"
     },
     {
-      "src": "/icon-512.svg",
+      "src": "icon-512.svg",
       "sizes": "512x512",
       "type": "image/svg+xml",
       "purpose": "any maskable"
-    }
-  ],
-  "shortcuts": [
-    {
-      "name": "Heizung / Kälte",
-      "short_name": "Heizung",
-      "description": "Massenstrom Heizung / Kälte berechnen",
-      "url": "/"
-    },
-    {
-      "name": "Rohrauslegung",
-      "short_name": "Rohr",
-      "description": "DN-Rohrauslegung nach Darcy-Weisbach",
-      "url": "/"
     }
   ]
 }

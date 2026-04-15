@@ -1,24 +1,30 @@
-/* ─── Massenstrom PWA – Service Worker ───────────────────────
-   Strategie:
-   - App Shell (HTML/Icons/Manifest) → Cache First + Update im BG
-   - Navigation  → Network First, Fallback auf Cache
-   - Alles andere → Cache First
-─────────────────────────────────────────────────────────── */
-const VERSION   = 'v3';
-const CACHE     = `massenstrom-${VERSION}`;
-const PRECACHE  = ['/', '/index.html', '/manifest.json', '/icon-192.svg', '/icon-512.svg', '/worker.js'];
+/* Massenstromrechner – Service Worker v4
+   - Network-first fuer index.html
+   - Worker/Analytics URLs werden NIE gecacht → immer direkter Netzwerkaufruf
+   - Assets gecacht fuer Offline-Betrieb
+*/
+const CACHE = 'massenstrom-v4';
+const CACHE_ASSETS = [
+  './manifest.json','./icon-192.svg','./icon-512.svg','./favicon.svg',
+];
 
-/* ─── Install: Precache ───────────────────────────────────── */
-self.addEventListener('install', event => {
-  self.skipWaiting();
-  event.waitUntil(
-    caches.open(CACHE).then(cache => cache.addAll(PRECACHE))
+/* URLs die NIEMALS gecacht werden sollen (Analytics, externe APIs) */
+const NEVER_CACHE = [
+  'workers.dev',
+  'cloudflare',
+  'analytics',
+];
+
+self.addEventListener('install', e => {
+  e.waitUntil(
+    caches.open(CACHE)
+      .then(c => c.addAll(CACHE_ASSETS))
+      .then(() => self.skipWaiting())
   );
 });
 
-/* ─── Activate: Purge old caches ─────────────────────────── */
-self.addEventListener('activate', event => {
-  event.waitUntil(
+self.addEventListener('activate', e => {
+  e.waitUntil(
     caches.keys()
       .then(keys => Promise.all(
         keys.filter(k => k !== CACHE).map(k => caches.delete(k))
@@ -27,51 +33,58 @@ self.addEventListener('activate', event => {
   );
 });
 
-/* ─── Fetch: Cache Strategy ──────────────────────────────── */
-self.addEventListener('fetch', event => {
-  const { request } = event;
-  const url = new URL(request.url);
+self.addEventListener('fetch', e => {
+  const url = e.request.url;
 
-  // Only handle same-origin or CDN requests
-  if (!['https:', 'http:'].includes(url.protocol)) return;
+  /* Analytics / Worker URLs: immer direkt ans Netz, nie cachen */
+  if (NEVER_CACHE.some(pattern => url.includes(pattern))) {
+    e.respondWith(fetch(e.request));
+    return;
+  }
 
-  // Navigation: Network First → stale cache fallback
-  if (request.mode === 'navigate') {
-    event.respondWith(
-      fetch(request)
-        .then(response => {
-          const clone = response.clone();
-          caches.open(CACHE).then(c => c.put(request, clone));
-          return response;
+  /* Google Fonts: Cache-first */
+  if (url.includes('fonts.googleapis') || url.includes('fonts.gstatic')) {
+    e.respondWith(
+      caches.open(CACHE).then(c =>
+        c.match(e.request).then(cached =>
+          cached || fetch(e.request).then(res => {
+            c.put(e.request, res.clone()); return res;
+          })
+        )
+      )
+    );
+    return;
+  }
+
+  /* index.html: Network-first → frische Version, Offline-Fallback */
+  if (e.request.mode === 'navigate' ||
+      url.endsWith('/') || url.endsWith('index.html')) {
+    e.respondWith(
+      fetch(e.request)
+        .then(res => {
+          if (res && res.status === 200 && res.type === 'basic') {
+            caches.open(CACHE).then(c => c.put(e.request, res.clone()));
+          }
+          return res;
         })
-        .catch(() => caches.match('/index.html'))
+        .catch(() => caches.match(e.request))
     );
     return;
   }
 
-  // Static assets: Cache First → Network → update cache
-  if (PRECACHE.some(p => url.pathname === p || url.pathname.endsWith(p))) {
-    event.respondWith(
-      caches.match(request).then(cached => {
-        if (cached) {
-          // Update in background (Stale-While-Revalidate)
-          fetch(request).then(fresh => {
-            caches.open(CACHE).then(c => c.put(request, fresh));
-          }).catch(() => {});
-          return cached;
+  /* Alle anderen: Cache-first mit Network-Fallback */
+  e.respondWith(
+    caches.match(e.request).then(cached =>
+      cached || fetch(e.request).then(res => {
+        if (res && res.status === 200) {
+          caches.open(CACHE).then(c => c.put(e.request, res.clone()));
         }
-        return fetch(request).then(response => {
-          const clone = response.clone();
-          caches.open(CACHE).then(c => c.put(request, clone));
-          return response;
-        });
+        return res;
       })
-    );
-    return;
-  }
-
-  // Everything else: Network First, cache as fallback
-  event.respondWith(
-    fetch(request).catch(() => caches.match(request))
+    )
   );
+});
+
+self.addEventListener('message', e => {
+  if (e.data === 'SKIP_WAITING') self.skipWaiting();
 });
