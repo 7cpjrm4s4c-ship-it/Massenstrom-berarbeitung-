@@ -1,9 +1,9 @@
-/* Massenstromrechner – Service Worker v4
+/* Massenstromrechner – Service Worker v5
    - Network-first fuer index.html
    - Worker/Analytics URLs werden NIE gecacht → immer direkter Netzwerkaufruf
    - Assets gecacht fuer Offline-Betrieb
 */
-const CACHE = 'massenstrom-v4';
+const CACHE = 'massenstrom-v5';
 const CACHE_ASSETS = [
   './manifest.json','./icon-192.svg','./icon-512.svg','./favicon.svg',
 ];

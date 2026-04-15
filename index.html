@@ -1446,6 +1446,9 @@ if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('./sw.js')
       .then(reg => {
+        // iOS: sofort auf Updates prüfen (WebKit cached sonst aggressiv)
+        reg.update();
+
         // Pruefe beim Start ob ein neuer SW wartet
         if (reg.waiting) {
           reg.waiting.postMessage('SKIP_WAITING');
