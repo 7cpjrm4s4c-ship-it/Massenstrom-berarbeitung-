@@ -544,7 +544,7 @@ input[type=number]::-webkit-outer-spin-button { -webkit-appearance:none; }
 * { min-width: 0; }
 .gc, .out-card, .gc-h, .gc-c, .gc-a { overflow: hidden; }
 #tab-flow, #tab-luft, #tab-pipe, #tab-unit { overflow-x: hidden; max-width: 100%; }
-#tab-hx { overflow-x: hidden; max-width: 100%; }
+#tab-hx { overflow-x: clip; max-width: 100%; }
 
 /* Unit converter */
 /* Category select styled like gl-sel but green accent */
@@ -666,8 +666,8 @@ input[type=number]::-webkit-outer-spin-button { -webkit-appearance:none; }
 .hx-se-sub{font-size:10px;color:var(--t3);margin-top:2px;font-family:var(--fm)}
 
 /* ── Canvas ── */
-.hx-cvs-wrap{position:relative;width:100%;touch-action:none;background:white;border-radius:10px;overflow:hidden;min-height:260px;display:block}
-#hx{display:block;width:100%;cursor:crosshair}
+.hx-cvs-wrap{position:relative;width:100%;touch-action:none;background:white;border-radius:10px;overflow:visible;min-height:320px;height:auto;display:block}
+#hx{display:block;width:100%;cursor:crosshair;height:auto}
 
 /* ── Tooltip ── */
 #tip{position:absolute;background:rgba(4,12,28,.96);border:1px solid rgba(255,255,255,.18);border-radius:10px;padding:9px 13px;font-size:11px;font-family:var(--fm);pointer-events:none;display:none;z-index:20;line-height:1.8;backdrop-filter:blur(12px)}
@@ -2017,7 +2017,7 @@ unitCat('pressure');
 })();
 </script>
 
-<div id="tab-hx" style="display:none;overflow-y:auto;-webkit-overflow-scrolling:touch;flex:1;min-height:0">
+<div id="tab-hx" style="display:none;overflow-y:auto;overflow-x:visible;-webkit-overflow-scrolling:touch;flex:1;min-height:0">
 <!-- ── Main scroll ── -->
 <div class="hx-scroll"><div class="hx-content-area">
 
@@ -2068,7 +2068,7 @@ unitCat('pressure');
   </div>
 
   <!-- 3. Diagramm -->
-  <div class="hx-gc" style="padding:4px;overflow:hidden">
+  <div class="hx-gc" style="padding:4px">
     <div class="hx-cvs-wrap"><canvas id="hx"></canvas><div id="hx-tip"></div></div>
   </div>
 
@@ -2284,18 +2284,19 @@ function inD(cx,cy){return cx>=M.l&&cx<=M.l+dW()&&cy>=M.t&&cy<=M.t+dH()}
 function hxResizeCvs(){
   const wrap = cvs.parentElement;
   if(!wrap) return;
-  // Use actual container width — never window.innerWidth (wrong in PWA/iOS/hidden tabs)
+  // Use actual container width — clientWidth is reliable after tab is visible
   const w = Math.max(280, Math.floor(wrap.clientWidth));
   const h = Math.round(w * 0.78);
   CW = w; CH = h;
-  // CSS display size
-  cvs.style.width  = w + 'px';
-  cvs.style.height = h + 'px';
+  // CSS size for BOTH canvas AND wrapper — fixes Safari parent collapse
+  cvs.style.width   = w + 'px';
+  cvs.style.height  = h + 'px';
+  wrap.style.height = h + 'px';          // FIX: explicit parent height
   // Bitmap size
   const dpr = Math.min(window.devicePixelRatio || 1, 2);
   cvs.width  = Math.round(w * dpr);
   cvs.height = Math.round(h * dpr);
-  // CRITICAL: reset transform before scaling — prevents accumulation
+  // CRITICAL: full transform reset — prevents scale() accumulation
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.scale(dpr, dpr);
   ctx.imageSmoothingEnabled = true;
@@ -2948,10 +2949,17 @@ window.__hxTabInit = function() {
     hxSetInMode('x');
     hxSetAutoMode('x');
     hxUpdateUI();
-    // Wait for layout before measuring clientWidth
+    // Double rAF: Safari needs 2 frames after display:block for correct clientWidth
     requestAnimationFrame(function(){
       requestAnimationFrame(function(){
         hxResizeCvs();
+        // ResizeObserver: replaces window resize for PWA/iOS stability
+        if(window.ResizeObserver){
+          var ro = new ResizeObserver(function(){
+            if(window.__hxInitDone) hxResizeCvs();
+          });
+          ro.observe(cvs.parentElement);
+        }
       });
     });
   }
