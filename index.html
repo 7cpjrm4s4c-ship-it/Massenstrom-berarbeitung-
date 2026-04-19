@@ -666,7 +666,7 @@ input[type=number]::-webkit-outer-spin-button { -webkit-appearance:none; }
 .hx-se-sub{font-size:10px;color:var(--t3);margin-top:2px;font-family:var(--fm)}
 
 /* ── Canvas ── */
-.hx-cvs-wrap{position:relative;width:100%;touch-action:none;background:white;border-radius:10px;overflow:hidden}
+.hx-cvs-wrap{position:relative;width:100%;touch-action:none;background:white;border-radius:10px;overflow:hidden;min-height:260px;display:block}
 #hx{display:block;width:100%;cursor:crosshair}
 
 /* ── Tooltip ── */
@@ -1563,11 +1563,13 @@ document.querySelectorAll('.tab-btn').forEach(b => b.addEventListener('click', (
   show($('tab-unit'), t==='unit');
   show($('tab-hx'), t==='hx');
   if(t==='hx'){
-    setTimeout(function(){
-      window.__hxTabInit&&window.__hxTabInit();
-      // Resize again after layout settles
-      setTimeout(function(){ window.__hxInitDone&&hxResizeCvs(); }, 200);
-    }, 80);
+    // Safari needs 2 animation frames after display:block to measure correct clientWidth
+    window.__hxTabInit && window.__hxTabInit();
+    requestAnimationFrame(function(){
+      requestAnimationFrame(function(){
+        if(window.__hxInitDone) hxResizeCvs();
+      });
+    });
   }
 }));
 
@@ -1581,7 +1583,8 @@ calcAll();
 /* ═══════════════════════════════════════
    PWA
 ═══════════════════════════════════════ */
-window.addEventListener('resize', () => window.__hxOnResize && window.__hxOnResize());
+window.addEventListener('resize', () => { window.__hxOnResize && window.__hxOnResize(); });
+window.addEventListener('orientationchange', () => { setTimeout(() => { window.__hxOnResize && window.__hxOnResize(); }, 200); });
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
@@ -2279,14 +2282,24 @@ function fromCvs(cx,cy){return[Math.max(XN,Math.min(XX,XN+(cx-M.l)/dW()*(XX-XN))
 function inD(cx,cy){return cx>=M.l&&cx<=M.l+dW()&&cy>=M.t&&cy<=M.t+dH()}
 
 function hxResizeCvs(){
-  // Always derive width from window - works even when container is display:none during init
-  const padding = 28;  // 14px each side content-area padding
-  const w = Math.max(200, window.innerWidth - padding);
-  CW=w; CH=Math.round(w*0.82);
-  cvs.style.width=w+'px'; cvs.style.height=CH+'px';
-  const dpr=Math.min(devicePixelRatio,2);
-  cvs.width=Math.round(w*dpr); cvs.height=Math.round(CH*dpr);
-  ctx.scale(dpr,dpr); hxRedraw();
+  const wrap = cvs.parentElement;
+  if(!wrap) return;
+  // Use actual container width — never window.innerWidth (wrong in PWA/iOS/hidden tabs)
+  const w = Math.max(280, Math.floor(wrap.clientWidth));
+  const h = Math.round(w * 0.78);
+  CW = w; CH = h;
+  // CSS display size
+  cvs.style.width  = w + 'px';
+  cvs.style.height = h + 'px';
+  // Bitmap size
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  cvs.width  = Math.round(w * dpr);
+  cvs.height = Math.round(h * dpr);
+  // CRITICAL: reset transform before scaling — prevents accumulation
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.scale(dpr, dpr);
+  ctx.imageSmoothingEnabled = true;
+  hxRedraw();
 }
 
 function hxRedraw(){
@@ -2935,11 +2948,20 @@ window.__hxTabInit = function() {
     hxSetInMode('x');
     hxSetAutoMode('x');
     hxUpdateUI();
-    hxResizeCvs();
+    // Wait for layout before measuring clientWidth
+    requestAnimationFrame(function(){
+      requestAnimationFrame(function(){
+        hxResizeCvs();
+      });
+    });
   }
 };
 window.__hxOnResize = function() {
-  if(window.__hxInitDone) hxResizeCvs();
+  if(window.__hxInitDone) {
+    requestAnimationFrame(function(){
+      requestAnimationFrame(function(){ hxResizeCvs(); });
+    });
+  }
 };
 
 </script>
