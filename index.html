@@ -2304,6 +2304,9 @@ function solveSteam(s0,tgt,HD){let lo=s0.x,hi=35;for(let i=0;i<80;i++){const m=(
 // ────────────────────────────────────────────────────
 const cvs=document.getElementById('hx'),ctx=cvs.getContext('2d');
 const TN=-20,TX=55,XN=0,XX=30;
+// Enthalpy range for Mollier projection
+// hMin: h at t=-20,x=0 ≈ -21  hMax: h at t=55,x=30 ≈ 135
+const HMN=-25, HMX=135;
 const M={t:26,r:56,b:36,l:42};
 // Process colors
 const PC={heat:'#ff6b35',cool:'#00c4e8',cdehum:'#00c4e8',steam:'#a78bfa',spray:'#34d399',dreheat:'#ffd60a'};
@@ -2312,8 +2315,23 @@ const PTC=['#ffffff','#ff6b35','#f59e0b','#a78bfa','#ffd60a','#4fa8ff','#f472b6'
 let CW=0,CH=0;
 function dW(){return CW-M.l-M.r}
 function dH(){return CH-M.t-M.b}
-function toCvs(x,t){return[M.l+(x-XN)/(XX-XN)*dW(),M.t+dH()-(t-TN)/(TX-TN)*dH()]}
-function fromCvs(cx,cy){return[Math.max(XN,Math.min(XX,XN+(cx-M.l)/dW()*(XX-XN))),Math.max(TN,Math.min(TX,TN+(M.t+dH()-cy)/dH()*(TX-TN)))]}
+function toCvs(x,t){
+  // TRUE Mollier h,x projection:
+  // X-axis: moisture content x (linear)
+  // Y-axis: specific enthalpy h (linear) — NOT temperature
+  // Isotherms are diagonal (slope ≈ 2.5 kJ/kg per g/kg)
+  const h=hAir(t,x);
+  const cx=M.l+(x-XN)/(XX-XN)*dW();
+  const cy=M.t+dH()-(h-HMN)/(HMX-HMN)*dH();
+  return[cx,cy];
+}
+function fromCvs(cx,cy){
+  // Invert Mollier projection: (cx,cy) → (x,t)
+  const x=Math.max(XN,Math.min(XX,XN+(cx-M.l)/dW()*(XX-XN)));
+  const h=HMN+(M.t+dH()-cy)/dH()*(HMX-HMN);
+  const t=Math.max(TN,Math.min(TX,tFromH(h,x)));
+  return[x,t];
+}
 function inD(cx,cy){return cx>=M.l&&cx<=M.l+dW()&&cy>=M.t&&cy<=M.t+dH()}
 
 function hxResizeCvs(){
@@ -2352,31 +2370,38 @@ function clip(fn){ctx.save();ctx.beginPath();ctx.rect(M.l,M.t,dW(),dH());ctx.cli
 function drawBg(){ctx.fillStyle='white';ctx.fillRect(M.l,M.t,dW(),dH())}
 
 function drawGrid(){
-  for(let t=Math.ceil(TN/5)*5;t<=TX;t+=5){
-    const[,cy]=toCvs(0,t),maj=t%10===0;
+  // Horizontal h-lines (isenthalpic): every 5 kJ/kg
+  for(let hv=Math.ceil(HMN/5)*5;hv<=HMX;hv+=5){
+    const cy=M.t+dH()-(hv-HMN)/(HMX-HMN)*dH(),maj=hv%20===0;
     ctx.beginPath();ctx.moveTo(M.l,cy);ctx.lineTo(M.l+dW(),cy);
-    ctx.strokeStyle=maj?'rgba(0,0,0,.12)':'rgba(0,0,0,.05)';ctx.lineWidth=maj?.8:.4;ctx.stroke();
+    ctx.strokeStyle=maj?'rgba(0,0,0,.10)':'rgba(0,0,0,.04)';ctx.lineWidth=maj?.7:.35;ctx.stroke();
   }
+  // Vertical x-lines (isohume): every 2 g/kg
   for(let x=0;x<=XX;x+=2){
-    const[cx]=toCvs(x,0),maj=x%10===0;
+    const cx=M.l+x/XX*dW(),maj=x%10===0;
     ctx.beginPath();ctx.moveTo(cx,M.t);ctx.lineTo(cx,M.t+dH());
-    ctx.strokeStyle=maj?'rgba(0,0,0,.12)':'rgba(0,0,0,.05)';ctx.lineWidth=maj?.8:.4;ctx.stroke();
+    ctx.strokeStyle=maj?'rgba(0,0,0,.10)':'rgba(0,0,0,.04)';ctx.lineWidth=maj?.7:.35;ctx.stroke();
+  }
+  // Diagonal isotherms: every 5°C — these are NOT the grid but shown as orientation lines
+  for(let t=Math.ceil(TN/5)*5;t<=TX;t+=5){
+    const maj=t%10===0;
+    const[x0,y0]=toCvs(XN,t),[x1,y1]=toCvs(XX,t);
+    ctx.beginPath();ctx.moveTo(x0,y0);ctx.lineTo(x1,y1);
+    ctx.strokeStyle=maj?'rgba(180,60,0,.18)':'rgba(180,60,0,.07)';ctx.lineWidth=maj?.6:.3;ctx.stroke();
   }
 }
 
 function drawEnth(){
-  ctx.setLineDash([4,5]);
-  for(let hv=-40;hv<=160;hv+=5){
-    ctx.beginPath();let s=false;
-    for(let x=XN;x<=XX;x+=.3){
-      const t=tFromH(hv,x);if(t<TN-1||t>TX+1)continue;
-      const[cx,cy]=toCvs(x,Math.max(TN,Math.min(TX,t)));s?ctx.lineTo(cx,cy):(ctx.moveTo(cx,cy),s=true);
-    }
-    const maj=hv%20===0;
-    ctx.strokeStyle=maj?'rgba(0,0,0,.22)':'rgba(0,0,0,.08)';ctx.lineWidth=maj?.9:.5;ctx.stroke();
-    if(maj){const t0=tFromH(hv,XX);if(t0>=TN&&t0<=TX){const[cx,cy]=toCvs(XX,t0);ctx.setLineDash([]);ctx.font='8px Arial';ctx.fillStyle='rgba(0,0,0,.45)';ctx.textAlign='left';ctx.fillText(hv,cx+2,cy+3);ctx.setLineDash([4,5]);}}
-  }
+  // In h,x Mollier: isenthalpic lines are perfectly HORIZONTAL (h=const → cy=const)
+  // These are already drawn in drawGrid() as horizontal h-lines
+  // Here we draw the h-axis labels on the right side
   ctx.setLineDash([]);
+  for(let hv=Math.ceil(HMN/10)*10;hv<=HMX;hv+=10){
+    const cy=M.t+dH()-(hv-HMN)/(HMX-HMN)*dH();
+    if(cy<M.t||cy>M.t+dH()) continue;
+    ctx.font='8px Arial';ctx.fillStyle='rgba(0,0,0,.45)';ctx.textAlign='left';
+    ctx.fillText(hv,M.l+dW()+4,cy+3);
+  }
 }
 
 function drawRH(){
@@ -2385,7 +2410,7 @@ function drawRH(){
     for(let t=TN;t<=TX;t+=.3){const x=p/100*xSat(t);if(x<XN||x>XX)continue;const[cx,cy]=toCvs(x,t);s?ctx.lineTo(cx,cy):(ctx.moveTo(cx,cy),s=true);}
     const a=.15+p/100*.55;
     ctx.strokeStyle=`rgba(30,90,160,${a.toFixed(2)})`;ctx.lineWidth=p===100?2:.7;ctx.stroke();
-    if(p%20===0||p===10){const tl=Math.min(TX-3,50),xl=p/100*xSat(tl);if(xl<=XX){const[cx,cy]=toCvs(xl,tl);ctx.font='8px Arial';ctx.textAlign='center';ctx.fillStyle=`rgba(20,70,140,${Math.min(1,a+.1).toFixed(2)})`;ctx.fillText(p+'%',cx,cy-3);}}
+    if(p%20===0||p===10){const tl=Math.min(TX-5,40),xl=p/100*xSat(tl);if(xl<=XX){const[cx,cy]=toCvs(xl,tl);ctx.font='8px Arial';ctx.textAlign='center';ctx.fillStyle=`rgba(20,70,140,${Math.min(1,a+.1).toFixed(2)})`;ctx.fillText(p+'%',cx,cy-3);}}
   }
 }
 
@@ -2393,24 +2418,40 @@ function drawSat(){
   ctx.beginPath();let s=false;
   for(let t=TN;t<=TX;t+=.2){const x=xSat(t);if(x>XX+1)break;const[cx,cy]=toCvs(Math.min(XX,x),t);s?ctx.lineTo(cx,cy):(ctx.moveTo(cx,cy),s=true);}
   ctx.strokeStyle='#1a3a5c';ctx.lineWidth=2.2;ctx.stroke();
-  const tl=12,xl=xSat(tl);if(xl<=XX){const[cx,cy]=toCvs(xl,tl);ctx.font='bold 8px Arial';ctx.fillStyle='#1a3a5c';ctx.textAlign='right';ctx.fillText('φ=100%',cx-3,cy-4);}
+  const tl=12,xl=xSat(tl);if(xl<=XX){const[cx,cy]=toCvs(xl,tl);ctx.font='bold 8px Arial';ctx.fillStyle='#1a3a5c';ctx.textAlign='left';ctx.fillText('φ=100%',cx+4,cy-4);}
 }
 
 function drawAxes(){
   ctx.strokeStyle='rgba(0,0,0,.5)';ctx.lineWidth=1;ctx.strokeRect(M.l,M.t,dW(),dH());
-  ctx.fillStyle='rgba(0,0,0,.7)';ctx.textAlign='right';ctx.font='9px Arial';
-  for(let t=Math.ceil(TN/10)*10;t<=TX;t+=10){
-    const[,cy]=toCvs(0,t);ctx.fillText(t+'°',M.l-4,cy+3);
-    ctx.beginPath();ctx.moveTo(M.l-3,cy);ctx.lineTo(M.l,cy);ctx.strokeStyle='rgba(0,0,0,.4)';ctx.lineWidth=.8;ctx.stroke();
+  // Y-axis: enthalpy h labels
+  ctx.fillStyle='rgba(0,0,0,.65)';ctx.textAlign='right';ctx.font='9px Arial';
+  for(let hv=Math.ceil(HMN/20)*20;hv<=HMX;hv+=20){
+    const cy=M.t+dH()-(hv-HMN)/(HMX-HMN)*dH();
+    if(cy<M.t-2||cy>M.t+dH()+2) continue;
+    ctx.fillText(hv,M.l-4,cy+3);
+    ctx.beginPath();ctx.moveTo(M.l-3,cy);ctx.lineTo(M.l,cy);ctx.strokeStyle='rgba(0,0,0,.35)';ctx.lineWidth=.8;ctx.stroke();
   }
-  ctx.textAlign='center';ctx.fillStyle='rgba(0,0,0,.7)';
+  // X-axis: moisture x labels
+  ctx.textAlign='center';ctx.fillStyle='rgba(0,0,0,.65)';
   for(let x=0;x<=XX;x+=5){
-    const[cx]=toCvs(x,TN);ctx.fillText(x,cx,M.t+dH()+12);
-    ctx.beginPath();ctx.moveTo(cx,M.t+dH());ctx.lineTo(cx,M.t+dH()+3);ctx.strokeStyle='rgba(0,0,0,.4)';ctx.lineWidth=.8;ctx.stroke();
+    const cx=M.l+x/XX*dW();
+    ctx.fillText(x,cx,M.t+dH()+12);
+    ctx.beginPath();ctx.moveTo(cx,M.t+dH());ctx.lineTo(cx,M.t+dH()+3);ctx.strokeStyle='rgba(0,0,0,.35)';ctx.lineWidth=.8;ctx.stroke();
   }
-  ctx.save();ctx.translate(12,M.t+dH()/2);ctx.rotate(-Math.PI/2);ctx.textAlign='center';ctx.fillStyle='rgba(0,0,0,.55)';ctx.font='9px Arial';ctx.fillText('t (°C)',0,0);ctx.restore();
-  ctx.textAlign='center';ctx.fillStyle='rgba(0,0,0,.55)';ctx.font='9px Arial';ctx.fillText('x (g/kg)',M.l+dW()/2,M.t+dH()+28);
-  ctx.save();ctx.translate(M.l+dW()+44,M.t+dH()/2);ctx.rotate(Math.PI/2);ctx.textAlign='center';ctx.fillStyle='rgba(0,0,0,.40)';ctx.font='8px Arial';ctx.fillText('h [kJ/kg]',0,0);ctx.restore();
+  // Label isotherms at left edge (where x=XN=0)
+  ctx.fillStyle='rgba(180,60,0,.7)';ctx.textAlign='right';ctx.font='8px Arial';
+  for(let t=Math.ceil(TN/10)*10;t<=TX;t+=10){
+    const[,cy]=toCvs(XN,t);
+    if(cy>=M.t-1&&cy<=M.t+dH()+1) ctx.fillText(t+'°',M.l-2,cy+3);
+  }
+  // Axis titles
+  ctx.save();ctx.translate(12,M.t+dH()/2);ctx.rotate(-Math.PI/2);ctx.textAlign='center';
+  ctx.fillStyle='rgba(0,0,0,.50)';ctx.font='9px Arial';ctx.fillText('h [kJ/kg tr. Luft]',0,0);ctx.restore();
+  ctx.textAlign='center';ctx.fillStyle='rgba(0,0,0,.50)';ctx.font='9px Arial';
+  ctx.fillText('x [g H₂O/kg tr. Luft]',M.l+dW()/2,M.t+dH()+28);
+  // Small isotherm label bottom right
+  ctx.fillStyle='rgba(180,60,0,.5)';ctx.font='7px Arial';ctx.textAlign='left';
+  ctx.fillText('— Isotherme t [°C]',M.l+dW()-110,M.t+dH()-4);
 }
 
 function drawProcs(){
@@ -2439,7 +2480,7 @@ function drawPoints(){
     ctx.beginPath();ctx.arc(cx,cy,act?8:6,0,Math.PI*2);
     ctx.fillStyle=act?col:'rgba(4,12,26,.85)';ctx.strokeStyle=col;ctx.lineWidth=2;ctx.fill();ctx.stroke();
     ctx.fillStyle=col;ctx.font='bold 10px Arial';ctx.textAlign='left';ctx.fillText('Z'+(i+1),cx+11,cy-1);
-    ctx.font='8px "Courier New"';ctx.fillStyle='rgba(0,0,0,.55)';ctx.fillText(s.t.toFixed(1)+'° / '+s.x.toFixed(1)+'g',cx+11,cy+10);
+    ctx.font='8px "Courier New"';ctx.fillStyle='rgba(0,0,0,.60)';ctx.fillText(s.t.toFixed(1)+'°C  x='+s.x.toFixed(1)+'  h='+s.h.toFixed(0),cx+11,cy+10);
   });
 }
 
