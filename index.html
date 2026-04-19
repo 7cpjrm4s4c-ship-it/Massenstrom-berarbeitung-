@@ -544,7 +544,7 @@ input[type=number]::-webkit-outer-spin-button { -webkit-appearance:none; }
 * { min-width: 0; }
 .gc, .out-card, .gc-h, .gc-c, .gc-a { overflow: hidden; }
 #tab-flow, #tab-luft, #tab-pipe, #tab-unit { overflow-x: hidden; max-width: 100%; }
-#tab-hx { overflow-x: clip; max-width: 100%; background: var(--bg, #000); }
+#tab-hx { display: none; flex: 1; min-height: 0; padding: 0; }
 
 /* Unit converter */
 /* Category select styled like gl-sel but green accent */
@@ -592,168 +592,13 @@ input[type=number]::-webkit-outer-spin-button { -webkit-appearance:none; }
 .tzl-k .tzl-inp:focus{border-color:rgba(0,196,232,.55)}
 
 
-/* ── h,x-Diagramm Tab ── */
-/* Canvas neutral shell — no transforms, no pseudo-elements, no overflow clipping */
-.hx-diag-shell{
-  width:100%;
-  background:white;
-  border-radius:12px;
-  border:1px solid rgba(255,255,255,.20);
-  padding:4px;margin:0;
-  overflow:hidden;
-  position:relative;
-  box-sizing:border-box;
-  transform:none;
-  clip-path:none;
-  z-index:1;
-}
+/* h,x iframe tab layout */
+body { display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+#tab-hx { flex: 1; min-height: 0; overflow: hidden; }
+#tab-hx iframe { width: 100%; height: 100%; border: none; display: block; }
+/* Other tabs: restore scroll */
+#tab-flow, #tab-luft, #tab-pipe, #tab-unit { flex: 1; overflow-y: auto; }
 
-
-
-/* ── Header ── */
-.hx-hdr{padding:calc(var(--sat)+10px) 16px 10px;background:rgba(0,0,0,.88);border-bottom:1px solid var(--bm);flex-shrink:0;display:flex;align-items:center;gap:10px}
-.hx-hdr-icon{width:28px;height:28px;border-radius:7px;flex-shrink:0;background:var(--gm);border:1px solid var(--bm);display:flex;align-items:center;justify-content:center;font-size:14px;font-family:var(--fm)}
-.hx-hdr-title{font-size:14px;font-weight:700}
-.hx-hdr-sub{font-size:10px;color:var(--t3);margin-top:1px}
-.hx-badge{margin-left:auto;flex-shrink:0;background:rgba(167,139,250,.14);border:1px solid rgba(167,139,250,.32);color:#c4b5fd;font-size:9px;font-weight:700;padding:3px 8px;border-radius:6px;letter-spacing:.07em}
-
-/* ── Scroll ── */
-.hx-scroll{flex:1;overflow-y:auto;overflow-x:clip;-webkit-overflow-scrolling:touch;background:var(--bg,#000)}
-.hx-scroll::-webkit-scrollbar{display:none}
-
-/* ── Glass card ── */
-.hx-gc{background:rgba(255,255,255,.10);border:1px solid var(--bm);border-radius:var(--rL);padding:20px;position:relative;overflow:hidden;box-shadow:0 2px 0 rgba(255,255,255,.06) inset,0 8px 32px rgba(0,0,0,.5)}
-.hx-gc::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.22) 50%,transparent);pointer-events:none}
-
-/* ── Typography ── */
-.hx-slbl{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--t3);margin-bottom:14px}
-.hx-si-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px 16px}
-.hx-si-item{display:flex;flex-direction:column;gap:3px}
-.hx-si-k{font-size:8px;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:var(--t3);margin-bottom:3px}
-.hx-si-v{font-family:var(--fm);font-size:14px;font-weight:700;color:#c4b5fd;line-height:1.2}
-.hx-si-v.dim{color:var(--t4)}
-
-/* ── Mode tabs ── */
-.hx-ptabs{display:grid;grid-template-columns:1fr 1fr;gap:4px;background:rgba(0,0,0,.35);border:1px solid var(--bs);border-radius:var(--r);padding:4px;margin-bottom:16px}
-.hx-ptab{padding:9px;border-radius:10px;border:1px solid transparent;background:transparent;color:var(--t3);font-size:12px;font-weight:600;cursor:pointer;text-align:center;transition:all .15s}
-.hx-ptab.a{background:var(--gh);border-color:var(--bm);color:var(--t1);box-shadow:inset 0 1px rgba(255,255,255,.12),0 2px 6px rgba(0,0,0,.4)}
-
-/* ── Inputs ── */
-.hx-igrp{margin-bottom:16px}
-.hx-igrp:last-of-type{margin-bottom:0}
-.hx-ilbl{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--t3);margin-bottom:7px}
-.hx-irow{display:flex;gap:10px;align-items:center}
-.hx-finp{flex:1;min-width:0;background:var(--gm);border:1px solid rgba(255,255,255,.25);color:var(--t1);font-family:var(--fm);font-size:18px;font-weight:700;padding:13px 14px;border-radius:var(--r);outline:none;-webkit-appearance:none;transition:border-color .15s,box-shadow .15s}
-.hx-finp::placeholder{color:var(--t4);font-weight:400}
-.hx-finp:focus{border-color:rgba(167,139,250,.65);box-shadow:0 0 0 3px rgba(167,139,250,.10);background:var(--gh)}
-.hx-finp.err{border-color:rgba(255,69,58,.65)}
-.hx-fu{font-size:11px;font-weight:700;color:var(--t3);white-space:nowrap;min-width:36px}
-
-/* ── Buttons ── */
-.hx-btn{display:block;width:100%;padding:14px;border-radius:var(--r);border:1px solid;font-family:var(--f);font-size:13px;font-weight:700;cursor:pointer;transition:all .15s;text-align:center}
-.hx-btn-air{border-color:rgba(167,139,250,.45);background:rgba(167,139,250,.18);color:#c4b5fd}
-.hx-btn-air:active{background:rgba(167,139,250,.32)}
-.hx-btn-grn{border-color:rgba(52,211,153,.45);background:rgba(52,211,153,.16);color:#34d399}
-.hx-btn-grn:active{background:rgba(52,211,153,.28)}
-.hx-btn-pdf{border-color:rgba(79,168,255,.40);background:rgba(79,168,255,.14);color:#4fa8ff}
-.hx-btn-pdf:active{background:rgba(79,168,255,.26)}
-.hx-btn-rst{border-color:var(--bs);background:rgba(255,255,255,.06);color:var(--t2)}
-.hx-btn-rst:active{background:rgba(255,255,255,.14)}
-
-/* ── Process buttons ── */
-.hx-proc-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.hx-pbtn{padding:12px 8px;border-radius:var(--r);border:1px solid var(--bs);background:rgba(255,255,255,.05);color:var(--t3);font-family:var(--f);font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;text-align:center;line-height:1.3}
-.hx-pbtn:active{opacity:.7}
-.hx-pbtn.sel[data-p="heat"]{border-color:rgba(255,107,53,.55);background:rgba(255,107,53,.12);color:#ffaa7a}
-.hx-pbtn.sel[data-p="cool"]{border-color:rgba(0,196,232,.45);background:rgba(0,196,232,.10);color:#66dfff}
-.hx-pbtn.sel[data-p="cdehum"]{border-color:rgba(0,196,232,.45);background:rgba(0,196,232,.08);color:#66dfff}
-.hx-pbtn.sel[data-p="steam"]{border-color:rgba(167,139,250,.55);background:rgba(167,139,250,.12);color:#c4b5fd}
-.hx-pbtn.sel[data-p="spray"]{border-color:rgba(52,211,153,.45);background:rgba(52,211,153,.10);color:#34d399}
-.hx-pbtn.sel[data-p="dreheat"]{border-color:rgba(255,214,10,.45);background:rgba(255,214,10,.08);color:#ffd60a}
-
-/* ── State list ── */
-.hx-se{display:flex;align-items:flex-start;gap:10px;padding:12px 14px;border-radius:var(--r);background:var(--gm);border:1px solid var(--bs);margin-bottom:8px;cursor:pointer;transition:all .15s}
-.hx-se:last-child{margin-bottom:0}
-.hx-se.act{border-color:rgba(167,139,250,.45);background:rgba(167,139,250,.08)}
-.hx-se-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
-.hx-se-info{flex:1;min-width:0}
-.hx-se-main{font-size:13px;font-weight:700;font-family:var(--fm)}
-.hx-se-sub{font-size:10px;color:var(--t3);margin-top:2px;font-family:var(--fm)}
-
-/* ── Canvas ── */
-.hx-cvs-wrap{
-  position:relative;
-  width:100%;
-  max-width:100%;
-  box-sizing:border-box;
-  touch-action:none;
-  background:white;
-  border-radius:12px;
-  overflow:visible;
-  display:block;
-  transform:none;
-  clip-path:none;
-}
-#hx{
-  display:block;
-  width:100% !important;
-  max-width:100%;
-  height:auto;
-  cursor:crosshair;
-  box-sizing:border-box;
-}
-
-/* ── Tooltip ── */
-#tip{position:absolute;background:rgba(4,12,28,.96);border:1px solid rgba(255,255,255,.18);border-radius:10px;padding:9px 13px;font-size:11px;font-family:var(--fm);pointer-events:none;display:none;z-index:20;line-height:1.8;backdrop-filter:blur(12px)}
-
-/* ── Error / info ── */
-.hx-errmsg{color:#ff453a;font-size:12px;margin-top:10px;padding:10px 14px;background:rgba(255,69,58,.07);border:1px solid rgba(255,69,58,.22);border-radius:12px;display:none;line-height:1.5}
-.hx-infomsg{color:#34d399;font-size:12px;margin-top:10px;padding:10px 14px;background:rgba(52,211,153,.07);border:1px solid rgba(52,211,153,.22);border-radius:12px;display:none;line-height:1.5}
-
-/* ── Chain ── */
-.hx-ci{display:flex;align-items:center;gap:8px;font-size:12px;padding:8px 12px;border-radius:10px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);margin-bottom:6px;font-family:var(--fm)}
-
-/* ── Bottom sheet ── */
-.hx-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:100;opacity:0;pointer-events:none;transition:opacity .3s;backdrop-filter:blur(4px)}
-.hx-overlay.show{opacity:1;pointer-events:auto}
-.hx-sheet{position:fixed;left:0;right:0;bottom:0;background:#0e1422;border-top:1px solid var(--bm);border-radius:24px 24px 0 0;z-index:101;padding-bottom:calc(var(--sab)+16px);transform:translateY(100%);transition:transform .35s cubic-bezier(.32,.72,0,1);max-height:90vh;overflow-y:auto}
-.hx-sheet.show{transform:translateY(0)}
-.hx-sh-handle{width:36px;height:4px;border-radius:2px;background:rgba(255,255,255,.20);margin:12px auto 0}
-.hx-sh-title{font-size:15px;font-weight:700;text-align:center;padding:12px 20px 0;color:var(--t1)}
-.hx-sh-sub{font-size:11px;color:var(--t3);text-align:center;margin-top:3px;padding-bottom:14px;border-bottom:1px solid var(--bs)}
-.hx-sh-body{padding:16px 20px}
-.hx-sh-body .hx-btn{margin-bottom:10px}
-.hx-sh-body .hx-btn:last-child{margin-bottom:0}
-
-/* ── Content layout ── */
-.hx-content-area{padding:14px 14px;display:flex;flex-direction:column;gap:14px}
-
-/* ── Divider ── */
-.hx-divider{display:flex;align-items:center;gap:8px;margin:2px 0}
-.hx-divider::before, .hx-divider::after{content:'';flex:1;height:1px;background:var(--bs)}
-.hx-divider-txt{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--t3);white-space:nowrap}
-
-/* +/− sign toggle for temperature inputs */
-.hx-sign-btn{
-  width:48px;flex-shrink:0;
-  border-radius:var(--r);border:1px solid rgba(255,255,255,.22);
-  background:var(--gm);color:var(--t2);
-  font-size:22px;font-weight:700;font-family:var(--fm);
-  cursor:pointer;transition:all .15s;line-height:1;
-  padding:13px 0;text-align:center;
-}
-.hx-sign-btn.neg{border-color:rgba(0,196,232,.50);background:rgba(0,196,232,.12);color:#66dfff}
-
-
-/* ── hx fixed/global elements ── */
-#hx-tip{position:fixed;background:rgba(4,12,28,.96);border:1px solid rgba(255,255,255,.18);border-radius:10px;padding:9px 13px;font-size:11px;font-family:'Courier New',monospace;pointer-events:none;display:none;z-index:9999;line-height:1.8;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
-.hx-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9000;opacity:0;pointer-events:none;transition:opacity .3s;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
-.hx-overlay.show{opacity:1;pointer-events:auto}
-.hx-sheet{position:fixed;left:0;right:0;bottom:0;background:#0e1422;border-top:1px solid rgba(255,255,255,.14);border-radius:24px 24px 0 0;z-index:9001;padding-bottom:calc(env(safe-area-inset-bottom,0px)+16px);transform:translateY(100%);transition:transform .35s cubic-bezier(.32,.72,0,1);max-height:90vh;overflow-y:auto}
-.hx-sheet.show{transform:translateY(0)}
-
-#tab-hx .hx-content-area{padding:12px 14px;display:flex;flex-direction:column;gap:12px}
-.hx-print-page{display:none!important}
 </style>
 </head>
 <body>
@@ -1595,15 +1440,11 @@ document.querySelectorAll('.tab-btn').forEach(b => b.addEventListener('click', (
   show($('tab-luft'), t==='luft');
   show($('tab-pipe'), t==='pipe');
   show($('tab-unit'), t==='unit');
-  show($('tab-hx'), t==='hx');
+  var hxTab = $('tab-hx');
+  if(hxTab) hxTab.style.display = t==='hx' ? 'flex' : 'none';
+  // Hide other tabs when hx is active (show() sets block, we need none)
   if(t==='hx'){
-    // Safari needs 2 animation frames after display:block to measure correct clientWidth
-    window.__hxTabInit && window.__hxTabInit();
-    requestAnimationFrame(function(){
-      requestAnimationFrame(function(){
-        if(window.__hxInitDone) hxResizeCvs();
-      });
-    });
+    [$('tab-flow'),$('tab-luft'),$('tab-pipe'),$('tab-unit')].forEach(function(el){if(el)el.style.display='none'});
   }
 }));
 
@@ -1617,9 +1458,6 @@ calcAll();
 /* ═══════════════════════════════════════
    PWA
 ═══════════════════════════════════════ */
-window.addEventListener('resize', () => { window.__hxOnResize && window.__hxOnResize(); });
-window.addEventListener('orientationchange', () => { setTimeout(() => { window.__hxOnResize && window.__hxOnResize(); }, 200); });
-
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('./sw.js')
@@ -2051,231 +1889,406 @@ unitCat('pressure');
 })();
 </script>
 
-<div id="tab-hx" style="display:none;overflow-y:auto;overflow-x:visible;-webkit-overflow-scrolling:touch;flex:1;min-height:0">
+<div id="tab-hx" style="display:none;flex:1;overflow:hidden;background:#000">
+  <iframe 
+    id="hx-iframe"
+    srcdoc="<!DOCTYPE html>
+<html lang=&quot;de&quot;>
+<head>
+<meta charset=&quot;UTF-8&quot;/>
+<meta name=&quot;viewport&quot; content=&quot;width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover&quot;/>
+<title>h,x-Diagramm nach Mollier</title>
+<style>
+:root{
+  --bg:#000;--bm:rgba(255,255,255,.14);--bs:rgba(255,255,255,.08);
+  --gm:rgba(255,255,255,.11);--gh:rgba(255,255,255,.16);
+  --t1:rgba(255,255,255,.95);--t2:rgba(255,255,255,.60);
+  --t3:rgba(255,255,255,.35);--t4:rgba(255,255,255,.14);
+  --heat:#ff6b35;--cold:#00c4e8;--grn:#34d399;--air:#a78bfa;--warn:#ffd60a;--blue:#4fa8ff;
+  --f:Arial,Helvetica,sans-serif;--fm:'Courier New',monospace;
+  --r:14px;--rL:20px;
+  --sat:env(safe-area-inset-top,0px);--sab:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;font-family:var(--f);color:var(--t1);background:var(--bg);overflow:hidden}
+body{display:flex;flex-direction:column;
+  background-image:radial-gradient(ellipse 70% 50% at 15% 5%,rgba(20,50,90,.55) 0%,transparent 65%),
+                  radial-gradient(ellipse 55% 45% at 85% 90%,rgba(10,35,65,.50) 0%,transparent 65%);
+  background-attachment:fixed}
+input[type=number]{-moz-appearance:textfield}
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none}
+
+/* ── Header ── */
+.hdr{padding:calc(var(--sat)+10px) 16px 10px;background:rgba(0,0,0,.88);border-bottom:1px solid var(--bm);flex-shrink:0;display:flex;align-items:center;gap:10px}
+.hdr-icon{width:28px;height:28px;border-radius:7px;flex-shrink:0;background:var(--gm);border:1px solid var(--bm);display:flex;align-items:center;justify-content:center;font-size:14px;font-family:var(--fm)}
+.hdr-title{font-size:14px;font-weight:700}
+.hdr-sub{font-size:10px;color:var(--t3);margin-top:1px}
+.badge{margin-left:auto;flex-shrink:0;background:rgba(167,139,250,.14);border:1px solid rgba(167,139,250,.32);color:#c4b5fd;font-size:9px;font-weight:700;padding:3px 8px;border-radius:6px;letter-spacing:.07em}
+
+/* ── Scroll ── */
+.scroll{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch}
+.scroll::-webkit-scrollbar{display:none}
+
+/* ── Glass card ── */
+.gc{background:rgba(255,255,255,.07);border:1px solid var(--bm);border-radius:var(--rL);padding:20px;position:relative;overflow:hidden;box-shadow:0 2px 0 rgba(255,255,255,.06) inset,0 8px 32px rgba(0,0,0,.5)}
+.gc::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.22) 50%,transparent);pointer-events:none}
+
+/* ── Typography ── */
+.slbl{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--t3);margin-bottom:14px}
+.si-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.si-item{display:flex;flex-direction:column;gap:3px}
+.si-k{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--t3)}
+.si-v{font-family:var(--fm);font-size:13px;font-weight:700;color:#c4b5fd;line-height:1}
+.si-v.dim{color:var(--t4)}
+
+/* ── Mode tabs ── */
+.ptabs{display:grid;grid-template-columns:1fr 1fr;gap:4px;background:rgba(0,0,0,.35);border:1px solid var(--bs);border-radius:var(--r);padding:4px;margin-bottom:16px}
+.ptab{padding:9px;border-radius:10px;border:1px solid transparent;background:transparent;color:var(--t3);font-size:12px;font-weight:600;cursor:pointer;text-align:center;transition:all .15s}
+.ptab.a{background:var(--gh);border-color:var(--bm);color:var(--t1);box-shadow:inset 0 1px rgba(255,255,255,.12),0 2px 6px rgba(0,0,0,.4)}
+
+/* ── Inputs ── */
+.igrp{margin-bottom:16px}
+.igrp:last-of-type{margin-bottom:0}
+.ilbl{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--t3);margin-bottom:7px}
+.irow{display:flex;gap:10px;align-items:center}
+.finp{flex:1;min-width:0;background:var(--gm);border:1px solid rgba(255,255,255,.25);color:var(--t1);font-family:var(--fm);font-size:18px;font-weight:700;padding:13px 14px;border-radius:var(--r);outline:none;-webkit-appearance:none;transition:border-color .15s,box-shadow .15s}
+.finp::placeholder{color:var(--t4);font-weight:400}
+.finp:focus{border-color:rgba(167,139,250,.65);box-shadow:0 0 0 3px rgba(167,139,250,.10);background:var(--gh)}
+.finp.err{border-color:rgba(255,69,58,.65)}
+.fu{font-size:11px;font-weight:700;color:var(--t3);white-space:nowrap;min-width:36px}
+
+/* ── Buttons ── */
+.btn{display:block;width:100%;padding:14px;border-radius:var(--r);border:1px solid;font-family:var(--f);font-size:13px;font-weight:700;cursor:pointer;transition:all .15s;text-align:center}
+.btn-air{border-color:rgba(167,139,250,.45);background:rgba(167,139,250,.18);color:#c4b5fd}
+.btn-air:active{background:rgba(167,139,250,.32)}
+.btn-grn{border-color:rgba(52,211,153,.45);background:rgba(52,211,153,.16);color:#34d399}
+.btn-grn:active{background:rgba(52,211,153,.28)}
+.btn-pdf{border-color:rgba(79,168,255,.40);background:rgba(79,168,255,.14);color:#4fa8ff}
+.btn-pdf:active{background:rgba(79,168,255,.26)}
+.btn-rst{border-color:var(--bs);background:rgba(255,255,255,.06);color:var(--t2)}
+.btn-rst:active{background:rgba(255,255,255,.14)}
+
+/* ── Process buttons ── */
+.proc-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pbtn{padding:12px 8px;border-radius:var(--r);border:1px solid var(--bs);background:rgba(255,255,255,.05);color:var(--t3);font-family:var(--f);font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;text-align:center;line-height:1.3}
+.pbtn:active{opacity:.7}
+.pbtn.sel[data-p=&quot;heat&quot;]   {border-color:rgba(255,107,53,.55);background:rgba(255,107,53,.12);color:#ffaa7a}
+.pbtn.sel[data-p=&quot;cool&quot;]   {border-color:rgba(0,196,232,.45);background:rgba(0,196,232,.10);color:#66dfff}
+.pbtn.sel[data-p=&quot;cdehum&quot;] {border-color:rgba(0,196,232,.45);background:rgba(0,196,232,.08);color:#66dfff}
+.pbtn.sel[data-p=&quot;steam&quot;]  {border-color:rgba(167,139,250,.55);background:rgba(167,139,250,.12);color:#c4b5fd}
+.pbtn.sel[data-p=&quot;spray&quot;]  {border-color:rgba(52,211,153,.45);background:rgba(52,211,153,.10);color:#34d399}
+.pbtn.sel[data-p=&quot;dreheat&quot;]{border-color:rgba(255,214,10,.45);background:rgba(255,214,10,.08);color:#ffd60a}
+
+/* ── State list ── */
+.se{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:var(--r);background:var(--gm);border:1px solid var(--bs);margin-bottom:8px;cursor:pointer;transition:all .15s}
+.se:last-child{margin-bottom:0}
+.se.act{border-color:rgba(167,139,250,.45);background:rgba(167,139,250,.08)}
+.se-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.se-info{flex:1;min-width:0}
+.se-main{font-size:13px;font-weight:700;font-family:var(--fm)}
+.se-sub{font-size:10px;color:var(--t3);margin-top:2px;font-family:var(--fm)}
+
+/* ── Canvas ── */
+.cvs-wrap{position:relative;width:100%;touch-action:none}
+#hx{display:block;width:100%;cursor:crosshair}
+
+/* ── Tooltip ── */
+#tip{position:absolute;background:rgba(4,12,28,.96);border:1px solid rgba(255,255,255,.18);border-radius:10px;padding:9px 13px;font-size:11px;font-family:var(--fm);pointer-events:none;display:none;z-index:20;line-height:1.8;backdrop-filter:blur(12px)}
+
+/* ── Error / info ── */
+.errmsg{color:#ff453a;font-size:11px;margin-top:8px;padding:7px 10px;background:rgba(255,69,58,.07);border:1px solid rgba(255,69,58,.22);border-radius:10px;display:none;line-height:1.5}
+.infomsg{color:#34d399;font-size:11px;margin-top:8px;padding:7px 10px;background:rgba(52,211,153,.07);border:1px solid rgba(52,211,153,.22);border-radius:10px;display:none;line-height:1.5}
+
+/* ── Chain ── */
+.ci{display:flex;align-items:center;gap:6px;font-size:11px;padding:6px 10px;border-radius:8px;background:rgba(255,255,255,.04);margin-bottom:4px;font-family:var(--fm)}
+
+/* ── Bottom sheet ── */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:100;opacity:0;pointer-events:none;transition:opacity .3s;backdrop-filter:blur(4px)}
+.overlay.show{opacity:1;pointer-events:auto}
+.sheet{position:fixed;left:0;right:0;bottom:0;background:#0e1422;border-top:1px solid var(--bm);border-radius:24px 24px 0 0;z-index:101;padding-bottom:calc(var(--sab)+16px);transform:translateY(100%);transition:transform .35s cubic-bezier(.32,.72,0,1);max-height:90vh;overflow-y:auto}
+.sheet.show{transform:translateY(0)}
+.sh-handle{width:36px;height:4px;border-radius:2px;background:rgba(255,255,255,.20);margin:12px auto 0}
+.sh-title{font-size:15px;font-weight:700;text-align:center;padding:12px 20px 0;color:var(--t1)}
+.sh-sub{font-size:11px;color:var(--t3);text-align:center;margin-top:3px;padding-bottom:14px;border-bottom:1px solid var(--bs)}
+.sh-body{padding:16px 20px}
+.sh-body .btn{margin-bottom:10px}
+.sh-body .btn:last-child{margin-bottom:0}
+
+/* ── Content layout ── */
+.content-area{padding:14px 14px;display:flex;flex-direction:column;gap:14px}
+
+/* ── Divider ── */
+.divider{display:flex;align-items:center;gap:8px;margin:2px 0}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--bs)}
+.divider-txt{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--t3);white-space:nowrap}
+
+/* +/− sign toggle for temperature inputs */
+.sign-btn{
+  width:48px;flex-shrink:0;
+  border-radius:var(--r);border:1px solid rgba(255,255,255,.22);
+  background:var(--gm);color:var(--t2);
+  font-size:22px;font-weight:700;font-family:var(--fm);
+  cursor:pointer;transition:all .15s;line-height:1;
+  padding:13px 0;text-align:center;
+}
+.sign-btn.neg{border-color:rgba(0,196,232,.50);background:rgba(0,196,232,.12);color:#66dfff}
+
+/* ── Print layout ── */
+@media print {
+  html,body{overflow:visible!important;height:auto!important;background:white!important}
+  body>*:not(.print-page){display:none!important}
+  .print-page{display:block!important}
+}
+.print-page{display:none;width:210mm;min-height:297mm;padding:15mm;background:white;color:#000;font-family:Arial,sans-serif;font-size:10pt}
+.pp-head{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #1a3a5c;padding-bottom:8px;margin-bottom:12px}
+.pp-head h1{font-size:16pt;color:#1a3a5c;margin:0}
+.pp-head p{font-size:9pt;color:#666;margin:2px 0 0}
+.pp-proj{width:100%;border-collapse:collapse;margin-bottom:12px;font-size:10pt}
+.pp-proj td{border:1px solid #ccc;padding:5px 8px;vertical-align:top}
+.pp-proj td:nth-child(odd){font-weight:700;background:#f0f4f8;width:28%;color:#1a3a5c}
+.pp-img{width:100%;max-height:130mm;object-fit:contain;border:1px solid #ddd;border-radius:4px;margin-bottom:12px}
+.pp-table{width:100%;border-collapse:collapse;font-size:9pt;margin-bottom:12px}
+.pp-table th{background:#1a3a5c;color:white;padding:5px 7px;text-align:left;font-weight:700}
+.pp-table td{border:1px solid #ddd;padding:4px 7px;font-family:monospace}
+.pp-table tr:nth-child(even) td{background:#f8f9fa}
+.pp-section{font-size:10pt;font-weight:700;color:#1a3a5c;margin:12px 0 6px;border-left:3px solid #1a3a5c;padding-left:8px}
+.pp-foot{margin-top:16px;padding-top:8px;border-top:1px solid #ccc;font-size:8pt;color:#888;display:flex;justify-content:space-between}
+</style>
+</head>
+<body>
+
+<!-- ── Header ── -->
+<header class=&quot;hdr&quot;>
+  <div class=&quot;hdr-icon&quot;>&amp;#7745;</div>
+  <div><div class=&quot;hdr-title&quot;>h,x-Diagramm nach Mollier</div><div class=&quot;hdr-sub&quot;>HLK-Anlagen &amp;middot; Luftbehandlungsprozesse</div></div>
+  <div class=&quot;badge&quot;>MOCKUP</div>
+</header>
+
 <!-- ── Main scroll ── -->
-<div class="hx-scroll"><div class="hx-content-area">
+<div class=&quot;scroll&quot;><div class=&quot;content-area&quot;>
 
   <!-- 1. Aktiver Zustand -->
-  <div class="hx-gc">
-    <div class="hx-slbl">Aktiver Luftzustand</div>
-    <div class="hx-si-grid">
-      <div class="hx-si-item"><div class="hx-si-k">t</div><div class="hx-si-v dim" id="si-t">–</div></div>
-      <div class="hx-si-item"><div class="hx-si-k">x</div><div class="hx-si-v dim" id="si-x">–</div></div>
-      <div class="hx-si-item"><div class="hx-si-k">h</div><div class="hx-si-v dim" id="si-h">–</div></div>
-      <div class="hx-si-item"><div class="hx-si-k">φ</div><div class="hx-si-v dim" id="si-phi">–</div></div>
-      <div class="hx-si-item"><div class="hx-si-k">t_dp</div><div class="hx-si-v dim" id="si-dp">–</div></div>
-      <div class="hx-si-item"><div class="hx-si-k">ρ</div><div class="hx-si-v dim" id="si-rho">–</div></div>
+  <div class=&quot;gc&quot;>
+    <div class=&quot;slbl&quot;>Aktiver Luftzustand</div>
+    <div class=&quot;si-grid&quot;>
+      <div class=&quot;si-item&quot;><div class=&quot;si-k&quot;>t</div><div class=&quot;si-v dim&quot; id=&quot;si-t&quot;>–</div></div>
+      <div class=&quot;si-item&quot;><div class=&quot;si-k&quot;>x</div><div class=&quot;si-v dim&quot; id=&quot;si-x&quot;>–</div></div>
+      <div class=&quot;si-item&quot;><div class=&quot;si-k&quot;>h</div><div class=&quot;si-v dim&quot; id=&quot;si-h&quot;>–</div></div>
+      <div class=&quot;si-item&quot;><div class=&quot;si-k&quot;>φ</div><div class=&quot;si-v dim&quot; id=&quot;si-phi&quot;>–</div></div>
+      <div class=&quot;si-item&quot;><div class=&quot;si-k&quot;>t_dp</div><div class=&quot;si-v dim&quot; id=&quot;si-dp&quot;>–</div></div>
+      <div class=&quot;si-item&quot;><div class=&quot;si-k&quot;>ρ</div><div class=&quot;si-v dim&quot; id=&quot;si-rho&quot;>–</div></div>
     </div>
   </div>
 
   <!-- 2. Ausgangszustand eingeben -->
-  <div class="hx-gc">
-    <div class="hx-slbl">Ausgangszustand eingeben</div>
-    <div class="hx-ptabs">
-      <div class="hx-ptab a" id="tab-x"   onclick="hxSetInMode('x')">x [g/kg]</div>
-      <div class="hx-ptab"   id="tab-phi" onclick="hxSetInMode('phi')">φ [%]</div>
+  <div class=&quot;gc&quot;>
+    <div class=&quot;slbl&quot;>Ausgangszustand eingeben</div>
+    <div class=&quot;ptabs&quot;>
+      <div class=&quot;ptab a&quot; id=&quot;tab-x&quot;   onclick=&quot;setInMode('x')&quot;>x [g/kg]</div>
+      <div class=&quot;ptab&quot;   id=&quot;tab-phi&quot; onclick=&quot;setInMode('phi')&quot;>φ [%]</div>
     </div>
-    <div class="hx-igrp">
-      <div class="hx-ilbl">Temperatur t</div>
-      <div class="hx-irow">
-        <button class="hx-sign-btn" id="sign-in-t" onclick="hxToggleSign('in-t','sign-in-t')">+</button>
-        <input class="hx-finp" id="in-t" type="number" step="0.5" placeholder="z.B. 32" inputmode="decimal"/>
-        <span class="hx-fu">°C</span>
+    <div class=&quot;igrp&quot;>
+      <div class=&quot;ilbl&quot;>Temperatur t</div>
+      <div class=&quot;irow&quot;>
+        <button class=&quot;sign-btn&quot; id=&quot;sign-in-t&quot; onclick=&quot;toggleSign('in-t','sign-in-t')&quot;>+</button>
+        <input class=&quot;finp&quot; id=&quot;in-t&quot; type=&quot;number&quot; step=&quot;0.5&quot; placeholder=&quot;z.B. 32&quot; inputmode=&quot;decimal&quot;/>
+        <span class=&quot;fu&quot;>°C</span>
       </div>
     </div>
-    <div class="hx-igrp" id="fg-x">
-      <div class="hx-ilbl">Feuchtegehalt x</div>
-      <div class="hx-irow">
-        <input class="hx-finp" id="in-x" type="number" step="0.1" placeholder="z.B. 14" inputmode="decimal"/>
-        <span class="hx-fu">g/kg</span>
+    <div class=&quot;igrp&quot; id=&quot;fg-x&quot;>
+      <div class=&quot;ilbl&quot;>Feuchtegehalt x</div>
+      <div class=&quot;irow&quot;>
+        <input class=&quot;finp&quot; id=&quot;in-x&quot; type=&quot;number&quot; step=&quot;0.1&quot; placeholder=&quot;z.B. 14&quot; inputmode=&quot;decimal&quot;/>
+        <span class=&quot;fu&quot;>g/kg</span>
       </div>
     </div>
-    <div class="hx-igrp" id="fg-phi" style="display:none">
-      <div class="hx-ilbl">Relative Feuchte φ</div>
-      <div class="hx-irow">
-        <input class="hx-finp" id="in-phi" type="number" step="1" placeholder="z.B. 60" inputmode="decimal"/>
-        <span class="hx-fu">%</span>
+    <div class=&quot;igrp&quot; id=&quot;fg-phi&quot; style=&quot;display:none&quot;>
+      <div class=&quot;ilbl&quot;>Relative Feuchte φ</div>
+      <div class=&quot;irow&quot;>
+        <input class=&quot;finp&quot; id=&quot;in-phi&quot; type=&quot;number&quot; step=&quot;1&quot; placeholder=&quot;z.B. 60&quot; inputmode=&quot;decimal&quot;/>
+        <span class=&quot;fu&quot;>%</span>
       </div>
     </div>
-    <button class="hx-btn hx-btn-air" onclick="hxAddPointFromInput()">Zustand setzen</button>
-    <div class="hx-errmsg" id="in-err"></div>
+    <button class=&quot;btn btn-air&quot; onclick=&quot;addPointFromInput()&quot;>Zustand setzen</button>
+    <div class=&quot;errmsg&quot; id=&quot;in-err&quot;></div>
   </div>
 
   <!-- 3. Diagramm -->
-  <div class="hx-diag-shell">
-    <div class="hx-cvs-wrap"><canvas id="hx"></canvas></div>
+  <div class=&quot;gc&quot; style=&quot;padding:10px&quot;>
+    <div class=&quot;cvs-wrap&quot;><canvas id=&quot;hx&quot;></canvas><div id=&quot;tip&quot;></div></div>
   </div>
-  <div id="hx-tip"></div>
 
   <!-- 4. Luftzustände (conditional) -->
-  <div class="hx-gc" id="slist-wrap" style="display:none">
-    <div class="hx-slbl">Luftzustände</div>
-    <div id="slist"></div>
+  <div class=&quot;gc&quot; id=&quot;slist-wrap&quot; style=&quot;display:none&quot;>
+    <div class=&quot;slbl&quot;>Luftzustände</div>
+    <div id=&quot;slist&quot;></div>
   </div>
 
   <!-- 5. AUTO: Zielzustand + mögliche Luftbehandlungen -->
-  <div class="hx-gc" id="auto-sec" style="display:none">
-    <div class="hx-slbl">Zielzustand eingeben</div>
+  <div class=&quot;gc&quot; id=&quot;auto-sec&quot; style=&quot;display:none&quot;>
+    <div class=&quot;slbl&quot;>Zielzustand eingeben</div>
 
     <!-- Step 2: Target state -->
-    <div class="hx-ptabs">
-      <div class="hx-ptab a" id="atab-x"   onclick="hxSetAutoMode('x')">x [g/kg]</div>
-      <div class="hx-ptab"   id="atab-phi" onclick="hxSetAutoMode('phi')">φ [%]</div>
+    <div class=&quot;ptabs&quot;>
+      <div class=&quot;ptab a&quot; id=&quot;atab-x&quot;   onclick=&quot;setAutoMode('x')&quot;>x [g/kg]</div>
+      <div class=&quot;ptab&quot;   id=&quot;atab-phi&quot; onclick=&quot;setAutoMode('phi')&quot;>φ [%]</div>
     </div>
-    <div class="hx-igrp">
-      <div class="hx-ilbl">Zieltemperatur t</div>
-      <div class="hx-irow">
-        <button class="hx-sign-btn" id="sign-auto-t" onclick="hxToggleSign('auto-t','sign-auto-t')">+</button>
-        <input class="hx-finp" id="auto-t" type="number" step="0.5" placeholder="z.B. 20" inputmode="decimal"/>
-        <span class="hx-fu">°C</span>
+    <div class=&quot;igrp&quot;>
+      <div class=&quot;ilbl&quot;>Zieltemperatur t</div>
+      <div class=&quot;irow&quot;>
+        <button class=&quot;sign-btn&quot; id=&quot;sign-auto-t&quot; onclick=&quot;toggleSign('auto-t','sign-auto-t')&quot;>+</button>
+        <input class=&quot;finp&quot; id=&quot;auto-t&quot; type=&quot;number&quot; step=&quot;0.5&quot; placeholder=&quot;z.B. 20&quot; inputmode=&quot;decimal&quot;/>
+        <span class=&quot;fu&quot;>°C</span>
       </div>
     </div>
-    <div class="hx-igrp" id="afg-x">
-      <div class="hx-ilbl">Zielfeuchtegehalt x</div>
-      <div class="hx-irow">
-        <input class="hx-finp" id="auto-x" type="number" step="0.1" placeholder="z.B. 8" inputmode="decimal"/>
-        <span class="hx-fu">g/kg</span>
+    <div class=&quot;igrp&quot; id=&quot;afg-x&quot;>
+      <div class=&quot;ilbl&quot;>Zielfeuchtegehalt x</div>
+      <div class=&quot;irow&quot;>
+        <input class=&quot;finp&quot; id=&quot;auto-x&quot; type=&quot;number&quot; step=&quot;0.1&quot; placeholder=&quot;z.B. 8&quot; inputmode=&quot;decimal&quot;/>
+        <span class=&quot;fu&quot;>g/kg</span>
       </div>
     </div>
-    <div class="hx-igrp" id="afg-phi" style="display:none">
-      <div class="hx-ilbl">Zielrelativfeuchte φ</div>
-      <div class="hx-irow">
-        <input class="hx-finp" id="auto-phi" type="number" step="1" placeholder="z.B. 50" inputmode="decimal"/>
-        <span class="hx-fu">%</span>
+    <div class=&quot;igrp&quot; id=&quot;afg-phi&quot; style=&quot;display:none&quot;>
+      <div class=&quot;ilbl&quot;>Zielrelativfeuchte φ</div>
+      <div class=&quot;irow&quot;>
+        <input class=&quot;finp&quot; id=&quot;auto-phi&quot; type=&quot;number&quot; step=&quot;1&quot; placeholder=&quot;z.B. 50&quot; inputmode=&quot;decimal&quot;/>
+        <span class=&quot;fu&quot;>%</span>
       </div>
     </div>
 
     <!-- Step 3: Analyse button -->
-    <button class="hx-btn hx-btn-air" onclick="hxAnalyseRoute()">Mögliche Luftbehandlungen ermitteln</button>
-    <div class="hx-errmsg" id="auto-err"></div>
+    <button class=&quot;btn btn-air&quot; onclick=&quot;analyseRoute()&quot;>Mögliche Luftbehandlungen ermitteln</button>
+    <div class=&quot;errmsg&quot; id=&quot;auto-err&quot;></div>
 
     <!-- Step 4: Possible processes (shown after analysis) -->
-    <div id="proc-options" style="display:none;margin-top:12px">
-      <div class="hx-ilbl" style="margin-bottom:8px">Luftbehandlung auswählen</div>
-      <div id="proc-options-list"></div>
+    <div id=&quot;proc-options&quot; style=&quot;display:none;margin-top:12px&quot;>
+      <div class=&quot;ilbl&quot; style=&quot;margin-bottom:8px&quot;>Luftbehandlung auswählen</div>
+      <div id=&quot;proc-options-list&quot;></div>
     </div>
 
     <!-- Step 5: Calculate (shown after selection) -->
-    <button class="hx-btn hx-btn-grn" id="btn-auto-calc" onclick="hxDoAutoRoute()" style="display:none;margin-top:8px">Berechnen</button>
-    <div class="hx-infomsg" id="auto-info"></div>
+    <button class=&quot;btn btn-grn&quot; id=&quot;btn-auto-calc&quot; onclick=&quot;doAutoRoute()&quot; style=&quot;display:none;margin-top:8px&quot;>Berechnen</button>
+    <div class=&quot;infomsg&quot; id=&quot;auto-info&quot;></div>
   </div>
 
   <!-- 6. Divider -->
-  <div class="hx-divider" id="div-manual" style="display:none"><span class="hx-divider-txt">Oder manuell</span></div>
+  <div class=&quot;divider&quot; id=&quot;div-manual&quot; style=&quot;display:none&quot;><span class=&quot;divider-txt&quot;>Oder manuell</span></div>
 
   <!-- 7. Manuelle Luftbehandlung -->
-  <div class="hx-gc" id="manual-sec" style="display:none">
-    <div class="hx-slbl">Manuelle Luftbehandlung</div>
-    <div class="hx-proc-grid">
-      <button class="hx-pbtn" data-p="heat"    onclick="hxSelProc('heat')"   >Erwärmen</button>
-      <button class="hx-pbtn" data-p="cool"    onclick="hxSelProc('cool')"   >Kühlen (sensibel)</button>
-      <button class="hx-pbtn" data-p="cdehum"  onclick="hxSelProc('cdehum')" >Kühlen + Entfeuchten</button>
-      <button class="hx-pbtn" data-p="steam"   onclick="hxSelProc('steam')"  >Dampfbefeuchtung</button>
-      <button class="hx-pbtn" data-p="spray"   onclick="hxSelProc('spray')"  >Adiabate Befeuchtung</button>
-      <button class="hx-pbtn" data-p="dreheat" onclick="hxSelProc('dreheat')">Entf. + Nachheizen</button>
+  <div class=&quot;gc&quot; id=&quot;manual-sec&quot; style=&quot;display:none&quot;>
+    <div class=&quot;slbl&quot;>Manuelle Luftbehandlung</div>
+    <div class=&quot;proc-grid&quot;>
+      <button class=&quot;pbtn&quot; data-p=&quot;heat&quot;    onclick=&quot;selProc('heat')&quot;   >Erwärmen</button>
+      <button class=&quot;pbtn&quot; data-p=&quot;cool&quot;    onclick=&quot;selProc('cool')&quot;   >Kühlen (sensibel)</button>
+      <button class=&quot;pbtn&quot; data-p=&quot;cdehum&quot;  onclick=&quot;selProc('cdehum')&quot; >Kühlen + Entfeuchten</button>
+      <button class=&quot;pbtn&quot; data-p=&quot;steam&quot;   onclick=&quot;selProc('steam')&quot;  >Dampfbefeuchtung</button>
+      <button class=&quot;pbtn&quot; data-p=&quot;spray&quot;   onclick=&quot;selProc('spray')&quot;  >Adiabate Befeuchtung</button>
+      <button class=&quot;pbtn&quot; data-p=&quot;dreheat&quot; onclick=&quot;selProc('dreheat')&quot;>Entf. + Nachheizen</button>
     </div>
   </div>
 
   <!-- 8. Prozesskette (conditional) -->
-  <div class="hx-gc" id="chainpan" style="display:none">
-    <div class="hx-slbl">Prozesskette</div>
-    <div id="chainlist"></div>
+  <div class=&quot;gc&quot; id=&quot;chainpan&quot; style=&quot;display:none&quot;>
+    <div class=&quot;slbl&quot;>Prozesskette</div>
+    <div id=&quot;chainlist&quot;></div>
   </div>
 
   <!-- 9. PDF + Reset -->
-  <div id="action-sec" style="display:none">
-    <button class="hx-btn hx-btn-pdf" onclick="hxOpenPdfSheet()" style="margin-bottom:8px">Als PDF exportieren (A4)</button>
-    <button class="hx-btn hx-btn-rst" onclick="hxResetAll()">Alles zur&uuml;cksetzen</button>
+  <div id=&quot;action-sec&quot; style=&quot;display:none&quot;>
+    <button class=&quot;btn btn-pdf&quot; onclick=&quot;openPdfSheet()&quot; style=&quot;margin-bottom:8px&quot;>Als PDF exportieren (A4)</button>
+    <button class=&quot;btn btn-rst&quot; onclick=&quot;resetAll()&quot;>Alles zur&amp;uuml;cksetzen</button>
   </div>
-  <div id="reset-only">
-    <button class="hx-btn hx-btn-rst" onclick="hxResetAll()" style="margin-bottom:16px">Zur&uuml;cksetzen</button>
+  <div id=&quot;reset-only&quot;>
+    <button class=&quot;btn btn-rst&quot; onclick=&quot;resetAll()&quot; style=&quot;margin-bottom:16px&quot;>Zur&amp;uuml;cksetzen</button>
   </div>
 
 </div></div><!-- /content-area /scroll -->
 
 <!-- ── Bottom sheet overlay ── -->
-<div class="hx-overlay" id="hx-overlay" onclick="hxCloseSheet()"></div>
+<div class=&quot;overlay&quot; id=&quot;overlay&quot; onclick=&quot;closeSheet()&quot;></div>
 
 <!-- ── Sheet: Manueller Prozess ── -->
-<div class="hx-sheet" id="hx-sheet-proc">
-  <div class="hx-sh-handle"></div>
-  <div class="hx-sh-title" id="sp-title">Prozess</div>
-  <div class="hx-sh-sub"   id="sp-sub">Ausgangszustand: –</div>
-  <div class="hx-sh-body">
-    <div id="hum-tabs" style="display:none">
-      <div class="hx-ptabs">
-        <div class="hx-ptab a" id="ptab-x"   onclick="setPMode('x')">x [g/kg]</div>
-        <div class="hx-ptab"   id="ptab-phi" onclick="setPMode('phi')">φ [%]</div>
+<div class=&quot;sheet&quot; id=&quot;sheet-proc&quot;>
+  <div class=&quot;sh-handle&quot;></div>
+  <div class=&quot;sh-title&quot; id=&quot;sp-title&quot;>Prozess</div>
+  <div class=&quot;sh-sub&quot;   id=&quot;sp-sub&quot;>Ausgangszustand: –</div>
+  <div class=&quot;sh-body&quot;>
+    <div id=&quot;hum-tabs&quot; style=&quot;display:none&quot;>
+      <div class=&quot;ptabs&quot;>
+        <div class=&quot;ptab a&quot; id=&quot;ptab-x&quot;   onclick=&quot;setPMode('x')&quot;>x [g/kg]</div>
+        <div class=&quot;ptab&quot;   id=&quot;ptab-phi&quot; onclick=&quot;setPMode('phi')&quot;>φ [%]</div>
       </div>
     </div>
-    <div id="pparams"></div>
-    <div class="hx-errmsg" id="perr"></div>
-    <button class="hx-btn hx-btn-air" onclick="doCalc()">Berechnen</button>
-    <button class="hx-btn hx-btn-rst" onclick="hxCloseSheet()">Abbrechen</button>
+    <div id=&quot;pparams&quot;></div>
+    <div class=&quot;errmsg&quot; id=&quot;perr&quot;></div>
+    <button class=&quot;btn btn-air&quot; onclick=&quot;doCalc()&quot;>Berechnen</button>
+    <button class=&quot;btn btn-rst&quot; onclick=&quot;closeSheet()&quot;>Abbrechen</button>
   </div>
 </div>
 
 <!-- ── Sheet: PDF Export ── -->
-<div class="hx-sheet" id="hx-sheet-pdf">
-  <div class="hx-sh-handle"></div>
-  <div class="hx-sh-title">PDF exportieren</div>
-  <div class="hx-sh-sub">Projektdaten f&uuml;r die Dokumentation</div>
-  <div class="hx-sh-body">
-    <div class="hx-igrp">
-      <div class="hx-ilbl">Sachbearbeiter</div>
-      <div class="hx-irow"><input class="hx-finp" id="pdf-sb" type="text" placeholder="Name" style="font-size:16px;font-family:var(--f)"/></div>
+<div class=&quot;sheet&quot; id=&quot;sheet-pdf&quot;>
+  <div class=&quot;sh-handle&quot;></div>
+  <div class=&quot;sh-title&quot;>PDF exportieren</div>
+  <div class=&quot;sh-sub&quot;>Projektdaten f&amp;uuml;r die Dokumentation</div>
+  <div class=&quot;sh-body&quot;>
+    <div class=&quot;igrp&quot;>
+      <div class=&quot;ilbl&quot;>Sachbearbeiter</div>
+      <div class=&quot;irow&quot;><input class=&quot;finp&quot; id=&quot;pdf-sb&quot; type=&quot;text&quot; placeholder=&quot;Name&quot; style=&quot;font-size:16px;font-family:var(--f)&quot;/></div>
     </div>
-    <div class="hx-igrp">
-      <div class="hx-ilbl">Projekt</div>
-      <div class="hx-irow"><input class="hx-finp" id="pdf-pj" type="text" placeholder="Projektbezeichnung" style="font-size:16px;font-family:var(--f)"/></div>
+    <div class=&quot;igrp&quot;>
+      <div class=&quot;ilbl&quot;>Projekt</div>
+      <div class=&quot;irow&quot;><input class=&quot;finp&quot; id=&quot;pdf-pj&quot; type=&quot;text&quot; placeholder=&quot;Projektbezeichnung&quot; style=&quot;font-size:16px;font-family:var(--f)&quot;/></div>
     </div>
-    <div class="hx-igrp">
-      <div class="hx-ilbl">Projektnummer</div>
-      <div class="hx-irow"><input class="hx-finp" id="pdf-nr" type="text" placeholder="z.B. 2024-001" style="font-size:16px;font-family:var(--f)"/></div>
+    <div class=&quot;igrp&quot;>
+      <div class=&quot;ilbl&quot;>Projektnummer</div>
+      <div class=&quot;irow&quot;><input class=&quot;finp&quot; id=&quot;pdf-nr&quot; type=&quot;text&quot; placeholder=&quot;z.B. 2024-001&quot; style=&quot;font-size:16px;font-family:var(--f)&quot;/></div>
     </div>
-    <div class="hx-igrp">
-      <div class="hx-ilbl">Datum</div>
-      <div class="hx-irow"><input class="hx-finp" id="pdf-dt" type="text" style="font-size:16px;font-family:var(--f)"/></div>
+    <div class=&quot;igrp&quot;>
+      <div class=&quot;ilbl&quot;>Datum</div>
+      <div class=&quot;irow&quot;><input class=&quot;finp&quot; id=&quot;pdf-dt&quot; type=&quot;text&quot; style=&quot;font-size:16px;font-family:var(--f)&quot;/></div>
     </div>
-    <button class="hx-btn hx-btn-pdf" onclick="hxDoPrint()">Als PDF speichern</button>
-    <button class="hx-btn hx-btn-rst" onclick="hxCloseSheet()">Abbrechen</button>
+    <button class=&quot;btn btn-pdf&quot; onclick=&quot;doPrint()&quot;>Als PDF speichern</button>
+    <button class=&quot;btn btn-rst&quot; onclick=&quot;closeSheet()&quot;>Abbrechen</button>
   </div>
 </div>
 
-
-</div><!-- /tab-hx -->
-
-<!-- hx overlay + sheets -->
-<div class="hx-overlay" id="hx-overlay" onclick="hxCloseSheet()"></div>
-<div class="hx-sheet" id="hx-sheet-proc">
-  <div class="hx-sh-handle"></div>
-  <div class="hx-sh-title" id="sp-title">Prozess</div>
-  <div class="hx-sh-sub" id="sp-sub"></div>
-  <div class="hx-sh-body">
-    <div id="hum-tabs" style="display:none"><div class="hx-ptabs"><div class="hx-ptab a" id="ptab-x" onclick="hxSetPMode('x')">x [g/kg]</div><div class="hx-ptab" id="ptab-phi" onclick="hxSetPMode('phi')">φ [%]</div></div></div>
-    <div id="pparams"></div>
-    <div class="hx-errmsg" id="perr"></div>
-    <button class="hx-btn hx-btn-air" onclick="hxDoCalc()">Berechnen</button>
-    <button class="hx-btn hx-btn-rst" onclick="hxCloseSheet()">Abbrechen</button>
+<!-- ── Print layout ── -->
+<div class=&quot;print-page&quot; id=&quot;pp&quot;>
+  <div class=&quot;pp-head&quot;>
+    <div>
+      <h1>h,x-Diagramm nach Mollier</h1>
+      <p>HLK-Anlagen &amp;middot; Luftbehandlungsprozesse &amp;middot; Massenstromrechner</p>
+    </div>
+    <div style=&quot;text-align:right;font-size:9pt;color:#666&quot;>
+      <div id=&quot;pp-dt-head&quot;></div>
+      <div id=&quot;pp-nr-head&quot; style=&quot;font-weight:700;color:#1a3a5c&quot;></div>
+    </div>
+  </div>
+  <table class=&quot;pp-proj&quot;>
+    <tr>
+      <td>Sachbearbeiter</td><td id=&quot;pp-sb&quot;>–</td>
+      <td>Datum</td><td id=&quot;pp-dt&quot;>–</td>
+    </tr>
+    <tr>
+      <td>Projekt</td><td id=&quot;pp-pj&quot;>–</td>
+      <td>Projektnummer</td><td id=&quot;pp-nr&quot;>–</td>
+    </tr>
+  </table>
+  <div class=&quot;pp-section&quot;>Diagramm</div>
+  <img class=&quot;pp-img&quot; id=&quot;pp-img&quot; alt=&quot;h,x-Diagramm&quot;/>
+  <div class=&quot;pp-section&quot;>Luftzustände</div>
+  <table class=&quot;pp-table&quot; id=&quot;pp-states&quot;><thead><tr><th>Zustand</th><th>t (°C)</th><th>x (g/kg)</th><th>h (kJ/kg)</th><th>φ (%)</th><th>t_dp (°C)</th><th>ρ (kg/m³)</th></tr></thead><tbody></tbody></table>
+  <div class=&quot;pp-section&quot; id=&quot;pp-chain-sec&quot; style=&quot;display:none&quot;>Prozesskette</div>
+  <table class=&quot;pp-table&quot; id=&quot;pp-chain&quot; style=&quot;display:none&quot;><thead><tr><th>Schritt</th><th>Prozess</th><th>Von</th><th>Nach</th><th>Δt (K)</th><th>Δx (g/kg)</th><th>Δh (kJ/kg)</th></tr></thead><tbody></tbody></table>
+  <div class=&quot;pp-foot&quot;>
+    <span>Massenstromrechner &amp;middot; HLK-Anlagen</span>
+    <span>h,x-Diagramm nach Mollier &amp;middot; Luftdruck 1013 hPa</span>
   </div>
 </div>
-<div class="hx-sheet" id="hx-sheet-pdf">
-  <div class="hx-sh-handle"></div>
-  <div class="hx-sh-title">PDF exportieren</div>
-  <div class="hx-sh-sub">Projektdaten</div>
-  <div class="hx-sh-body">
-    <div class="hx-igrp"><div class="hx-ilbl">Sachbearbeiter</div><input class="hx-finp" id="pdf-sb" type="text" placeholder="Name" style="font-size:16px;font-family:Arial"/></div>
-    <div class="hx-igrp"><div class="hx-ilbl">Projekt</div><input class="hx-finp" id="pdf-pj" type="text" placeholder="Projektbezeichnung" style="font-size:16px;font-family:Arial"/></div>
-    <div class="hx-igrp"><div class="hx-ilbl">Projektnummer</div><input class="hx-finp" id="pdf-nr" type="text" placeholder="z.B. 2024-001" style="font-size:16px;font-family:Arial"/></div>
-    <div class="hx-igrp"><div class="hx-ilbl">Datum</div><input class="hx-finp" id="pdf-dt" type="text" style="font-size:16px;font-family:Arial"/></div>
-    <button class="hx-btn hx-btn-pdf" onclick="hxDoPrint()">Als PDF speichern</button>
-    <button class="hx-btn hx-btn-rst" onclick="hxCloseSheet()">Abbrechen</button>
-  </div>
-</div>
-<div id="hx-tip"></div>
+
 <script>
-/* ═══ h,x-Diagramm Tab (v1.2.8) ═══ */
-
 'use strict';
 // ────────────────────────────────────────────────────
 // PHYSICS
@@ -2304,9 +2317,6 @@ function solveSteam(s0,tgt,HD){let lo=s0.x,hi=35;for(let i=0;i<80;i++){const m=(
 // ────────────────────────────────────────────────────
 const cvs=document.getElementById('hx'),ctx=cvs.getContext('2d');
 const TN=-20,TX=55,XN=0,XX=30;
-// Enthalpy range for Mollier projection
-// hMin: h at t=-20,x=0 ≈ -21  hMax: h at t=55,x=30 ≈ 135
-const HMN=-25, HMX=135;
 const M={t:26,r:56,b:36,l:42};
 // Process colors
 const PC={heat:'#ff6b35',cool:'#00c4e8',cdehum:'#00c4e8',steam:'#a78bfa',spray:'#34d399',dreheat:'#ffd60a'};
@@ -2315,143 +2325,87 @@ const PTC=['#ffffff','#ff6b35','#f59e0b','#a78bfa','#ffd60a','#4fa8ff','#f472b6'
 let CW=0,CH=0;
 function dW(){return CW-M.l-M.r}
 function dH(){return CH-M.t-M.b}
-function toCvs(x,t){
-  // TRUE Mollier h,x projection:
-  // X-axis: moisture content x (linear)
-  // Y-axis: specific enthalpy h (linear) — NOT temperature
-  // Isotherms are diagonal (slope ≈ 2.5 kJ/kg per g/kg)
-  const h=hAir(t,x);
-  const cx=M.l+(x-XN)/(XX-XN)*dW();
-  const cy=M.t+dH()-(h-HMN)/(HMX-HMN)*dH();
-  return[cx,cy];
-}
-function fromCvs(cx,cy){
-  // Invert Mollier projection: (cx,cy) → (x,t)
-  const x=Math.max(XN,Math.min(XX,XN+(cx-M.l)/dW()*(XX-XN)));
-  const h=HMN+(M.t+dH()-cy)/dH()*(HMX-HMN);
-  const t=Math.max(TN,Math.min(TX,tFromH(h,x)));
-  return[x,t];
-}
-function inD(cx,cy){return cx>=M.l&&cx<=M.l+dW()&&cy>=M.t&&cy<=M.t+dH()}
+function toCvs(x,t){return[M.l+(x-XN)/(XX-XN)*dW(),M.t+dH()-(t-TN)/(TX-TN)*dH()]}
+function fromCvs(cx,cy){return[Math.max(XN,Math.min(XX,XN+(cx-M.l)/dW()*(XX-XN))),Math.max(TN,Math.min(TX,TN+(M.t+dH()-cy)/dH()*(TX-TN)))]}
+function inD(cx,cy){return cx>=M.l&amp;&amp;cx<=M.l+dW()&amp;&amp;cy>=M.t&amp;&amp;cy<=M.t+dH()}
 
-function hxResizeCvs(){
-  // Measure from the tab root — always has correct clientWidth after display:block
-  var tabEl = document.getElementById('tab-hx');
-  if(!tabEl || tabEl.clientWidth < 10) return;
-  // Subtract content-area horizontal padding (14px * 2 = 28px)
-  var w = Math.max(280, Math.floor(tabEl.clientWidth) - 28);
-  var h = Math.round(w * 0.75);
-  CW = w; CH = h;
-  var wrap = cvs.parentElement;
-  var shell = wrap ? wrap.parentElement : null;
-  // CSS sizes
-  cvs.style.width   = w + 'px';
-  cvs.style.height  = h + 'px';
-  if(wrap) { wrap.style.width = w + 'px'; wrap.style.height = h + 'px'; }
-  if(shell){ shell.style.minHeight = h + 'px'; }
-  // Bitmap
-  var dpr = Math.min(window.devicePixelRatio || 1, 2);
-  cvs.width  = Math.round(w * dpr);
-  cvs.height = Math.round(h * dpr);
-  // Full reset — prevents ctx.scale() accumulation
-  ctx.setTransform(1, 0, 0, 1, 0, 0);
-  ctx.scale(dpr, dpr);
-  ctx.imageSmoothingEnabled = true;
-  hxRedraw();
+function resizeCvs(){
+  const wr=cvs.parentElement,w=wr.clientWidth;
+  CW=w;CH=Math.round(w*.74);
+  cvs.style.width=w+'px';cvs.style.height=CH+'px';
+  cvs.width=Math.round(w*devicePixelRatio);cvs.height=Math.round(CH*devicePixelRatio);
+  ctx.scale(devicePixelRatio,devicePixelRatio);redraw();
 }
 
-function hxRedraw(){
+function redraw(){
   ctx.clearRect(0,0,CW,CH);
   clip(()=>{drawBg();drawGrid();drawEnth();drawRH();drawSat()});
   drawAxes();
   clip(()=>{drawProcs();drawPoints()});
 }
 function clip(fn){ctx.save();ctx.beginPath();ctx.rect(M.l,M.t,dW(),dH());ctx.clip();fn();ctx.restore()}
-function drawBg(){ctx.fillStyle='white';ctx.fillRect(M.l,M.t,dW(),dH())}
+function drawBg(){ctx.fillStyle='rgba(3,10,22,.90)';ctx.fillRect(M.l,M.t,dW(),dH())}
 
 function drawGrid(){
-  // Horizontal h-lines (isenthalpic): every 5 kJ/kg
-  for(let hv=Math.ceil(HMN/5)*5;hv<=HMX;hv+=5){
-    const cy=M.t+dH()-(hv-HMN)/(HMX-HMN)*dH(),maj=hv%20===0;
-    ctx.beginPath();ctx.moveTo(M.l,cy);ctx.lineTo(M.l+dW(),cy);
-    ctx.strokeStyle=maj?'rgba(0,0,0,.10)':'rgba(0,0,0,.04)';ctx.lineWidth=maj?.7:.35;ctx.stroke();
-  }
-  // Vertical x-lines (isohume): every 2 g/kg
-  for(let x=0;x<=XX;x+=2){
-    const cx=M.l+x/XX*dW(),maj=x%10===0;
-    ctx.beginPath();ctx.moveTo(cx,M.t);ctx.lineTo(cx,M.t+dH());
-    ctx.strokeStyle=maj?'rgba(0,0,0,.10)':'rgba(0,0,0,.04)';ctx.lineWidth=maj?.7:.35;ctx.stroke();
-  }
-  // Diagonal isotherms: every 5°C — these are NOT the grid but shown as orientation lines
   for(let t=Math.ceil(TN/5)*5;t<=TX;t+=5){
-    const maj=t%10===0;
-    const[x0,y0]=toCvs(XN,t),[x1,y1]=toCvs(XX,t);
-    ctx.beginPath();ctx.moveTo(x0,y0);ctx.lineTo(x1,y1);
-    ctx.strokeStyle=maj?'rgba(180,60,0,.18)':'rgba(180,60,0,.07)';ctx.lineWidth=maj?.6:.3;ctx.stroke();
+    const[,cy]=toCvs(0,t),maj=t%10===0;
+    ctx.beginPath();ctx.moveTo(M.l,cy);ctx.lineTo(M.l+dW(),cy);
+    ctx.strokeStyle=maj?'rgba(255,255,255,.07)':'rgba(255,255,255,.03)';ctx.lineWidth=maj?.8:.4;ctx.stroke();
+  }
+  for(let x=0;x<=XX;x+=2){
+    const[cx]=toCvs(x,0),maj=x%10===0;
+    ctx.beginPath();ctx.moveTo(cx,M.t);ctx.lineTo(cx,M.t+dH());
+    ctx.strokeStyle=maj?'rgba(255,255,255,.07)':'rgba(255,255,255,.03)';ctx.lineWidth=maj?.8:.4;ctx.stroke();
   }
 }
 
 function drawEnth(){
-  // In h,x Mollier: isenthalpic lines are perfectly HORIZONTAL (h=const → cy=const)
-  // These are already drawn in drawGrid() as horizontal h-lines
-  // Here we draw the h-axis labels on the right side
-  ctx.setLineDash([]);
-  for(let hv=Math.ceil(HMN/10)*10;hv<=HMX;hv+=10){
-    const cy=M.t+dH()-(hv-HMN)/(HMX-HMN)*dH();
-    if(cy<M.t||cy>M.t+dH()) continue;
-    ctx.font='8px Arial';ctx.fillStyle='rgba(0,0,0,.45)';ctx.textAlign='left';
-    ctx.fillText(hv,M.l+dW()+4,cy+3);
+  ctx.setLineDash([4,5]);
+  for(let hv=-40;hv<=160;hv+=5){
+    ctx.beginPath();let s=false;
+    for(let x=XN;x<=XX;x+=.3){
+      const t=tFromH(hv,x);if(t<TN-1||t>TX+1)continue;
+      const[cx,cy]=toCvs(x,Math.max(TN,Math.min(TX,t)));s?ctx.lineTo(cx,cy):(ctx.moveTo(cx,cy),s=true);
+    }
+    const maj=hv%20===0;
+    ctx.strokeStyle=maj?'rgba(255,205,80,.25)':'rgba(255,205,80,.09)';ctx.lineWidth=maj?.9:.5;ctx.stroke();
+    if(maj){const t0=tFromH(hv,XX);if(t0>=TN&amp;&amp;t0<=TX){const[cx,cy]=toCvs(XX,t0);ctx.setLineDash([]);ctx.font='8px Arial';ctx.fillStyle='rgba(255,205,80,.5)';ctx.textAlign='left';ctx.fillText(hv,cx+2,cy+3);ctx.setLineDash([4,5]);}}
   }
+  ctx.setLineDash([]);
 }
 
 function drawRH(){
   for(const p of[10,20,30,40,50,60,70,80,90]){
     ctx.beginPath();let s=false;
     for(let t=TN;t<=TX;t+=.3){const x=p/100*xSat(t);if(x<XN||x>XX)continue;const[cx,cy]=toCvs(x,t);s?ctx.lineTo(cx,cy):(ctx.moveTo(cx,cy),s=true);}
-    const a=.15+p/100*.55;
-    ctx.strokeStyle=`rgba(30,90,160,${a.toFixed(2)})`;ctx.lineWidth=p===100?2:.7;ctx.stroke();
-    if(p%20===0||p===10){const tl=Math.min(TX-5,40),xl=p/100*xSat(tl);if(xl<=XX){const[cx,cy]=toCvs(xl,tl);ctx.font='8px Arial';ctx.textAlign='center';ctx.fillStyle=`rgba(20,70,140,${Math.min(1,a+.1).toFixed(2)})`;ctx.fillText(p+'%',cx,cy-3);}}
+    const a=.07+p/100*.28;
+    ctx.strokeStyle=`rgba(0,196,232,${a.toFixed(2)})`;ctx.lineWidth=.7;ctx.stroke();
+    if(p%20===0||p===10){const tl=Math.min(TX-3,50),xl=p/100*xSat(tl);if(xl<=XX){const[cx,cy]=toCvs(xl,tl);ctx.font='8px Arial';ctx.textAlign='center';ctx.fillStyle=`rgba(0,196,232,${Math.min(1,a+.2).toFixed(2)})`;ctx.fillText(p+'%',cx,cy-3);}}
   }
 }
 
 function drawSat(){
   ctx.beginPath();let s=false;
   for(let t=TN;t<=TX;t+=.2){const x=xSat(t);if(x>XX+1)break;const[cx,cy]=toCvs(Math.min(XX,x),t);s?ctx.lineTo(cx,cy):(ctx.moveTo(cx,cy),s=true);}
-  ctx.strokeStyle='#1a3a5c';ctx.lineWidth=2.2;ctx.stroke();
-  const tl=12,xl=xSat(tl);if(xl<=XX){const[cx,cy]=toCvs(xl,tl);ctx.font='bold 8px Arial';ctx.fillStyle='#1a3a5c';ctx.textAlign='left';ctx.fillText('φ=100%',cx+4,cy-4);}
+  ctx.strokeStyle='#00c4e8';ctx.lineWidth=2;ctx.stroke();
+  const tl=12,xl=xSat(tl);if(xl<=XX){const[cx,cy]=toCvs(xl,tl);ctx.font='bold 8px Arial';ctx.fillStyle='#00c4e8';ctx.textAlign='right';ctx.fillText('φ=100%',cx-3,cy-4);}
 }
 
 function drawAxes(){
-  ctx.strokeStyle='rgba(0,0,0,.5)';ctx.lineWidth=1;ctx.strokeRect(M.l,M.t,dW(),dH());
-  // Y-axis: enthalpy h labels
-  ctx.fillStyle='rgba(0,0,0,.65)';ctx.textAlign='right';ctx.font='9px Arial';
-  for(let hv=Math.ceil(HMN/20)*20;hv<=HMX;hv+=20){
-    const cy=M.t+dH()-(hv-HMN)/(HMX-HMN)*dH();
-    if(cy<M.t-2||cy>M.t+dH()+2) continue;
-    ctx.fillText(hv,M.l-4,cy+3);
-    ctx.beginPath();ctx.moveTo(M.l-3,cy);ctx.lineTo(M.l,cy);ctx.strokeStyle='rgba(0,0,0,.35)';ctx.lineWidth=.8;ctx.stroke();
-  }
-  // X-axis: moisture x labels
-  ctx.textAlign='center';ctx.fillStyle='rgba(0,0,0,.65)';
-  for(let x=0;x<=XX;x+=5){
-    const cx=M.l+x/XX*dW();
-    ctx.fillText(x,cx,M.t+dH()+12);
-    ctx.beginPath();ctx.moveTo(cx,M.t+dH());ctx.lineTo(cx,M.t+dH()+3);ctx.strokeStyle='rgba(0,0,0,.35)';ctx.lineWidth=.8;ctx.stroke();
-  }
-  // Label isotherms at left edge (where x=XN=0)
-  ctx.fillStyle='rgba(180,60,0,.7)';ctx.textAlign='right';ctx.font='8px Arial';
+  ctx.strokeStyle='rgba(255,255,255,.18)';ctx.lineWidth=1;ctx.strokeRect(M.l,M.t,dW(),dH());
+  ctx.fillStyle='rgba(255,255,255,.5)';ctx.textAlign='right';ctx.font='9px Arial';
   for(let t=Math.ceil(TN/10)*10;t<=TX;t+=10){
-    const[,cy]=toCvs(XN,t);
-    if(cy>=M.t-1&&cy<=M.t+dH()+1) ctx.fillText(t+'°',M.l-2,cy+3);
+    const[,cy]=toCvs(0,t);ctx.fillText(t+'°',M.l-4,cy+3);
+    ctx.beginPath();ctx.moveTo(M.l-3,cy);ctx.lineTo(M.l,cy);ctx.strokeStyle='rgba(255,255,255,.3)';ctx.lineWidth=.8;ctx.stroke();
   }
-  // Axis titles
-  ctx.save();ctx.translate(12,M.t+dH()/2);ctx.rotate(-Math.PI/2);ctx.textAlign='center';
-  ctx.fillStyle='rgba(0,0,0,.50)';ctx.font='9px Arial';ctx.fillText('h [kJ/kg tr. Luft]',0,0);ctx.restore();
-  ctx.textAlign='center';ctx.fillStyle='rgba(0,0,0,.50)';ctx.font='9px Arial';
-  ctx.fillText('x [g H₂O/kg tr. Luft]',M.l+dW()/2,M.t+dH()+28);
-  // Small isotherm label bottom right
-  ctx.fillStyle='rgba(180,60,0,.5)';ctx.font='7px Arial';ctx.textAlign='left';
-  ctx.fillText('— Isotherme t [°C]',M.l+dW()-110,M.t+dH()-4);
+  ctx.textAlign='center';ctx.fillStyle='rgba(255,255,255,.5)';
+  for(let x=0;x<=XX;x+=5){
+    const[cx]=toCvs(x,TN);ctx.fillText(x,cx,M.t+dH()+12);
+    ctx.beginPath();ctx.moveTo(cx,M.t+dH());ctx.lineTo(cx,M.t+dH()+3);ctx.strokeStyle='rgba(255,255,255,.3)';ctx.lineWidth=.8;ctx.stroke();
+  }
+  ctx.save();ctx.translate(12,M.t+dH()/2);ctx.rotate(-Math.PI/2);ctx.textAlign='center';ctx.fillStyle='rgba(255,255,255,.28)';ctx.font='9px Arial';ctx.fillText('t (°C)',0,0);ctx.restore();
+  ctx.textAlign='center';ctx.fillStyle='rgba(255,255,255,.28)';ctx.font='9px Arial';ctx.fillText('x (g/kg)',M.l+dW()/2,M.t+dH()+28);
+  ctx.save();ctx.translate(M.l+dW()+44,M.t+dH()/2);ctx.rotate(Math.PI/2);ctx.textAlign='center';ctx.fillStyle='rgba(255,205,80,.35)';ctx.font='8px Arial';ctx.fillText('h [kJ/kg]',0,0);ctx.restore();
 }
 
 function drawProcs(){
@@ -2480,7 +2434,7 @@ function drawPoints(){
     ctx.beginPath();ctx.arc(cx,cy,act?8:6,0,Math.PI*2);
     ctx.fillStyle=act?col:'rgba(4,12,26,.85)';ctx.strokeStyle=col;ctx.lineWidth=2;ctx.fill();ctx.stroke();
     ctx.fillStyle=col;ctx.font='bold 10px Arial';ctx.textAlign='left';ctx.fillText('Z'+(i+1),cx+11,cy-1);
-    ctx.font='8px "Courier New"';ctx.fillStyle='rgba(0,0,0,.60)';ctx.fillText(s.t.toFixed(1)+'°C  x='+s.x.toFixed(1)+'  h='+s.h.toFixed(0),cx+11,cy+10);
+    ctx.font='8px &quot;Courier New&quot;';ctx.fillStyle='rgba(255,255,255,.45)';ctx.fillText(s.t.toFixed(1)+'° / '+s.x.toFixed(1)+'g',cx+11,cy+10);
   });
 }
 
@@ -2492,16 +2446,16 @@ let states=[],procs=[],activeIdx=-1,curProc=null,pmode='x',inMode='x',autoMode='
 // ────────────────────────────────────────────────────
 // INPUT HELPERS
 // ────────────────────────────────────────────────────
-function hxSetInMode(m){inMode=m;document.getElementById('tab-x').classList.toggle('a',m==='x');document.getElementById('tab-phi').classList.toggle('a',m==='phi');document.getElementById('fg-x').style.display=m==='x'?'':'none';document.getElementById('fg-phi').style.display=m==='phi'?'':'none'}
-function hxSetAutoMode(m){autoMode=m;document.getElementById('atab-x').classList.toggle('a',m==='x');document.getElementById('atab-phi').classList.toggle('a',m==='phi');document.getElementById('afg-x').style.display=m==='x'?'':'none';document.getElementById('afg-phi').style.display=m==='phi'?'':'none'}
+function setInMode(m){inMode=m;document.getElementById('tab-x').classList.toggle('a',m==='x');document.getElementById('tab-phi').classList.toggle('a',m==='phi');document.getElementById('fg-x').style.display=m==='x'?'':'none';document.getElementById('fg-phi').style.display=m==='phi'?'':'none'}
+function setAutoMode(m){autoMode=m;document.getElementById('atab-x').classList.toggle('a',m==='x');document.getElementById('atab-phi').classList.toggle('a',m==='phi');document.getElementById('afg-x').style.display=m==='x'?'':'none';document.getElementById('afg-phi').style.display=m==='phi'?'':'none'}
 function showErr(id,msg){const el=document.getElementById(id);el.textContent=msg;el.style.display=msg?'block':'none'}
 function showInfo(id,msg){const el=document.getElementById(id);el.textContent=msg;el.style.display=msg?'block':'none'}
 
-function hxAddPointFromInput(){
+function addPointFromInput(){
   const t=parseFloat(document.getElementById('in-t').value);
   // Sync sign button state
   const sBtn=document.getElementById('sign-in-t');
-  if(sBtn){const neg=!isNaN(t)&&t<0;sBtn.classList.toggle('neg',neg);sBtn.textContent=neg?'−':'+'}
+  if(sBtn){const neg=!isNaN(t)&amp;&amp;t<0;sBtn.classList.toggle('neg',neg);sBtn.textContent=neg?'−':'+'}
   if(isNaN(t))return showErr('in-err','Temperatur fehlt');
   if(t<TN||t>TX)return showErr('in-err',`Temperatur ${TN}–${TX} °C`);
   let x;
@@ -2515,15 +2469,15 @@ function hxAddPointFromInput(){
   document.getElementById('btn-auto-calc').style.display='none';
   autoProc=null;
   states.push(stateOf(t,x));activeIdx=states.length-1;
-  hxUpdateUI();hxRedraw();
-  setTimeout(()=>document.querySelector('.hx-cvs-wrap').scrollIntoView({behavior:'smooth',block:'nearest'}),100);
+  updateUI();redraw();
+  setTimeout(()=>document.querySelector('.cvs-wrap').scrollIntoView({behavior:'smooth',block:'nearest'}),100);
 }
 
 // ────────────────────────────────────────────────────
 // AUTO-ROUTE
 // ────────────────────────────────────────────────────
 // ── Step 2→3: Parse target state, test all routes, show possible ones ──
-function hxAnalyseRoute(){
+function analyseRoute(){
   showErr('auto-err','');showInfo('auto-info','');
   document.getElementById('proc-options').style.display='none';
   document.getElementById('btn-auto-calc').style.display='none';
@@ -2583,18 +2537,18 @@ function hxAnalyseRoute(){
     const btn=document.createElement('button');
     btn.className='pbtn';
     btn.dataset.ap=opt.type;
-    btn.style.cssText=`margin-bottom:8px;text-align:left;padding:14px 16px;width:100%;display:block`;
-    btn.innerHTML=`<span style="display:block;font-size:13px;font-weight:700;color:${col};margin-bottom:4px">${labels[opt.type]}</span>`
-                + `<span style="display:block;font-size:11px;color:var(--t3);margin-bottom:4px">${desc[opt.type]}</span>`
-                + `<span style="display:block;font-size:11px;color:var(--t2);line-height:1.4">Prozesskette: ${stepNames}</span>`;
-    btn.onclick=()=>hxSelAutoProc(opt.type, possible);
+    btn.style.cssText=`margin-bottom:6px;text-align:left;padding:10px 12px`;
+    btn.innerHTML=`<span style=&quot;display:block;font-size:12px;font-weight:700;color:${col}&quot;>${labels[opt.type]}</span>`
+                + `<span style=&quot;display:block;font-size:10px;color:var(--t3);margin-top:2px&quot;>${desc[opt.type]}</span>`
+                + `<span style=&quot;display:block;font-size:10px;color:var(--t2);margin-top:3px&quot;>Prozesskette: ${stepNames}</span>`;
+    btn.onclick=()=>selAutoProc(opt.type, possible);
     list.appendChild(btn);
   });
 
   document.getElementById('proc-options').style.display='block';
 }
 
-function hxSelAutoProc(type, possible){
+function selAutoProc(type, possible){
   autoProc=type;
   // Highlight selected
   document.querySelectorAll('#proc-options-list .pbtn').forEach(b=>{
@@ -2608,7 +2562,7 @@ function hxSelAutoProc(type, possible){
   showErr('auto-err','');
 }
 
-function hxDoAutoRoute(){
+function doAutoRoute(){
   showErr('auto-err','');showInfo('auto-info','');
   if(activeIdx<0)return showErr('auto-err','Ausgangszustand fehlt');
   if(!autoProc)return showErr('auto-err','Bitte zuerst eine Luftbehandlung auswählen');
@@ -2649,7 +2603,7 @@ function hxDoAutoRoute(){
 
   const msg=`Ermittelte Prozesskette: ${applied.join(' → ')}`;
   showInfo('auto-info',msg);
-  hxUpdateUI();hxRedraw();
+  updateUI();redraw();
 }
 
 function autoRoute(src,tgt,forced){
@@ -2669,7 +2623,7 @@ function autoRoute(src,tgt,forced){
 
   if(forced==='cool'){
     if(tgt.t>=src.t-eps)return{error:'Zieltemperatur muss niedriger als Ausgangstemperatur sein'};
-    if(tgt.t<dp_src-0.1)return{error:`Zieltemperatur unterschreitet Taupunkt (${dp_src.toFixed(1)} °C) – bitte "Kühlen + Entfeuchten" verwenden`};
+    if(tgt.t<dp_src-0.1)return{error:`Zieltemperatur unterschreitet Taupunkt (${dp_src.toFixed(1)} °C) – bitte &quot;Kühlen + Entfeuchten&quot; verwenden`};
     steps.push({type:'cool',path:[cur,stateOf(tgt.t,src.x)],satSeg:null,hSeg:null});
     return{steps};
   }
@@ -2816,7 +2770,7 @@ function autoRoute(src,tgt,forced){
       if(tgt.t>=dp_src-0.1){
         steps.push({type:'cool',path:[cur,stateOf(tgt.t,tgt.x)],satSeg:null,hSeg:null});
       }else{
-        return{error:`Kühlung unter Taupunkt (${dp_src.toFixed(1)} °C) – bitte Prozess "Kühlen + Entfeuchten" wählen`};
+        return{error:`Kühlung unter Taupunkt (${dp_src.toFixed(1)} °C) – bitte Prozess &quot;Kühlen + Entfeuchten&quot; wählen`};
       }
     }else{
       return{error:'Ausgangszustand entspricht bereits dem Zielzustand (Toleranz ±0,15 g/kg)'};
@@ -2829,10 +2783,10 @@ function autoRoute(src,tgt,forced){
 // ────────────────────────────────────────────────────
 // MANUAL PROCESS (bottom sheet)
 // ────────────────────────────────────────────────────
-function hxOpenSheet(id){var ov=document.getElementById('hx-overlay');if(ov)ov.classList.add('show');var sh=document.getElementById(id);if(sh)sh.classList.add('show');document.body.style.overflow='hidden'}
-function hxCloseSheet(){document.querySelectorAll('.sheet').forEach(s=>s.classList.remove('show'));document.getElementById('hx-overlay').classList.remove('show');document.body.style.overflow=''}
+function openSheet(id){document.getElementById('overlay').classList.add('show');document.getElementById(id).classList.add('show');document.body.style.overflow='hidden'}
+function closeSheet(){document.querySelectorAll('.sheet').forEach(s=>s.classList.remove('show'));document.getElementById('overlay').classList.remove('show');document.body.style.overflow=''}
 
-function hxSelProc(type){
+function selProc(type){
   if(activeIdx<0)return showErr('in-err','Bitte zuerst Ausgangszustand setzen');
   curProc=type;
   document.querySelectorAll('.pbtn').forEach(b=>b.classList.toggle('sel',b.dataset.p===type));
@@ -2840,24 +2794,24 @@ function hxSelProc(type){
   const titles={heat:'Erwärmen',cool:'Kühlen (sensibel)',cdehum:'Kühlen + Entfeuchten',steam:'Dampfbefeuchtung',spray:'Adiabate Befeuchtung',dreheat:'Entfeuchten + Nachheizen'};
   document.getElementById('sp-title').textContent=titles[type];
   document.getElementById('sp-sub').textContent=`Z${activeIdx+1}: ${s.t.toFixed(1)} °C / ${s.x.toFixed(2)} g/kg`;
-  showErr('perr','');renderPParams(type);hxOpenSheet('hx-sheet-proc');
+  showErr('perr','');renderPParams(type);openSheet('sheet-proc');
 }
 
-function hxSetPMode(m){pmode=m;document.getElementById('ptab-x').classList.toggle('a',m==='x');document.getElementById('ptab-phi').classList.toggle('a',m==='phi');if(curProc==='steam'||curProc==='spray')renderPParams(curProc)}
+function setPMode(m){pmode=m;document.getElementById('ptab-x').classList.toggle('a',m==='x');document.getElementById('ptab-phi').classList.toggle('a',m==='phi');if(curProc==='steam'||curProc==='spray')renderPParams(curProc)}
 
 function ig(id,step,ph,unit,lbl){
   const needsSign = unit==='°C';
   const signBtn = needsSign
-    ? `<button class="sign-btn" id="sign-${id}" onclick="hxToggleSign('${id}','sign-${id}')">+</button>`
+    ? `<button class=&quot;sign-btn&quot; id=&quot;sign-${id}&quot; onclick=&quot;toggleSign('${id}','sign-${id}')&quot;>+</button>`
     : '';
-  return`<div class="igrp"><div class="ilbl">${lbl}</div><div class="irow">${signBtn}<input class="finp" id="${id}" type="number" step="${step}" placeholder="${ph}" inputmode="decimal"/><span class="fu">${unit}</span></div></div>`;
+  return`<div class=&quot;igrp&quot;><div class=&quot;ilbl&quot;>${lbl}</div><div class=&quot;irow&quot;>${signBtn}<input class=&quot;finp&quot; id=&quot;${id}&quot; type=&quot;number&quot; step=&quot;${step}&quot; placeholder=&quot;${ph}&quot; inputmode=&quot;decimal&quot;/><span class=&quot;fu&quot;>${unit}</span></div></div>`;
 }
 
-function hxToggleSign(inputId, btnId) {
+function toggleSign(inputId, btnId) {
   const inp = document.getElementById(inputId);
   const btn = document.getElementById(btnId);
   const raw = parseFloat(inp.value);
-  if (!isNaN(raw) && raw !== 0) {
+  if (!isNaN(raw) &amp;&amp; raw !== 0) {
     inp.value = -raw;
   }
   // Determine sign from current value or toggle btn state
@@ -2879,14 +2833,14 @@ function renderPParams(type){
   }[type]||'';
 }
 
-function hxDoCalc(){
+function doCalc(){
   if(activeIdx<0||!curProc)return;
   const s=states[activeIdx];const err=m=>showErr('perr',m);showErr('perr','');const HD=2676;
   try{
     let path=null,satSeg=null,hSeg=null;
     switch(curProc){
       case'heat':{const t2=+document.getElementById('pp1').value;if(isNaN(t2))return err('Zieltemperatur fehlt');if(t2<=s.t)return err('Muss größer als aktuelle Temperatur');path=[s,stateOf(t2,s.x)];break}
-      case'cool':{const t2=+document.getElementById('pp1').value;if(isNaN(t2))return err('Zieltemperatur fehlt');if(t2>=s.t)return err('Muss kleiner als aktuelle Temperatur');if(t2<tdp(s.x)-.1)return err(`Taupunkt ${tdp(s.x).toFixed(1)} °C → "Kühlen + Entfeuchten" verwenden`);path=[s,stateOf(t2,s.x)];break}
+      case'cool':{const t2=+document.getElementById('pp1').value;if(isNaN(t2))return err('Zieltemperatur fehlt');if(t2>=s.t)return err('Muss kleiner als aktuelle Temperatur');if(t2<tdp(s.x)-.1)return err(`Taupunkt ${tdp(s.x).toFixed(1)} °C → &quot;Kühlen + Entfeuchten&quot; verwenden`);path=[s,stateOf(t2,s.x)];break}
       case'cdehum':{const t2=+document.getElementById('pp1').value;if(isNaN(t2))return err('Zieltemperatur fehlt');if(t2>=s.t)return err('Muss kleiner als aktuelle Temperatur');const dp=tdp(s.x);if(t2>=dp-.05)path=[s,stateOf(t2,s.x)];else{path=[s,stateOf(dp,s.x),stateOf(t2,xSat(t2))];satSeg=2}break}
       case'steam':{let x2;if(pmode==='x'){x2=+document.getElementById('pp1').value;if(isNaN(x2)||x2<=s.x)return err('Zielfeuchte > aktuelle')}else{const p2=+document.getElementById('pp1').value;if(isNaN(p2)||p2<=s.phi||p2>100)return err('φ > aktuelle und ≤ 100 %');x2=solveSteam(s,p2,HD)}if(x2>XX)return err('Außerhalb Diagrammbereich');const h2=hAir(s.t,s.x)+HD*(x2-s.x)/1000,t2=tFromH(h2,x2);if(x2>xSat(t2)+.1)return err('Übersättigung');path=[s,stateOf(t2,x2)];break}
       case'spray':{const h0=hAir(s.t,s.x);let x2;if(pmode==='x'){x2=+document.getElementById('pp1').value;if(isNaN(x2)||x2<=s.x)return err('Zielfeuchte > aktuelle')}else{const p2=+document.getElementById('pp1').value;if(isNaN(p2)||p2<=s.phi||p2>=100)return err('φ > aktuelle und < 100 %');x2=solveAdiabatic(h0,p2,s.x,35)}if(x2>XX)return err('Außerhalb Diagrammbereich');const t2=tFromH(h0,x2);if(x2>xSat(t2)+.1)return err('Sättigungsgrenze überschritten');path=[s,stateOf(t2,x2)];hSeg=1;break}
@@ -2895,30 +2849,30 @@ function hxDoCalc(){
     if(!path)return;
     const end=path[path.length-1];states.push(stateOf(end.t,end.x));
     procs.push({type:curProc,fromIdx:activeIdx,toIdx:states.length-1,path,satSeg,hSeg});
-    activeIdx=states.length-1;hxCloseSheet();hxUpdateUI();hxRedraw();
+    activeIdx=states.length-1;closeSheet();updateUI();redraw();
   }catch(e){err('Fehler: '+e.message)}
 }
 
-function hxResetAll(){
+function resetAll(){
   states=[];procs=[];activeIdx=-1;curProc=null;autoProc=null;
   document.querySelectorAll('.pbtn').forEach(b=>b.classList.remove('sel'));
   document.getElementById('btn-auto-calc').style.display='none';
   document.getElementById('proc-options').style.display='none';
   document.getElementById('proc-options-list').innerHTML='';
   ['in-err','auto-err','auto-info','perr'].forEach(id=>showErr(id,''));
-  hxUpdateUI();hxRedraw();
+  updateUI();redraw();
 }
 
 // ────────────────────────────────────────────────────
 // PDF / PRINT
 // ────────────────────────────────────────────────────
-function hxOpenPdfSheet(){
+function openPdfSheet(){
   // Pre-fill date
   const d=new Date();document.getElementById('pdf-dt').value=`${d.getDate().toString().padStart(2,'0')}.${(d.getMonth()+1).toString().padStart(2,'0')}.${d.getFullYear()}`;
-  hxOpenSheet('hx-sheet-pdf');
+  openSheet('sheet-pdf');
 }
 
-function hxDoPrint(){
+function doPrint(){
   // Fill print page
   const sb=document.getElementById('pdf-sb').value||'–';
   const pj=document.getElementById('pdf-pj').value||'–';
@@ -2950,14 +2904,14 @@ function hxDoPrint(){
       return`<tr><td>${i+1}</td><td>${pnames[pr.type]||pr.type}</td><td>Z${pr.fromIdx+1}: ${f.t.toFixed(1)} °C</td><td>Z${pr.toIdx+1}: ${t.t.toFixed(1)} °C</td><td>${(t.t-f.t).toFixed(1)}</td><td>${(t.x-f.x).toFixed(2)}</td><td>${(t.h-f.h).toFixed(1)}</td></tr>`;
     }).join('');
   }
-  hxCloseSheet();
+  closeSheet();
   setTimeout(()=>window.print(),200);
 }
 
 // ────────────────────────────────────────────────────
 // UI UPDATE
 // ────────────────────────────────────────────────────
-function hxUpdateUI(){
+function updateUI(){
   const s=activeIdx>=0?states[activeIdx]:null;
   const set=(id,val)=>{const el=document.getElementById(id);el.textContent=s?val:'–';el.classList.toggle('dim',!s)};
   if(s){set('si-t',s.t.toFixed(1)+' °C');set('si-x',s.x.toFixed(2)+' g/kg');set('si-h',s.h.toFixed(1)+' kJ/kg');set('si-phi',s.phi.toFixed(1)+' %');set('si-dp',s.dp.toFixed(1)+' °C');set('si-rho',s.rho.toFixed(3)+' kg/m³')}
@@ -2975,9 +2929,9 @@ function hxUpdateUI(){
   states.forEach((st,i)=>{
     const div=document.createElement('div');
     div.className='se'+(i===activeIdx?' act':'');
-    div.onclick=()=>{activeIdx=i;hxUpdateUI();hxRedraw()};
+    div.onclick=()=>{activeIdx=i;updateUI();redraw()};
     const col=PTC[i%PTC.length];
-    div.innerHTML=`<div class="hx-se-dot" style="background:${col}"></div><div class="hx-se-info"><div class="hx-se-main">Z${i+1}: ${st.t.toFixed(1)} °C / ${st.x.toFixed(2)} g/kg</div><div class="hx-se-sub">h=${st.h.toFixed(1)} kJ/kg &middot; φ=${st.phi.toFixed(1)}% &middot; ρ=${st.rho.toFixed(3)} kg/m³</div></div>`;
+    div.innerHTML=`<div class=&quot;se-dot&quot; style=&quot;background:${col}&quot;></div><div class=&quot;se-info&quot;><div class=&quot;se-main&quot;>Z${i+1}: ${st.t.toFixed(1)} °C &amp;nbsp;/&amp;nbsp; ${st.x.toFixed(2)} g/kg</div><div class=&quot;se-sub&quot;>h=${st.h.toFixed(1)} kJ/kg &amp;middot; φ=${st.phi.toFixed(1)}% &amp;middot; ρ=${st.rho.toFixed(3)} kg/m³</div></div>`;
     slist.appendChild(div);
   });
 
@@ -2989,7 +2943,7 @@ function hxUpdateUI(){
     const col=PC[pr.type];
     const dh=(states[pr.toIdx].h-states[pr.fromIdx].h).toFixed(1);
     const dx=(states[pr.toIdx].x-states[pr.fromIdx].x).toFixed(2);
-    return`<div class="ci"><span style="color:${col};font-weight:700">Z${pr.fromIdx+1}→Z${pr.toIdx+1}</span><span style="color:var(--t3)">›</span><span style="color:${col}">${lb[pr.type]}</span><span style="margin-left:auto;color:var(--t3);font-size:9px">Δh=${dh} Δx=${dx}</span></div>`;
+    return`<div class=&quot;ci&quot;><span style=&quot;color:${col};font-weight:700&quot;>Z${pr.fromIdx+1}→Z${pr.toIdx+1}</span><span style=&quot;color:var(--t3)&quot;>›</span><span style=&quot;color:${col}&quot;>${lb[pr.type]}</span><span style=&quot;margin-left:auto;color:var(--t3);font-size:9px&quot;>Δh=${dh} Δx=${dx}</span></div>`;
   }).join('');
 }
 
@@ -2998,87 +2952,37 @@ function hxUpdateUI(){
 // ────────────────────────────────────────────────────
 cvs.addEventListener('click',e=>{
   const r=cvs.getBoundingClientRect(),sx=e.clientX-r.left,sy=e.clientY-r.top;if(!inD(sx,sy))return;
-  for(let i=states.length-1;i>=0;i--){const[px,py]=toCvs(states[i].x,states[i].t);if(Math.hypot(sx-px,sy-py)<18){activeIdx=i;hxUpdateUI();hxRedraw();return}}
+  for(let i=states.length-1;i>=0;i--){const[px,py]=toCvs(states[i].x,states[i].t);if(Math.hypot(sx-px,sy-py)<18){activeIdx=i;updateUI();redraw();return}}
 });
 cvs.addEventListener('mousemove',e=>{
   const r=cvs.getBoundingClientRect(),sx=e.clientX-r.left,sy=e.clientY-r.top;
-  const tip=document.getElementById('hx-tip');if(!inD(sx,sy)){tip.style.display='none';return}
+  const tip=document.getElementById('tip');if(!inD(sx,sy)){tip.style.display='none';return}
   const[xr,tr]=fromCvs(sx,sy),xc=Math.min(xr,xSat(tr)*.999);
   const hv=hAir(tr,xc),pv=phiAir(tr,xc),dpv=tdp(xc),rv=rhoAir(tr,xc);
   tip.style.display='block';
   const tx=sx+14+148>CW?sx-152:sx+14;tip.style.left=tx+'px';tip.style.top=(sy-6)+'px';
-  tip.innerHTML=`<b>t</b> ${tr.toFixed(1)} °C &ensp; <b>x</b> ${xc.toFixed(2)} g/kg<br><b>h</b> ${hv.toFixed(1)} kJ/kg &ensp; <b>φ</b> ${pv.toFixed(1)} %<br><b>t_dp</b> ${dpv.toFixed(1)} °C &ensp; <b>ρ</b> ${rv.toFixed(3)} kg/m³`;
+  tip.innerHTML=`<b>t</b> ${tr.toFixed(1)} °C &amp;ensp; <b>x</b> ${xc.toFixed(2)} g/kg<br><b>h</b> ${hv.toFixed(1)} kJ/kg &amp;ensp; <b>φ</b> ${pv.toFixed(1)} %<br><b>t_dp</b> ${dpv.toFixed(1)} °C &amp;ensp; <b>ρ</b> ${rv.toFixed(3)} kg/m³`;
 });
-cvs.addEventListener('mouseleave',()=>{document.getElementById('hx-tip').style.display='none'});
+cvs.addEventListener('mouseleave',()=>{document.getElementById('tip').style.display='none'});
 
 // ────────────────────────────────────────────────────
 // INIT
 // ────────────────────────────────────────────────────
 window.addEventListener('resize',resizeCvs);
-hxResizeCvs();
-hxSetInMode('x');
-hxSetAutoMode('x');
-hxUpdateUI();
-
-
-// ── Deferred tab init ──
-window.__hxInitDone = false;
-window.__hxTabInit = function() {
-  if(!window.__hxInitDone) {
-    window.__hxInitDone = true;
-    hxSetInMode('x');
-    hxSetAutoMode('x');
-    hxUpdateUI();
-    // Double rAF: Safari needs 2 frames after display:block for correct clientWidth
-    requestAnimationFrame(function(){
-      requestAnimationFrame(function(){
-        hxResizeCvs();
-        // ResizeObserver: replaces window resize for PWA/iOS stability
-        if(window.ResizeObserver){
-          var ro = new ResizeObserver(function(){
-            if(window.__hxInitDone) hxResizeCvs();
-          });
-          ro.observe(cvs.parentElement.parentElement || cvs.parentElement);
-        }
-      });
-    });
-  }
-};
-window.__hxOnResize = function() {
-  if(window.__hxInitDone) {
-    requestAnimationFrame(function(){
-      requestAnimationFrame(function(){ hxResizeCvs(); });
-    });
-  }
-};
-
+resizeCvs();
+setInMode('x');
+setAutoMode('x');
+updateUI();
 </script>
-
-<!-- ── h,x Print page (hidden, used for PDF export) ── -->
-<div class="hx-print-page" id="pp" style="display:none;position:fixed;top:-9999px;left:-9999px">
-  <div class="pp-head" style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #1a3a5c;padding-bottom:8px;margin-bottom:12px">
-    <div><h1 style="font-size:15pt;color:#1a3a5c;margin:0;font-family:Arial">h,x-Diagramm nach Mollier</h1>
-    <p style="font-size:9pt;color:#666;margin:2px 0 0;font-family:Arial">HLK-Anlagen &middot; Luftbehandlung &middot; Massenstromrechner</p></div>
-    <div style="text-align:right;font-size:9pt;color:#666;font-family:Arial"><div id="pp-dt-head"></div><div id="pp-nr-head" style="font-weight:700;color:#1a3a5c"></div></div>
-  </div>
-  <table style="width:100%;border-collapse:collapse;margin-bottom:12px;font-size:10pt;font-family:Arial" id="pp-proj-tbl">
-    <tr><td style="border:1px solid #ccc;padding:5px 8px;font-weight:700;background:#f0f4f8;width:25%;color:#1a3a5c">Sachbearbeiter</td><td style="border:1px solid #ccc;padding:5px 8px" id="pp-sb">–</td><td style="border:1px solid #ccc;padding:5px 8px;font-weight:700;background:#f0f4f8;width:20%;color:#1a3a5c">Datum</td><td style="border:1px solid #ccc;padding:5px 8px" id="pp-dt">–</td></tr>
-    <tr><td style="border:1px solid #ccc;padding:5px 8px;font-weight:700;background:#f0f4f8;color:#1a3a5c">Projekt</td><td style="border:1px solid #ccc;padding:5px 8px" id="pp-pj">–</td><td style="border:1px solid #ccc;padding:5px 8px;font-weight:700;background:#f0f4f8;color:#1a3a5c">Projektnummer</td><td style="border:1px solid #ccc;padding:5px 8px" id="pp-nr">–</td></tr>
-  </table>
-  <img id="pp-img" style="width:100%;max-height:130mm;object-fit:contain;border:1px solid #ddd;border-radius:4px;margin-bottom:12px" alt="h,x-Diagramm"/>
-  <div id="pp-states-wrap">
-    <div style="font-size:10pt;font-weight:700;color:#1a3a5c;margin:10px 0 5px;padding-left:8px;border-left:3px solid #1a3a5c;font-family:Arial">Luftzust&auml;nde</div>
-    <table style="width:100%;border-collapse:collapse;font-size:9pt;font-family:Arial" id="pp-states"><thead><tr style="background:#1a3a5c;color:white"><th style="padding:4px 7px;text-align:left">Zustand</th><th>t (°C)</th><th>x (g/kg)</th><th>h (kJ/kg)</th><th>φ (%)</th><th>t_dp (°C)</th><th>ρ (kg/m³)</th></tr></thead><tbody></tbody></table>
-  </div>
-  <div id="pp-chain-sec" style="display:none">
-    <div style="font-size:10pt;font-weight:700;color:#1a3a5c;margin:10px 0 5px;padding-left:8px;border-left:3px solid #1a3a5c;font-family:Arial">Prozesskette</div>
-    <table style="width:100%;border-collapse:collapse;font-size:9pt;font-family:Arial" id="pp-chain"><thead><tr style="background:#1a3a5c;color:white"><th style="padding:4px 7px;text-align:left">#</th><th>Prozess</th><th>Von</th><th>Nach</th><th>Δt (K)</th><th>Δx</th><th>Δh</th></tr></thead><tbody></tbody></table>
-  </div>
-  <div style="margin-top:14px;padding-top:8px;border-top:1px solid #ccc;font-size:8pt;color:#888;display:flex;justify-content:space-between;font-family:Arial">
-    <span>Massenstromrechner &middot; HLK-Anlagen</span>
-    <span>h,x-Diagramm nach Mollier &middot; Luftdruck 1013 hPa</span>
-  </div>
-</div>
+</body>
+</html>
+"
+    style="width:100%;height:100%;border:none;display:block;background:#000"
+    scrolling="yes"
+    allow="*"
+    title="h,x-Diagramm nach Mollier"
+  ></iframe>
+</div><!-- /tab-hx -->
 
 </body>
 </html>
