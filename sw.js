@@ -3,7 +3,7 @@
    - Worker/Analytics URLs werden NIE gecacht → immer direkter Netzwerkaufruf
    - Assets gecacht fuer Offline-Betrieb
 */
-const CACHE = 'massenstrom-v5';
+const CACHE = 'massenstrom-v6';
 const CACHE_ASSETS = [
   './manifest.json','./icon-192.svg','./icon-512.svg','./favicon.svg',
 ];
