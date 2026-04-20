@@ -1,0 +1,1 @@
+Upload files to hosting root. Deploy worker.js separately if required.

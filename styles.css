@@ -1,9 +1,1 @@
-
-
-/* Final production polish */
-.mockup-badge,.mockup,.badge-mockup{display:none!important}
-.manual-grid,.pressure-grid,.air-manual-grid,.print-grid{display:grid;gap:20px;margin-top:20px}
-.manual-grid .field,.pressure-grid .field,.air-manual-grid .field,.print-grid .field{margin-bottom:18px}
-input[type="number"]{min-height:58px}
-.hx-safe-zone,.hx-cvs-wrap,#tab-hx{width:100%;max-width:none;padding-left:0;padding-right:0}
-#hxCanvas{width:100%!important;min-height:520px;display:block}
+html,body{height:100%;margin:0;}body{min-height:100dvh;background:#000;color:#fff;font-family:system-ui;} .hx-badge,.hx-sign-btn,.sign-btn{display:none!important;}
