@@ -1243,59 +1243,152 @@ body {
 
 <div id="tab-hx">
 
-  <div class="glass-card hx-panel">
+  <div class="hx-layout">
 
-    <div class="hx-mode-switch">
-      <button id="mode-rh" class="hx-mode">φ [%]</button>
-      <button id="mode-x" class="hx-mode active">x [g/kg]</button>
-    </div>
+    <!-- STEP 1: Ausgangszustand -->
 
-    <div class="hx-input-group">
-      <label>Temperatur t</label>
-      <input
-        id="HX-TEMP"
-        class="hx-input"
-        type="text"
-        inputmode="decimal"
-        placeholder="z.B. -10 oder 22,5"
-      />
-    </div>
+    <section class="hx-card">
+      <div class="hx-title">1. Ausgangszustand</div>
 
-    <div class="hx-input-group" id="wrap-x">
-      <label>Feuchtegehalt x</label>
-      <input
-        id="hx-x"
-        class="hx-input"
-        type="text"
-        inputmode="decimal"
-        placeholder="z.B. 1,44"
-      />
-    </div>
+      <div class="hx-mode-switch">
+        <button id="mode-rh" class="hx-mode active">φ [%]</button>
+        <button id="mode-x" class="hx-mode">x [g/kg]</button>
+      </div>
 
-    <div class="hx-input-group" id="wrap-rh">
-      <label>Relative Feuchte φ</label>
-      <input
-        id="hx-rh"
-        class="hx-input"
-        type="text"
-        inputmode="decimal"
-        placeholder="z.B. 50"
-      />
-    </div>
+      <div class="hx-input-group">
+        <label>Temperatur t</label>
+        <input
+          id="HX-TEMP"
+          class="hx-input"
+          type="text"
+          inputmode="decimal"
+          placeholder="z.B. -10 oder 22,5"
+        />
+      </div>
 
-    <button id="hx-set" class="hx-main-btn">
-      Zustand setzen
-    </button>
+      <div class="hx-input-group" id="wrap-rh">
+        <label>Relative Feuchte φ</label>
+        <input
+          id="hx-rh"
+          class="hx-input"
+          type="text"
+          inputmode="decimal"
+          placeholder="z.B. 40"
+        />
+      </div>
 
-    <div id="hx-state-box" class="hx-state-box">
-      Noch kein Zustand gesetzt
-    </div>
+      <div class="hx-input-group" id="wrap-x">
+        <label>Feuchtegehalt x</label>
+        <input
+          id="hx-x"
+          class="hx-input"
+          type="text"
+          inputmode="decimal"
+          placeholder="z.B. 1,44"
+        />
+      </div>
 
-  </div>
+      <button id="hx-set" class="hx-main-btn">
+        Zustand setzen
+      </button>
 
-  <div class="hx-cvs-wrap">
-    <canvas id="hxCanvas"></canvas>
-    <div id="hx-tip"></div>
+      <div id="hx-state-box" class="hx-state-box">
+        Noch kein Zustand gesetzt
+      </div>
+    </section>
+
+
+    <!-- STEP 2: Zielzustand -->
+
+    <section class="hx-card">
+      <div class="hx-title">2. Zielzustand</div>
+
+      <div class="hx-input-group">
+        <label>Zieltemperatur</label>
+        <input
+          id="hx-target-temp"
+          class="hx-input"
+          type="text"
+          inputmode="decimal"
+          placeholder="z.B. 22"
+        />
+      </div>
+
+      <div class="hx-input-group">
+        <label>Zielfeuchte</label>
+        <input
+          id="hx-target-rh"
+          class="hx-input"
+          type="text"
+          inputmode="decimal"
+          placeholder="z.B. 50"
+        />
+      </div>
+    </section>
+
+
+    <!-- STEP 3: Luftbehandlung -->
+
+    <section class="hx-card">
+      <div class="hx-title">3. Luftbehandlung</div>
+
+      <select id="hx-process" class="hx-input">
+        <option value="">Bitte wählen</option>
+        <option value="heizen">Heizen</option>
+        <option value="kuehlen">Kühlen</option>
+        <option value="adiabat">Befeuchten adiabat</option>
+        <option value="dampf">Befeuchten Dampf</option>
+        <option value="entfeuchten">Entfeuchten</option>
+        <option value="mischluft">Mischluft</option>
+        <option value="wrg">WRG</option>
+        <option value="nachheizen">Nachheizen</option>
+      </select>
+    </section>
+
+
+    <!-- STEP 4: Berechnung -->
+
+    <section class="hx-card">
+      <div class="hx-title">4. Berechnung</div>
+
+      <div class="hx-mode-switch">
+        <button id="calc-auto" class="hx-mode active">
+          Automatisch
+        </button>
+
+        <button id="calc-manual" class="hx-mode">
+          Manuell
+        </button>
+      </div>
+
+      <button id="hx-calc" class="hx-main-btn">
+        Berechnung starten
+      </button>
+    </section>
+
+
+    <!-- STEP 5: Ergebnis -->
+
+    <section class="hx-card">
+      <div class="hx-title">5. Ergebnis</div>
+
+      <div id="hx-result" class="hx-state-box">
+        Noch keine Berechnung durchgeführt
+      </div>
+    </section>
+
+
+    <!-- STEP 6: Diagramm -->
+
+    <section class="hx-card hx-diagram-card">
+      <div class="hx-title">h,x-Diagramm nach Mollier</div>
+
+      <div class="hx-cvs-wrap">
+        <canvas id="hxCanvas"></canvas>
+        <div id="hx-tip"></div>
+      </div>
+    </section>
+
   </div>
 
 </div>
