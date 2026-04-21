@@ -965,6 +965,80 @@ input[type=number]::-webkit-outer-spin-button { -webkit-appearance:none; }
     margin-top: 26px;
 }
 
+/* ========================================
+   PHASE 3.3 -- FINAL APPLE FINISH
+======================================== */
+
+/* Canvas bekommt technischen Premium-Look */
+
+.hx-cvs-wrap {
+    position: relative;
+    overflow: hidden;
+}
+
+.hx-cvs-wrap::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+        linear-gradient(
+            rgba(255,255,255,0.015) 1px,
+            transparent 1px
+        ),
+        linear-gradient(
+            90deg,
+            rgba(255,255,255,0.015) 1px,
+            transparent 1px
+        );
+    background-size: 32px 32px;
+    opacity: 0.35;
+    pointer-events: none;
+}
+
+.hx-cvs-wrap::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(
+            circle at 20% 20%,
+            rgba(90,110,255,0.08),
+            transparent 45%
+        );
+    pointer-events: none;
+}
+
+/* Diagramm-Titel edler */
+
+.hx-diagram-card .hx-title {
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: rgba(255,255,255,0.88);
+}
+
+/* CTA noch stärker */
+
+.hx-main-btn {
+    box-shadow:
+        0 24px 60px rgba(91,82,255,0.32),
+        inset 0 1px 0 rgba(255,255,255,0.18);
+}
+
+/* State Box mit mehr Ruhe */
+
+.hx-state-box {
+    display: flex;
+    align-items: center;
+    font-weight: 500;
+}
+
+/* Gesamter Flow kompakter */
+
+.hx-card {
+    margin-bottom: 16px;
+}
+
 </style>
 </head>
 <body>
