@@ -1140,10 +1140,41 @@ body {
 ═══════════════════════════════════════════════════════ */-->
 
 <div id="tab-hx">
-   <div class="hx-cvs-wrap">
-     <canvas id="hxCanvas"></canvas>
-     <div id="hx-tip"></div>
-   </div>
+
+  <div class="hx-controls">
+
+    <input
+      id="HX-TEMP"
+      type="text"
+      inputmode="decimal"
+      placeholder="Temperatur °C"
+    />
+
+    <input
+      id="hx-rh"
+      type="text"
+      inputmode="decimal"
+      placeholder="Relative Feuchte φ %"
+    />
+
+    <input
+      id="hx-x"
+      type="text"
+      inputmode="decimal"
+      placeholder="Feuchtegehalt x g/kg"
+    />
+
+    <button id="hx-set">
+      Zustand setzen
+    </button>
+
+  </div>
+
+  <div class="hx-cvs-wrap">
+    <canvas id="hxCanvas"></canvas>
+    <div id="hx-tip"></div>
+  </div>
+
 </div>
 
 <script>
