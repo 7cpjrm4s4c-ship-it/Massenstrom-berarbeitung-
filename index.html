@@ -103,6 +103,13 @@ body {
     background: var(--bg);
     color: var(--t1);
     overflow-x: hidden;
+    
+    background-image:
+  radial-gradient(
+    ellipse 45% 35% at 85% 90%,
+    rgba(10,35,65,.22) 0%,
+    transparent 70%
+  );yes
 }
 input[type=number] { -moz-appearance:textfield; }
 input[type=number]::-webkit-inner-spin-button,
@@ -723,21 +730,6 @@ input[type=number]::-webkit-outer-spin-button { -webkit-appearance:none; }
   overflow-y: auto;
 }
 
-#app::before,
-.shell::before,
-.main::before,
-.hdr::before {
-       display: none !important;
-} 
-
-.main::before {
-    display: none !important;
-}
-
-.shell::before {
-    display: none !important;
-}
-
 @media (max-width: 768px) {
 
   #tab-hx {
@@ -746,8 +738,8 @@ input[type=number]::-webkit-outer-spin-button { -webkit-appearance:none; }
   }
 
   .hx-card {
-    padding: 18px;
-    margin-bottom: 16px;
+    padding: 20px;
+    margin-bottom: 20px;
     border-radius: 18px;
   }
 
