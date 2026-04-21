@@ -1588,10 +1588,33 @@ input[type=number]::-webkit-outer-spin-button { -webkit-appearance:none; }
         Zustand setzen
       </button>
 
-      <div id="hx-state-box" class="hx-state-box">
-        Noch kein Zustand gesetzt
+      <div id="hx-state" class="hx-state-box">
+
+         <div class="state-grid">
+
+            <div class="state-item">
+               <span class="state-label">T</span>
+               <span class="state-value" id="state-temp">-- °C</span>
+            </div>
+
+            <div class="state-item">
+               <span class="state-label">φ</span>
+               <span class="state-value" id="state-rh">-- %</span>
+            </div>
+
+            <div class="state-item">
+               <span class="state-label">x</span>
+               <span class="state-value" id="state-x">-- g/kg</span>
+            </div>
+
+            <div class="state-item">
+               <span class="state-label">h</span>
+               <span class="state-value" id="state-h">-- kJ/kg</span>
+            </div>
+
+         </div>
+
       </div>
-    </div>
     
     
     <!-- STEP 6: Diagramm -->
