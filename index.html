@@ -1141,32 +1141,53 @@ body {
 
 <div id="tab-hx">
 
-  <div class="hx-controls">
+  <div class="glass-card hx-panel">
 
-    <input
-      id="HX-TEMP"
-      type="text"
-      inputmode="decimal"
-      placeholder="Temperatur °C"
-    />
+    <div class="hx-mode-switch">
+      <button id="mode-rh" class="hx-mode">φ [%]</button>
+      <button id="mode-x" class="hx-mode active">x [g/kg]</button>
+    </div>
 
-    <input
-      id="hx-rh"
-      type="text"
-      inputmode="decimal"
-      placeholder="Relative Feuchte φ %"
-    />
+    <div class="hx-input-group">
+      <label>Temperatur t</label>
+      <input
+        id="HX-TEMP"
+        class="hx-input"
+        type="text"
+        inputmode="decimal"
+        placeholder="z.B. -10 oder 22,5"
+      />
+    </div>
 
-    <input
-      id="hx-x"
-      type="text"
-      inputmode="decimal"
-      placeholder="Feuchtegehalt x g/kg"
-    />
+    <div class="hx-input-group" id="wrap-x">
+      <label>Feuchtegehalt x</label>
+      <input
+        id="hx-x"
+        class="hx-input"
+        type="text"
+        inputmode="decimal"
+        placeholder="z.B. 1,44"
+      />
+    </div>
 
-    <button id="hx-set">
+    <div class="hx-input-group" id="wrap-rh">
+      <label>Relative Feuchte φ</label>
+      <input
+        id="hx-rh"
+        class="hx-input"
+        type="text"
+        inputmode="decimal"
+        placeholder="z.B. 50"
+      />
+    </div>
+
+    <button id="hx-set" class="hx-main-btn">
       Zustand setzen
     </button>
+
+    <div id="hx-state-box" class="hx-state-box">
+      Noch kein Zustand gesetzt
+    </div>
 
   </div>
 
