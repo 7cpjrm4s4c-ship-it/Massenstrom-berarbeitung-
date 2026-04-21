@@ -1738,13 +1738,23 @@ document.querySelectorAll('.tab-btn').forEach(b => b.addEventListener('click', (
   show($('tab-luft'), t==='luft');
   show($('tab-pipe'), t==='pipe');
   show($('tab-unit'), t==='unit');
-  const hxTabInit = $('tab-hx');
-  if(hxTabInit) {
-     hxTabInit.style.display = "none";
-  }
-  if(t === "hx" || t === "HX"){
-    [$('tab-flow'),$('tab-luft'),$('tab-pipe'),$('tab-unit')].forEach(function(el){if(el)el.style.display='none'});
-  }
+var hxTab = $("tab-hx");
+const isHx = String(t).toLowerCase() === "hx";
+
+if (hxTab) {
+  hxTab.style.display = isHx ? "flex" : "none";
+}
+
+if (isHx) {
+  [
+    $("Tab-Flow"),
+    $("Tab-Luft"),
+    $("Tab-Peife"),
+    $("Tab-Einheit")
+  ].forEach(function(el){
+    if (el) el.style.display = "none";
+  });
+}
 }));
 
 /* ═══════════════════════════════════════
