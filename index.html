@@ -677,7 +677,7 @@ input[type=number]::-webkit-outer-spin-button { -webkit-appearance:none; }
   font-size: 18px;
   font-weight: 800;
   cursor: pointer;
-  margin-top: 6px;
+  margin-top: 14px;
 }
 
 .hx-state-box {
@@ -691,7 +691,7 @@ input[type=number]::-webkit-outer-spin-button { -webkit-appearance:none; }
 
 .hx-cvs-wrap {
   flex: 1;
-  min-height: 520px;
+  min-height: 420px;
   border-radius: 24px;
   overflow: hidden;
   background:
@@ -737,6 +737,38 @@ input[type=number]::-webkit-outer-spin-button { -webkit-appearance:none; }
 
 .shell::before {
     display: none !important;
+}
+
+@media (max-width: 768px) {
+
+  .hx-cvs-wrap {
+    min-height: 260px !important;
+    max-height: 320px;
+    border-radius: 18px;
+  }
+
+  .hx-main-btn {
+    height: 58px;
+    font-size: 18px;
+    border-radius: 16px;
+  }
+
+  .hx-state-box {
+    min-height: auto;
+    padding: 14px;
+    margin-top: 14px;
+  }
+
+  .hx-input {
+    height: 56px;
+    font-size: 17px;
+  }
+
+  .hx-mode {
+    height: 52px;
+    font-size: 17px;
+  }
+
 }
 
 </style>
