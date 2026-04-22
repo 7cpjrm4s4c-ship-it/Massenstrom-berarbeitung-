@@ -199,7 +199,7 @@ function drawHxChart(state) {
     drawBackground(ctx, width, height);
     drawGrid(ctx, width, height);
     drawSaturationCurve(ctx, width, height);
-    drawHumidityCurves(ctx, width, height);
+    drawTemperatureLines(ctx, width, height);
     drawAxes(ctx, width, height);
 
     if (state) {
