@@ -371,6 +371,4 @@ if (!isNaN(xLabel) && !isNaN(hLabel)) {
             pyLabel - 8
         );
     }
-} 
 
-}
