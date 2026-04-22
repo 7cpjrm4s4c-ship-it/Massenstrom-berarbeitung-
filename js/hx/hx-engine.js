@@ -166,6 +166,8 @@ function renderHxState(state) {
 
     document.getElementById("state-h").textContent =
         `${h} kJ/kg`;
+
+    drawHxPoint(state);
 }
 
 // ===== EVENT BINDING =====
