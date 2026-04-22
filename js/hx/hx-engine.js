@@ -73,7 +73,7 @@ function calcHumidityRatio(T, phi) {
         0.622 * pw / (p - pw);
 
     // → g/kg
-    return x * 1000;
+    return +(x * 1000).toFixed(2);
 }
 
 // ===== SET STATE =====
@@ -206,8 +206,8 @@ function drawHxPoint(state) {
 
     // Sättigungskurve (phi = 100%)
     ctx.beginPath();
-    ctx.strokeStyle = "rgba(120,160,255,0.85)";
-    ctx.lineWidth = 2;
+    ctx.strokeStyle = "#8ab4ff";
+    ctx.lineWidth = 3;
 
     let first = true;
 
@@ -216,7 +216,7 @@ function drawHxPoint(state) {
         const hSat = calcEnthalpy(T, xSat);
 
         const pxSat = (xSat / 30) * width;
-        const pySat = height - (hSat / 100) * height;
+        const pySat = height - (hSat / 70) * height;
 
         if (first) {
             ctx.moveTo(pxSat, pySat);
@@ -233,7 +233,7 @@ function drawHxPoint(state) {
     const h = calcEnthalpy(state.T, x);
 
     const px = (x / 30) * width;
-    const py = height - (h / 100) * height;
+    const py = height - (h / 70) * height;
 
     ctx.beginPath();
     ctx.arc(px, py, 7, 0, Math.PI * 2);
