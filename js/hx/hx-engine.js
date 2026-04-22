@@ -71,10 +71,6 @@ function renderHxState(state) {
         `${h} kJ/kg`;
 }
 
-// ===== BASIC RENDER =====
-btnX.onclick = () => setMode("x");
-btnRH.onclick = () => setMode("rh");
-
 /* Startmodus */
 setMode("x");
 
