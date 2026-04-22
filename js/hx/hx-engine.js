@@ -349,3 +349,4 @@ function drawHxPoint(state) {
         ctx.fillText(`h=${h.toFixed(1)} kJ/kg`, px + 12, py + 10);
     }
 }
+}
