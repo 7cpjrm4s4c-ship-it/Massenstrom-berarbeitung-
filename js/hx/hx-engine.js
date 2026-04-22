@@ -34,9 +34,9 @@ function calcHumidityRatio(T, phi) {
 
 // ===== SET STATE =====
 function setHxState() {
-  const tInput = document.getElementById("HX-TEMP");
-  const rhInput = document.getElementById("HX-RH");
-  const xInput = document.getElementById("HX-X");
+  const tInput = document.getElementById("hx-temp");
+  const rhInput = document.getElementById("hx-rh");
+  const xInput = document.getElementById("hx-x");
 
   const T = Number(tInput?.value);
   const phi = Number(rhInput?.value);
