@@ -12,6 +12,30 @@ function num(v) {
   return isNaN(n) ? NaN : n;
 }
 
+function calcEnthalpy(T, x) {
+    /*
+    T = Temperatur in °C
+    x = Feuchtegehalt in g/kg
+    Rückgabe:
+    h = Enthalpie in kJ/kg
+    */
+
+    if (
+        T === undefined ||
+        x === undefined ||
+        isNaN(T) ||
+        isNaN(x)
+    ) {
+        return 0;
+    }
+
+    // x von g/kg → kg/kg
+    const xkg = x / 1000;
+
+    // Standard-Näherung nach Mollier
+    return 1.006 * T + xkg * (2501 + 1.86 * T);
+}
+
 // ===== GLOBAL STATE =====
 let currentState = null;
 
