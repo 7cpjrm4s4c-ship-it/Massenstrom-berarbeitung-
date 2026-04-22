@@ -299,25 +299,15 @@ function drawStatePoint(ctx, width, height, state) {
     if (!state || state.x === undefined) return;
 
     const x = state.x;
-    const h = calcEnthalpy(state.T, state.x);
+    const h = calcEnthalpy(state.T, x);
 
     const px = (x / 30) * width;
     const py = height - (h / 70) * height;
 
     ctx.beginPath();
     ctx.arc(px, py, 8, 0, Math.PI * 2);
-
     ctx.fillStyle = "#6d63ff";
-    ctx.shadowColor = "#6d63ff";
-    ctx.shadowBlur = 20;
     ctx.fill();
-
-    ctx.shadowBlur = 0;
-    ctx.fillStyle = "#ffffff";
-    ctx.font = "14px sans-serif";
-
-    ctx.fillText(`x=${x} g/kg`, px + 12, py - 10);
-    ctx.fillText(`h=${h.toFixed(1)} kJ/kg`, px + 12, py + 10);
 }
 
 function drawTemperatureLines(ctx, width, height) {
@@ -330,12 +320,10 @@ function drawTemperatureLines(ctx, width, height) {
 
         let first = true;
 
-        // von sehr trockener Luft bis zur Sättigung
         for (let phi = 5; phi <= 100; phi += 2) {
             const x = calcHumidityRatio(T, phi);
             const h = calcEnthalpy(T, x);
 
-            // Sicherheitsprüfung gegen ungültige Werte
             if (isNaN(x) || isNaN(h)) continue;
 
             const px = (x / 30) * width;
@@ -351,17 +339,20 @@ function drawTemperatureLines(ctx, width, height) {
 
         ctx.stroke();
 
-        // Temperatur-Label sichtbar im Diagramm platzieren
-        const xLabel = calcHumidityRatio(T, 60);
-        const hLabel = calcEnthalpy(T, xLabel);
+// Temperatur-Label sichtbar im Diagramm platzieren
+const xLabel = calcHumidityRatio(T, 60);
+const hLabel = calcEnthalpy(T, xLabel);
 
-        if (!isNaN(xLabel) && !isNaN(hLabel)) {
+if (!isNaN(xLabel) && !isNaN(hLabel)) {
     const pxLabel = (xLabel / 30) * width;
     const pyLabel = height - (hLabel / 70) * height;
 
-    if (pxLabel > 20 && pxLabel < width - 40 &&
-        pyLabel > 20 && pyLabel < height - 20) {
-
+    if (
+        pxLabel > 20 &&
+        pxLabel < width - 40 &&
+        pyLabel > 20 &&
+        pyLabel < height - 20
+    ) {
         ctx.fillStyle = "rgba(255,255,255,0.75)";
         ctx.font = "12px sans-serif";
 
