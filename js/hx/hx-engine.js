@@ -351,23 +351,24 @@ function drawTemperatureLines(ctx, width, height) {
 
         ctx.stroke();
 
-// Temperatur-Label sichtbar im Diagramm platzieren
-const xLabel = calcHumidityRatio(T, 60);
-const hLabel = calcEnthalpy(T, xLabel);
+        // Temperatur-Label sichtbar im Diagramm platzieren
+        const xLabel = calcHumidityRatio(T, 60);
+        const hLabel = calcEnthalpy(T, xLabel);
 
-if (!isNaN(xLabel) && !isNaN(hLabel)) {
-    const pxLabel = (xLabel / 30) * width;
-    const pyLabel = height - (hLabel / 70) * height;
+        if (!isNaN(xLabel) && !isNaN(hLabel)) {
+            const pxLabel = (xLabel / 30) * width;
+            const pyLabel = height - (hLabel / 70) * height;
 
-    if (pxLabel > 20 && pxLabel < width - 40 &&
-        pyLabel > 20 && pyLabel < height - 20) {
+            if (pxLabel > 20 && pxLabel < width - 40 &&
+                pyLabel > 20 && pyLabel < height - 20) {
 
-        ctx.fillStyle = "rgba(255,255,255,0.75)";
-        ctx.font = "12px sans-serif";
+                ctx.fillStyle = "rgba(255,255,255,0.75)";
+                ctx.font = "12px sans-serif";
 
-        ctx.fillText(
-            `${T}°C`,
-            pxLabel + 8,
-            pyLabel - 8
-        });
-  }
+                ctx. fillText(
+                      `${T}°C`,
+                      pxLabel + 8,
+                      pyLabel - 8
+                );
+         }
+}
