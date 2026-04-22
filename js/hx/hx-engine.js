@@ -353,3 +353,4 @@ function drawHxPoint(state) {
 document.addEventListener("DOMContentLoaded", () => {
     drawHxPoint(null);
 });
+}
