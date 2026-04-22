@@ -167,7 +167,7 @@ function renderHxState(state) {
     document.getElementById("state-h").textContent =
         `${h} kJ/kg`;
 
-    drawHxPoint(state);
+    drawHxChart(state);
 }
 
 // ===== EVENT BINDING =====
@@ -181,7 +181,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   btn.addEventListener("click", setHxState);
 
-  drawHxPoint(null);
+  drawHxChart(null);
 });
 
 function drawHxChart(state) {
