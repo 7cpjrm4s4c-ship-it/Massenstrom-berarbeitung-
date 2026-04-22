@@ -15,6 +15,23 @@ function num(v) {
 // ===== GLOBAL STATE =====
 let currentState = null;
 
+function calcHumidityRatio(T, phi) {
+    // Sättigungsdampfdruck nach Magnus-Formel
+    const pws = 610.94 * Math.exp((17.625 * T) / (T + 243.04));
+
+    // relativer Dampfdruck
+    const pw = (phi / 100) * pws;
+
+    // Standard-Luftdruck [Pa]
+    const p = 101325;
+
+    // Feuchtegehalt x [kg/kg]
+    const x = 0.622 * pw / (p - pw);
+
+    // Rückgabe in g/kg
+    return +(x * 1000).toFixed(2);
+}
+
 // ===== SET STATE =====
 function setHxState() {
   const tInput = document.getElementById("hx-temp");
@@ -29,13 +46,28 @@ function setHxState() {
   let state = {};
 
   if (!isNaN(T) && !isNaN(phi)) {
-    state = { T, phi, mode: "T_phi" };
-  } else if (!isNaN(T) && !isNaN(x)) {
-    state = { T, x, mode: "T_x" };
-  } else {
-    console.warn("Ungültiger Zustand");
-    return;
-  }
+
+   const xCalc = calcHumidityRatio(T, phi);
+
+   Zustand = {
+      T,
+      phi,
+      x: xCalc,
+      Modus: "T_phi"
+   };
+
+} else if (!isNaN(T) && !isNaN(x)) {
+
+   Zustand = {
+      T,
+      x,
+      Modus: "T_x"
+   };
+
+} else {
+   console.warn("Ungültiger Zustand");
+   return;
+}
 
   currentState = state;
 
