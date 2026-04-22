@@ -264,7 +264,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 function drawHxPoint(state) {
     const canvas = document.getElementById("hxCanvas");
-    if (!canvas || !state) return;
+    if (!canvas) return;
 
     const ctx = canvas.getContext("2d");
 
@@ -303,11 +303,12 @@ function drawHxPoint(state) {
     // x: 0–30 g/kg
     // h: 0–100 kJ/kg
 
-    const x = state.x || 0;
-    const h = calcEnthalpy(state.T, state.x);
+if (state && state.x !== undefined) {
+    const x = state.x;
+    const h = calcEnthalpy(state.T, x);
 
     const px = (x / 30) * width;
-    const py = height - (h / 100) * height;
+    const py = height - (h / 70) * height;
 
     // Punkt zeichnen
     ctx.beginPath();
