@@ -40,20 +40,40 @@ function calcEnthalpy(T, x) {
 let currentState = null;
 
 function calcHumidityRatio(T, phi) {
-    // Sättigungsdampfdruck nach Magnus-Formel
-    const pws = 610.94 * Math.exp((17.625 * T) / (T + 243.04));
+    /*
+    T = Temperatur in °C
+    phi = relative Feuchte in %
+    Rückgabe:
+    x = Feuchtegehalt in g/kg
+    */
 
-    // relativer Dampfdruck
+    if (
+        T === undefined ||
+        phi === undefined ||
+        isNaN(T) ||
+        isNaN(phi)
+    ) {
+        return 0;
+    }
+
+    // Sättigungsdampfdruck (Magnus Formel)
+    const pws =
+        6.112 * Math.exp(
+            (17.62 * T) / (243.12 + T)
+        );
+
+    // Partialdruck Wasserdampf
     const pw = (phi / 100) * pws;
 
-    // Standard-Luftdruck [Pa]
-    const p = 101325;
+    // Luftdruck Standard
+    const p = 1013.25;
 
-    // Feuchtegehalt x [kg/kg]
-    const x = 0.622 * pw / (p - pw);
+    // Feuchtegehalt kg/kg
+    const x =
+        0.622 * pw / (p - pw);
 
-    // Rückgabe in g/kg
-    return +(x * 1000).toFixed(2);
+    // → g/kg
+    return x * 1000;
 }
 
 // ===== SET STATE =====
@@ -119,6 +139,31 @@ console.log("x parsed:", x);
 
   renderHxState(state);
 }
+
+// ===== SATURATION CURVE (phi = 100%) =====
+
+ctx.beginPath();
+ctx.strokeStyle = "rgba(120,160,255,0.85)";
+ctx.lineWidth = 2;
+
+let first = true;
+
+for (let T = -10; T <= 50; T += 1) {
+    const xSat = calcHumidityRatio(T, 100);
+    const hSat = calcEnthalpy(T, xSat);
+
+    const pxSat = (xSat / 30) * width;
+    const pySat = height - (hSat / 100) * height;
+
+    if (first) {
+        ctx.moveTo(pxSat, pySat);
+        first = false;
+    } else {
+        ctx.lineTo(pxSat, pySat);
+    }
+}
+
+ctx.stroke();
 
 function renderHxState(state) {
     if (!state) return;
