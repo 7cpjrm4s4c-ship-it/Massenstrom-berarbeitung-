@@ -191,8 +191,13 @@ function drawHxPoint(state) {
 
     const ctx = canvas.getContext("2d");
 
-    const width = canvas.clientWidth;
-    const height = canvas.clientHeight;
+const width = canvas.clientWidth;
+const height = canvas.clientHeight;
+
+console.log("Canvas size:", width, height);
+
+canvas.width = width;
+canvas.height = height;
 
     canvas.width = width;
     canvas.height = height;
@@ -253,6 +258,13 @@ function drawHxPoint(state) {
 
         const px = (x / 30) * width;
         const py = height - (h / 70) * height;
+
+      console.log("Plot values:", {
+    x,
+    h,
+    px,
+    py
+});
 
         ctx.beginPath();
         ctx.arc(px, py, 8, 0, Math.PI * 2);
