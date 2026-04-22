@@ -183,6 +183,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function drawHxPoint(state) {
+    console.log("drawHxPoint called:", state);
     const canvas = document.getElementById("hxCanvas");
     if (!canvas) return;
 
