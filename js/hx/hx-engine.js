@@ -319,3 +319,47 @@ function drawStatePoint(ctx, width, height, state) {
     ctx.fillText(`x=${x} g/kg`, px + 12, py - 10);
     ctx.fillText(`h=${h.toFixed(1)} kJ/kg`, px + 12, py + 10);
 }
+
+function drawTemperatureLines(ctx, width, height) {
+    const temperatures = [-20, -10, 0, 10, 20, 30, 40, 50];
+
+    temperatures.forEach(T => {
+        ctx.beginPath();
+        ctx.strokeStyle = "rgba(255,255,255,0.08)";
+        ctx.lineWidth = 1;
+
+        let first = true;
+
+        // von sehr trockener Luft bis zur Sättigung
+        for (let phi = 5; phi <= 100; phi += 2) {
+            const x = calcHumidityRatio(T, phi);
+            const h = calcEnthalpy(T, x);
+
+            // Sicherheitsprüfung gegen ungültige Werte
+            if (isNaN(x) || isNaN(h)) continue;
+
+            const px = (x / 30) * width;
+            const py = height - (h / 70) * height;
+
+            if (first) {
+                ctx.moveTo(px, py);
+                first = false;
+            } else {
+                ctx.lineTo(px, py);
+            }
+        }
+
+        ctx.stroke();
+
+        // Temperatur-Label am oberen Bereich
+        const xLabel = calcHumidityRatio(T, 20);
+        const hLabel = calcEnthalpy(T, xLabel);
+
+        const pxLabel = (xLabel / 30) * width;
+        const pyLabel = height - (hLabel / 70) * height;
+
+        ctx.fillStyle = "rgba(255,255,255,0.55)";
+        ctx.font = "12px sans-serif";
+        ctx.fillText(`${T}°C`, pxLabel + 6, pyLabel - 6);
+    });
+}
