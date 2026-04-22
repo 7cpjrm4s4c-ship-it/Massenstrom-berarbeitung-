@@ -38,9 +38,9 @@ function setHxState() {
   const rhInput = document.getElementById("HX-RH");
   const xInput = document.getElementById("HX-X");
 
-  const T = num(tInput?.value);
-  const phi = num(rhInput?.value);
-  const x = num(xInput?.value);
+  const T = Number(tInput?.value);
+  const phi = Number(rhInput?.value);
+  const x = Number(xInput?.value);
 
   // MODE: T + φ oder T + x
   let state = {};
