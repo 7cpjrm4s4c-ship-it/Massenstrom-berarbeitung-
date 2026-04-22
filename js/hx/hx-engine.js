@@ -71,9 +71,6 @@ function renderHxState(state) {
         `${h} kJ/kg`;
 }
 
-/* Startmodus */
-setMode("x");
-
 // ===== EVENT BINDING =====
 document.addEventListener("DOMContentLoaded", () => {
   const btn = document.getElementById("hx-set");
