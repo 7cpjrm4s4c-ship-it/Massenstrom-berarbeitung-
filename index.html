@@ -598,475 +598,208 @@ input[type=number]::-webkit-outer-spin-button { -webkit-appearance:none; }
 
 /* h,x native canvas layout */
 
-.hx-panel {
-  background:
-    radial-gradient(circle at top left,
-      rgba(35,70,130,.25),
-      rgba(8,12,22,.85));
-  border: 1px solid rgba(255,255,255,.08);
+
+<!-- Professioneller mobiler h,x-Mollier Diagramm Block -->
+<!-- Diesen Block in deiner index.html für tab-hx verwenden -->
+
+<section id="hx-diagram-section" class="hx-card">
+  <h2>h,x-Diagramm nach Mollier</h2>
+  <div class="hx-chart-wrapper">
+    <canvas id="hxChart"></canvas>
+  </div>
+</section>
+
+<style>
+.hx-card {
+  background: rgba(10,18,40,0.95);
+  border: 1px solid rgba(255,255,255,0.06);
   border-radius: 24px;
-  padding: 22px;
-  backdrop-filter: blur(18px);
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.04),
-    0 20px 60px rgba(0,0,0,.35);
+  padding: 24px;
+  margin-top: 24px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.35);
 }
 
-.hx-mode-switch {
-  display: flex;
-  gap: 10px;
+.hx-card h2 {
+  font-size: 1.4rem;
+  font-weight: 700;
   margin-bottom: 20px;
+  color: #ffffff;
 }
 
-.hx-mode {
-  flex: 1;
-  height: 54px;
-  border: 1px solid rgba(255,255,255,.08);
-  border-radius: 18px;
-  background: rgba(255,255,255,.03);
-  color: #fff;
-  font-weight: 700;
-  font-size: 15px;
-  cursor: pointer;
-}
-
-.hx-mode.active {
-  background: linear-gradient(
-    135deg,
-    #5b52ff,
-    #6d63ff
-  );
-  border-color: rgba(255,255,255,.15);
-}
-
-.hx-input-group {
-  margin-bottom: 18px;
-}
-
-.hx-input-group label {
-  display: block;
-  margin-bottom: 8px;
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: .08em;
-  text-transform: uppercase;
-  color: rgba(255,255,255,.75);
-}
-
-.hx-input {
+.hx-chart-wrapper {
+  position: relative;
   width: 100%;
-  height: 58px;
-  border: 1px solid rgba(255,255,255,.08);
-  border-radius: 18px;
-  background: rgba(255,255,255,.04);
-  color: #fff;
-  padding: 0 18px;
-  font-size: 18px;
-  outline: none;
-}
-
-.hx-input::placeholder {
-  color: rgba(255,255,255,.35);
-}
-
-.hx-main-btn {
-  width: 100%;
-  height: 62px;
-  border: none;
-  border-radius: 20px;
-  background: linear-gradient(
-    135deg,
-    #5b52ff,
-    #6d63ff
-  );
-  color: #fff;
-  font-size: 18px;
-  font-weight: 800;
-  cursor: pointer;
-  margin-top: 14px;
-}
-
-.hx-state-box {
-  margin-top: 18px;
-  padding: 18px;
-  border-radius: 18px;
-  background: rgba(255,255,255,.03);
-  min-height: 80px;
-  color: rgba(255,255,255,.92);
-}
-
-.hx-cvs-wrap {
-  flex: 1;
   min-height: 420px;
-  border-radius: 24px;
-  overflow: hidden;
-  background:
-    radial-gradient(circle at top left,
-      rgba(20,50,100,.22),
-      rgba(0,0,0,.92));
-  border: 1px solid rgba(255,255,255,.06);
+  background: #050b18;
+  border-radius: 20px;
+  padding: 12px;
 }
 
-#hxCanvas {
+#hxChart {
   width: 100% !important;
   height: 420px !important;
   display: block;
-  border-radius: 24px;
-}
-
-#hx-tip {
-  position: fixed;
-  display: none;
-  z-index: 9999;
-  pointer-events: none;
-}
-
-/* Other tabs */
-
-#tab-flow,
-#tab-luft,
-#tab-pipe,
-#tab-unit {
-  flex: 1;
-  overflow-y: auto;
 }
 
 @media (max-width: 768px) {
-
-  #tab-hx {
-    background: linear-gradient(
-        180deg,
-        #05070d 0%,
-        #07101c 100%
-    );
-
-    padding: 12px;
-    overflow-y: auto;
+  .hx-card {
+    padding: 18px;
+    border-radius: 18px;
   }
 
-/* ========================================
-   HX PREMIUM CARD SYSTEM
-======================================== */
+  .hx-card h2 {
+    font-size: 1.15rem;
+  }
 
-.hx-card {
-    background:
-        linear-gradient(
-            180deg,
-            rgba(255,255,255,0.035),
-            rgba(255,255,255,0.015)
-        );
-    border: 1px solid rgba(255,255,255,0.06);
-    border-radius: 28px;
-    padding: 28px;
-    margin-bottom: 24px;
-    box-shadow:
-        inset 0 1px 0 rgba(255,255,255,0.05),
-        0 20px 60px rgba(0,0,0,0.45);
-    backdrop-filter: blur(18px);
-    -webkit-backdrop-filter: blur(18px);
+  .hx-chart-wrapper {
+    min-height: 340px;
+    padding: 8px;
+  }
+
+  #hxChart {
+    height: 340px !important;
+  }
+}
+</style>
+
+<script>
+let hxChartInstance = null;
+
+function buildHxSaturationCurve() {
+  const points = [];
+
+  for (let x = 0; x <= 30; x += 0.5) {
+    const y = -10 + 8.2 * Math.log(x + 1);
+    points.push({ x, y: Math.min(y, 50) });
+  }
+
+  return points;
 }
 
-/* ========================================
-   STEP TITLE SYSTEM
-======================================== */
+function renderHxDiagram(stateX, stateTemp) {
+  const canvas = document.getElementById('hxChart');
+  if (!canvas) return;
 
-.hx-title {
-    font-size: 28px;
-    font-weight: 700;
-    letter-spacing: -0.02em;
-    color: #ffffff;
-    margin-bottom: 22px;
-    line-height: 1.2;
+  const ctx = canvas.getContext('2d');
+
+  if (hxChartInstance) {
+    hxChartInstance.destroy();
+  }
+
+  const saturation = buildHxSaturationCurve();
+
+  hxChartInstance = new Chart(ctx, {
+    type: 'scatter',
+    data: {
+      datasets: [
+        {
+          label: 'Sättigungslinie',
+          data: saturation,
+          showLine: true,
+          pointRadius: 0,
+          borderWidth: 3,
+          borderColor: '#8ab4ff',
+          tension: 0.35
+        },
+        {
+          label: 'Zustandspunkt',
+          data: [{ x: stateX, y: stateTemp }],
+          pointRadius: 7,
+          pointHoverRadius: 8,
+          backgroundColor: '#7c5cff',
+          borderColor: '#ffffff',
+          borderWidth: 2
+        },
+        {
+          label: 'Vertikale Projektion',
+          data: [
+            { x: stateX, y: -10 },
+            { x: stateX, y: stateTemp }
+          ],
+          showLine: true,
+          pointRadius: 0,
+          borderDash: [6, 6],
+          borderWidth: 2,
+          borderColor: '#7c5cff'
+        },
+        {
+          label: 'Horizontale Projektion',
+          data: [
+            { x: 0, y: stateTemp },
+            { x: stateX, y: stateTemp }
+          ],
+          showLine: true,
+          pointRadius: 0,
+          borderDash: [6, 6],
+          borderWidth: 2,
+          borderColor: '#7c5cff'
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: false,
+      plugins: {
+        legend: {
+          display: false
+        },
+        tooltip: {
+          enabled: true
+        }
+      },
+      scales: {
+        x: {
+          min: 0,
+          max: 30,
+          grid: {
+            color: 'rgba(255,255,255,0.05)'
+          },
+          ticks: {
+            color: '#d0d7e2'
+          },
+          title: {
+            display: true,
+            text: 'x [g/kg]',
+            color: '#ffffff'
+          }
+        },
+        y: {
+          min: -10,
+          max: 50,
+          grid: {
+            color: 'rgba(255,255,255,0.05)'
+          },
+          ticks: {
+            color: '#d0d7e2'
+          },
+          title: {
+            display: true,
+            text: 't [°C]',
+            color: '#ffffff'
+          }
+        }
+      }
+    }
+  });
 }
 
-.hx-step-label {
-    display: inline-block;
-    font-size: 13px;
-    font-weight: 700;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: rgba(255,255,255,0.48);
-    margin-bottom: 12px;
+function updateHxFromCalculation(result) {
+  const stateX = Number(result.x || 7.2);
+  const stateTemp = Number(result.temperature || 20);
+
+  requestAnimationFrame(() => {
+    renderHxDiagram(stateX, stateTemp);
+  });
 }
 
-/* ========================================
-   INPUT SYSTEM
-======================================== */
-
-.hx-input {
-    width: 100%;
-    height: 72px;
-    border-radius: 22px;
-    border: 1px solid rgba(255,255,255,0.06);
-    background:
-        linear-gradient(
-            180deg,
-            rgba(255,255,255,0.025),
-            rgba(255,255,255,0.015)
-        );
-    padding: 0 24px;
-    font-size: 20px;
-    font-weight: 500;
-    color: #ffffff;
-    transition: 0.25s ease;
-}
-
-.hx-input:focus {
-    outline: none;
-    border-color: rgba(107,99,255,0.55);
-    box-shadow:
-        0 0 0 4px rgba(107,99,255,0.08);
-}
-
-/* ========================================
-   PRIMARY CTA
-======================================== */
-
-.hx-main-btn {
-    width: 100%;
-    height: 72px;
-    border: none;
-    border-radius: 24px;
-    background:
-        linear-gradient(
-            135deg,
-            #5b52ff,
-            #7c73ff
-        );
-    color: white;
-    font-size: 22px;
-    font-weight: 800;
-    letter-spacing: -0.02em;
-    cursor: pointer;
-    margin-top: 14px;
-    box-shadow:
-        0 18px 50px rgba(91,82,255,0.28);
-    transition: 0.25s ease;
-}
-
-.hx-main-btn:active {
-    transform: scale(0.985);
-}
-
-/* ========================================
-   STATE BOX
-======================================== */
-
-.hx-state-box {
-    margin-top: 20px;
-    min-height: 88px;
-    border-radius: 22px;
-    padding: 22px;
-    background:
-        linear-gradient(
-            180deg,
-            rgba(255,255,255,0.025),
-            rgba(255,255,255,0.01)
-        );
-    border: 1px solid rgba(255,255,255,0.05);
-    color: rgba(255,255,255,0.88);
-    font-size: 17px;
-    line-height: 1.6;
-}
-
-/* ========================================
-   DIAGRAMM CONTAINER
-======================================== */
-
-.hx-diagram-card {
-    padding: 28px;
-}
-
-.hx-cvs-wrap {
-    min-height: 560px;
-    border-radius: 28px;
-    background:
-        radial-gradient(
-            circle at top left,
-            rgba(20,50,120,0.20),
-            rgba(0,0,0,0.92)
-        );
-    border: 1px solid rgba(255,255,255,0.05);
-    box-shadow:
-        inset 0 1px 0 rgba(255,255,255,0.03);
-}
-
-}
-
-/* ========================================
-   PHASE 3.2 -- VISUAL FLOW POLISH
-======================================== */
-
-/* Diagramm Card ruhiger + hochwertiger */
-
-.hx-diagram-card {
-    padding: 26px;
-    margin-top: 8px;
-}
-
-.hx-diagram-card .hx-title {
-    font-size: 18px;
-    font-weight: 700;
-    letter-spacing: -0.01em;
-    margin-bottom: 18px;
-    color: rgba(255,255,255,0.92);
-}
-
-/* Canvas weniger dominant */
-
-.hx-cvs-wrap {
-    min-height: 420px;
-    border-radius: 24px;
-    background:
-        radial-gradient(
-            circle at top left,
-            rgba(25,55,130,0.16),
-            rgba(0,0,0,0.94)
-        );
-    box-shadow:
-        inset 0 1px 0 rgba(255,255,255,0.025);
-}
-
-/* Step Cards sauberer Abstand */
-
-.hx-card {
-    margin-bottom: 18px;
-    padding: 24px;
-}
-
-/* Step Titel eleganter */
-
-.hx-title {
-    font-size: 22px;
-    font-weight: 750;
-    line-height: 1.2;
-    margin-bottom: 18px;
-}
-
-/* Label weniger aggressiv */
-
-.hx-step-label {
-    font-size: 12px;
-    letter-spacing: 0.14em;
-    margin-bottom: 10px;
-    opacity: 0.72;
-}
-
-/* State Box ruhiger */
-
-.hx-state-box {
-    min-height: 74px;
-    font-size: 16px;
-    padding: 18px;
-}
-
-/* Mehr Luft zwischen Diagramm und Step 2 */
-
-.hx-diagram-card + .hx-card {
-    margin-top: 26px;
-}
-
-/* ========================================
-   PHASE 3.3 -- FINAL APPLE FINISH
-======================================== */
-
-/* Canvas bekommt technischen Premium-Look */
-
-.hx-cvs-wrap {
-    position: relative;
-    overflow: hidden;
-}
-
-.hx-cvs-wrap::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background:
-        linear-gradient(
-            rgba(255,255,255,0.015) 1px,
-            transparent 1px
-        ),
-        linear-gradient(
-            90deg,
-            rgba(255,255,255,0.015) 1px,
-            transparent 1px
-        );
-    background-size: 32px 32px;
-    opacity: 0.35;
-    pointer-events: none;
-}
-
-.hx-cvs-wrap::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background:
-        radial-gradient(
-            circle at 20% 20%,
-            rgba(90,110,255,0.08),
-            transparent 45%
-        );
-    pointer-events: none;
-}
-
-/* Diagramm-Titel edler */
-
-.hx-diagram-card .hx-title {
-    font-size: 17px;
-    font-weight: 700;
-    letter-spacing: -0.01em;
-    color: rgba(255,255,255,0.88);
-}
-
-/* CTA noch stärker */
-
-.hx-main-btn {
-    box-shadow:
-        0 24px 60px rgba(91,82,255,0.32),
-        inset 0 1px 0 rgba(255,255,255,0.18);
-}
-
-/* State Box mit mehr Ruhe */
-
-.hx-state-box {
-    display: flex;
-    align-items: center;
-    font-weight: 500;
-}
-
-/* Gesamter Flow kompakter */
-
-.hx-card {
-    margin-bottom: 16px;
-}
-
-.state-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 14px;
-}
-
-.state-item {
-    padding: 14px;
-    border-radius: 16px;
-    background: rgba(255,255,255,.03);
-    border: 1px solid rgba(255,255,255,.05);
-}
-
-.state-label {
-    display: block;
-    font-size: 12px;
-    letter-spacing: .08em;
-    text-transform: uppercase;
-    color: rgba(255,255,255,.45);
-    margin-bottom: 6px;
-}
-
-.state-value {
-    font-size: 18px;
-    font-weight: 700;
-    color: rgba(255,255,255,.92);
-}
+window.addEventListener('load', () => {
+  updateHxFromCalculation({
+    x: 7.2,
+    temperature: 20
+  });
+});
+</script>
 
 </style>
 </head>
