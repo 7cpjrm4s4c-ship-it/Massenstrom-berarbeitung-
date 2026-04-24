@@ -1,1 +1,0 @@
-Final Release auf Basis der funktionierenden index.html

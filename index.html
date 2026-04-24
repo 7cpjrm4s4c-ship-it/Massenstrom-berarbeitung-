@@ -13,13 +13,13 @@
 <title>Massenstromrechner</title>
 <style>
 /* ═══════════════════════════════════════════════════════
-   APPLE LIQUID GLASS -- Token System
+   APPLE LIQUID GLASS — Token System
 ═══════════════════════════════════════════════════════ */
 :root {
   /* True black base */
   --bg: #000000;
 
-  /* Glass layers -- increasingly opaque */
+  /* Glass layers — increasingly opaque */
   --glass-low:   rgba(255,255,255,0.07);
   --glass-mid:   rgba(255,255,255,0.11);
   --glass-high:  rgba(255,255,255,0.16);
@@ -70,7 +70,7 @@
   --f:  Arial, Helvetica, sans-serif;
   --fm: 'Courier New', Courier, monospace;
 
-  /* Spacing -- generous */
+  /* Spacing — generous */
   --gap:   14px;
   --gap-s: 10px;
   --gap-l: 20px;
@@ -109,7 +109,7 @@ body {
     ellipse 45% 35% at 85% 90%,
     rgba(10,35,65,.22) 0%,
     transparent 70%
-  );yes
+  );
 }
 input[type=number] { -moz-appearance:textfield; }
 input[type=number]::-webkit-inner-spin-button,
@@ -118,7 +118,7 @@ input[type=number]::-webkit-outer-spin-button { -webkit-appearance:none; }
 ::-webkit-scrollbar-thumb { background:var(--gb-soft); border-radius:2px; }
 
 /* ═══════════════════════════════════════════════════════
-   HEADER -- frosted glass bar
+   HEADER — frosted glass bar
 ═══════════════════════════════════════════════════════ */
 .hdr {
   position:sticky; top:0; z-index:100;
@@ -210,7 +210,7 @@ input[type=number]::-webkit-outer-spin-button { -webkit-appearance:none; }
 }
 
 /* ═══════════════════════════════════════════════════════
-   GLASS CARD -- core component
+   GLASS CARD — core component
 ═══════════════════════════════════════════════════════ */
 .gc {
   background:var(--glass-low);
@@ -319,7 +319,7 @@ input[type=number]::-webkit-outer-spin-button { -webkit-appearance:none; }
 }
 
 /* ═══════════════════════════════════════════════════════
-   INPUT GROUPS -- generous spacing
+   INPUT GROUPS — generous spacing
 ═══════════════════════════════════════════════════════ */
 .igrp { display:flex; flex-direction:column; gap:6px; margin-bottom:var(--gap); }
 .igrp:last-of-type { margin-bottom:0; }
@@ -373,7 +373,7 @@ input[type=number]::-webkit-outer-spin-button { -webkit-appearance:none; }
 .gc-h .inp-sm:focus { border-color:rgba(255,107,53,0.50); }
 .gc-c .inp-sm:focus { border-color:rgba(0,196,232,0.45); }
 
-/* Read-only result -- unmistakably different */
+/* Read-only result — unmistakably different */
 .inp-ro {
   width:100%;
   background:rgba(79,168,255,0.10);
@@ -440,7 +440,7 @@ input[type=number]::-webkit-outer-spin-button { -webkit-appearance:none; }
 
 .out-row { margin-bottom:10px; }
 .out-row:last-child { margin-bottom:0; }
-/* out-key: no text-transform -- units must keep correct capitalisation */
+/* out-key: no text-transform — units must keep correct capitalisation */
 .out-key { font-family:var(--f); font-size:11px; font-weight:700; letter-spacing:.06em; color:var(--t3); margin-bottom:4px; }
 .out-val { font-family:var(--fm); font-weight:700; line-height:1; font-size:clamp(18px,3.8vw,26px); transition:color .22s; }
 .out-val .u { font-size:12px; font-weight:400; margin-left:3px; color:var(--t3); }
@@ -598,208 +598,475 @@ input[type=number]::-webkit-outer-spin-button { -webkit-appearance:none; }
 
 /* h,x native canvas layout */
 
-
-<!-- Professioneller mobiler h,x-Mollier Diagramm Block -->
-<!-- Diesen Block in deiner index.html für tab-hx verwenden -->
-
-<section id="hx-diagram-section" class="hx-card">
-  <h2>h,x-Diagramm nach Mollier</h2>
-  <div class="hx-chart-wrapper">
-    <canvas id="hxChart"></canvas>
-  </div>
-</section>
-
-<style>
-.hx-card {
-  background: rgba(10,18,40,0.95);
-  border: 1px solid rgba(255,255,255,0.06);
+.hx-panel {
+  background:
+    radial-gradient(circle at top left,
+      rgba(35,70,130,.25),
+      rgba(8,12,22,.85));
+  border: 1px solid rgba(255,255,255,.08);
   border-radius: 24px;
-  padding: 24px;
-  margin-top: 24px;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+  padding: 22px;
+  backdrop-filter: blur(18px);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.04),
+    0 20px 60px rgba(0,0,0,.35);
 }
 
-.hx-card h2 {
-  font-size: 1.4rem;
-  font-weight: 700;
+.hx-mode-switch {
+  display: flex;
+  gap: 10px;
   margin-bottom: 20px;
-  color: #ffffff;
 }
 
-.hx-chart-wrapper {
-  position: relative;
+.hx-mode {
+  flex: 1;
+  height: 54px;
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 18px;
+  background: rgba(255,255,255,.03);
+  color: #fff;
+  font-weight: 700;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.hx-mode.active {
+  background: linear-gradient(
+    135deg,
+    #5b52ff,
+    #6d63ff
+  );
+  border-color: rgba(255,255,255,.15);
+}
+
+.hx-input-group {
+  margin-bottom: 18px;
+}
+
+.hx-input-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.75);
+}
+
+.hx-input {
   width: 100%;
-  min-height: 420px;
-  background: #050b18;
-  border-radius: 20px;
-  padding: 12px;
+  height: 58px;
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 18px;
+  background: rgba(255,255,255,.04);
+  color: #fff;
+  padding: 0 18px;
+  font-size: 18px;
+  outline: none;
 }
 
-#hxChart {
+.hx-input::placeholder {
+  color: rgba(255,255,255,.35);
+}
+
+.hx-main-btn {
+  width: 100%;
+  height: 62px;
+  border: none;
+  border-radius: 20px;
+  background: linear-gradient(
+    135deg,
+    #5b52ff,
+    #6d63ff
+  );
+  color: #fff;
+  font-size: 18px;
+  font-weight: 800;
+  cursor: pointer;
+  margin-top: 14px;
+}
+
+.hx-state-box {
+  margin-top: 18px;
+  padding: 18px;
+  border-radius: 18px;
+  background: rgba(255,255,255,.03);
+  min-height: 80px;
+  color: rgba(255,255,255,.92);
+}
+
+.hx-cvs-wrap {
+  flex: 1;
+  min-height: 420px;
+  border-radius: 24px;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at top left,
+      rgba(20,50,100,.22),
+      rgba(0,0,0,.92));
+  border: 1px solid rgba(255,255,255,.06);
+}
+
+#hxCanvas {
   width: 100% !important;
   height: 420px !important;
   display: block;
+  border-radius: 24px;
+}
+
+#hx-tip {
+  position: fixed;
+  display: none;
+  z-index: 9999;
+  pointer-events: none;
+}
+
+/* Other tabs */
+
+#tab-flow,
+#tab-luft,
+#tab-pipe,
+#tab-unit {
+  flex: 1;
+  overflow-y: auto;
 }
 
 @media (max-width: 768px) {
-  .hx-card {
+
+  #tab-hx {
+    background: linear-gradient(
+        180deg,
+        #05070d 0%,
+        #07101c 100%
+    );
+
+    padding: 12px;
+    overflow-y: auto;
+  }
+
+/* ========================================
+   HX PREMIUM CARD SYSTEM
+======================================== */
+
+.hx-card {
+    background:
+        linear-gradient(
+            180deg,
+            rgba(255,255,255,0.035),
+            rgba(255,255,255,0.015)
+        );
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 28px;
+    padding: 28px;
+    margin-bottom: 24px;
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.05),
+        0 20px 60px rgba(0,0,0,0.45);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+}
+
+/* ========================================
+   STEP TITLE SYSTEM
+======================================== */
+
+.hx-title {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: #ffffff;
+    margin-bottom: 22px;
+    line-height: 1.2;
+}
+
+.hx-step-label {
+    display: inline-block;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.48);
+    margin-bottom: 12px;
+}
+
+/* ========================================
+   INPUT SYSTEM
+======================================== */
+
+.hx-input {
+    width: 100%;
+    height: 72px;
+    border-radius: 22px;
+    border: 1px solid rgba(255,255,255,0.06);
+    background:
+        linear-gradient(
+            180deg,
+            rgba(255,255,255,0.025),
+            rgba(255,255,255,0.015)
+        );
+    padding: 0 24px;
+    font-size: 20px;
+    font-weight: 500;
+    color: #ffffff;
+    transition: 0.25s ease;
+}
+
+.hx-input:focus {
+    outline: none;
+    border-color: rgba(107,99,255,0.55);
+    box-shadow:
+        0 0 0 4px rgba(107,99,255,0.08);
+}
+
+/* ========================================
+   PRIMARY CTA
+======================================== */
+
+.hx-main-btn {
+    width: 100%;
+    height: 72px;
+    border: none;
+    border-radius: 24px;
+    background:
+        linear-gradient(
+            135deg,
+            #5b52ff,
+            #7c73ff
+        );
+    color: white;
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    cursor: pointer;
+    margin-top: 14px;
+    box-shadow:
+        0 18px 50px rgba(91,82,255,0.28);
+    transition: 0.25s ease;
+}
+
+.hx-main-btn:active {
+    transform: scale(0.985);
+}
+
+/* ========================================
+   STATE BOX
+======================================== */
+
+.hx-state-box {
+    margin-top: 20px;
+    min-height: 88px;
+    border-radius: 22px;
+    padding: 22px;
+    background:
+        linear-gradient(
+            180deg,
+            rgba(255,255,255,0.025),
+            rgba(255,255,255,0.01)
+        );
+    border: 1px solid rgba(255,255,255,0.05);
+    color: rgba(255,255,255,0.88);
+    font-size: 17px;
+    line-height: 1.6;
+}
+
+/* ========================================
+   DIAGRAMM CONTAINER
+======================================== */
+
+.hx-diagram-card {
+    padding: 28px;
+}
+
+.hx-cvs-wrap {
+    min-height: 560px;
+    border-radius: 28px;
+    background:
+        radial-gradient(
+            circle at top left,
+            rgba(20,50,120,0.20),
+            rgba(0,0,0,0.92)
+        );
+    border: 1px solid rgba(255,255,255,0.05);
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.03);
+}
+
+}
+
+/* ========================================
+   PHASE 3.2 -- VISUAL FLOW POLISH
+======================================== */
+
+/* Diagramm Card ruhiger + hochwertiger */
+
+.hx-diagram-card {
+    padding: 26px;
+    margin-top: 8px;
+}
+
+.hx-diagram-card .hx-title {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    margin-bottom: 18px;
+    color: rgba(255,255,255,0.92);
+}
+
+/* Canvas weniger dominant */
+
+.hx-cvs-wrap {
+    min-height: 420px;
+    border-radius: 24px;
+    background:
+        radial-gradient(
+            circle at top left,
+            rgba(25,55,130,0.16),
+            rgba(0,0,0,0.94)
+        );
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.025);
+}
+
+/* Step Cards sauberer Abstand */
+
+.hx-card {
+    margin-bottom: 18px;
+    padding: 24px;
+}
+
+/* Step Titel eleganter */
+
+.hx-title {
+    font-size: 22px;
+    font-weight: 750;
+    line-height: 1.2;
+    margin-bottom: 18px;
+}
+
+/* Label weniger aggressiv */
+
+.hx-step-label {
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    margin-bottom: 10px;
+    opacity: 0.72;
+}
+
+/* State Box ruhiger */
+
+.hx-state-box {
+    min-height: 74px;
+    font-size: 16px;
     padding: 18px;
-    border-radius: 18px;
-  }
-
-  .hx-card h2 {
-    font-size: 1.15rem;
-  }
-
-  .hx-chart-wrapper {
-    min-height: 340px;
-    padding: 8px;
-  }
-
-  #hxChart {
-    height: 340px !important;
-  }
-}
-</style>
-
-<script>
-let hxChartInstance = null;
-
-function buildHxSaturationCurve() {
-  const points = [];
-
-  for (let x = 0; x <= 30; x += 0.5) {
-    const y = -10 + 8.2 * Math.log(x + 1);
-    points.push({ x, y: Math.min(y, 50) });
-  }
-
-  return points;
 }
 
-function renderHxDiagram(stateX, stateTemp) {
-  const canvas = document.getElementById('hxChart');
-  if (!canvas) return;
+/* Mehr Luft zwischen Diagramm und Step 2 */
 
-  const ctx = canvas.getContext('2d');
-
-  if (hxChartInstance) {
-    hxChartInstance.destroy();
-  }
-
-  const saturation = buildHxSaturationCurve();
-
-  hxChartInstance = new Chart(ctx, {
-    type: 'scatter',
-    data: {
-      datasets: [
-        {
-          label: 'Sättigungslinie',
-          data: saturation,
-          showLine: true,
-          pointRadius: 0,
-          borderWidth: 3,
-          borderColor: '#8ab4ff',
-          tension: 0.35
-        },
-        {
-          label: 'Zustandspunkt',
-          data: [{ x: stateX, y: stateTemp }],
-          pointRadius: 7,
-          pointHoverRadius: 8,
-          backgroundColor: '#7c5cff',
-          borderColor: '#ffffff',
-          borderWidth: 2
-        },
-        {
-          label: 'Vertikale Projektion',
-          data: [
-            { x: stateX, y: -10 },
-            { x: stateX, y: stateTemp }
-          ],
-          showLine: true,
-          pointRadius: 0,
-          borderDash: [6, 6],
-          borderWidth: 2,
-          borderColor: '#7c5cff'
-        },
-        {
-          label: 'Horizontale Projektion',
-          data: [
-            { x: 0, y: stateTemp },
-            { x: stateX, y: stateTemp }
-          ],
-          showLine: true,
-          pointRadius: 0,
-          borderDash: [6, 6],
-          borderWidth: 2,
-          borderColor: '#7c5cff'
-        }
-      ]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      animation: false,
-      plugins: {
-        legend: {
-          display: false
-        },
-        tooltip: {
-          enabled: true
-        }
-      },
-      scales: {
-        x: {
-          min: 0,
-          max: 30,
-          grid: {
-            color: 'rgba(255,255,255,0.05)'
-          },
-          ticks: {
-            color: '#d0d7e2'
-          },
-          title: {
-            display: true,
-            text: 'x [g/kg]',
-            color: '#ffffff'
-          }
-        },
-        y: {
-          min: -10,
-          max: 50,
-          grid: {
-            color: 'rgba(255,255,255,0.05)'
-          },
-          ticks: {
-            color: '#d0d7e2'
-          },
-          title: {
-            display: true,
-            text: 't [°C]',
-            color: '#ffffff'
-          }
-        }
-      }
-    }
-  });
+.hx-diagram-card + .hx-card {
+    margin-top: 26px;
 }
 
-function updateHxFromCalculation(result) {
-  const stateX = Number(result.x || 7.2);
-  const stateTemp = Number(result.temperature || 20);
+/* ========================================
+   PHASE 3.3 -- FINAL APPLE FINISH
+======================================== */
 
-  requestAnimationFrame(() => {
-    renderHxDiagram(stateX, stateTemp);
-  });
+/* Canvas bekommt technischen Premium-Look */
+
+.hx-cvs-wrap {
+    position: relative;
+    overflow: hidden;
 }
 
-window.addEventListener('load', () => {
-  updateHxFromCalculation({
-    x: 7.2,
-    temperature: 20
-  });
-});
-</script>
+.hx-cvs-wrap::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+        linear-gradient(
+            rgba(255,255,255,0.015) 1px,
+            transparent 1px
+        ),
+        linear-gradient(
+            90deg,
+            rgba(255,255,255,0.015) 1px,
+            transparent 1px
+        );
+    background-size: 32px 32px;
+    opacity: 0.35;
+    pointer-events: none;
+}
+
+.hx-cvs-wrap::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(
+            circle at 20% 20%,
+            rgba(90,110,255,0.08),
+            transparent 45%
+        );
+    pointer-events: none;
+}
+
+/* Diagramm-Titel edler */
+
+.hx-diagram-card .hx-title {
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: rgba(255,255,255,0.88);
+}
+
+/* CTA noch stärker */
+
+.hx-main-btn {
+    box-shadow:
+        0 24px 60px rgba(91,82,255,0.32),
+        inset 0 1px 0 rgba(255,255,255,0.18);
+}
+
+/* State Box mit mehr Ruhe */
+
+.hx-state-box {
+    display: flex;
+    align-items: center;
+    font-weight: 500;
+}
+
+/* Gesamter Flow kompakter */
+
+.hx-card {
+    margin-bottom: 16px;
+}
+
+.state-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+}
+
+.state-item {
+    padding: 14px;
+    border-radius: 16px;
+    background: rgba(255,255,255,.03);
+    border: 1px solid rgba(255,255,255,.05);
+}
+
+.state-label {
+    display: block;
+    font-size: 12px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,.45);
+    margin-bottom: 6px;
+}
+
+.state-value {
+    font-size: 18px;
+    font-weight: 700;
+    color: rgba(255,255,255,.92);
+}
 
 </style>
 </head>
@@ -820,6 +1087,7 @@ window.addEventListener('load', () => {
     <button class="tab-btn"        data-tab="pipe">Rohrdimensionierung</button>
     <button class="tab-btn"        data-tab="unit">Einheiten</button>
     <button class="tab-btn"        data-tab="hx">h,x-Diagramm</button>
+    <button class="tab-btn" onclick="openPdfSheet()" style="color:var(--blue);flex-shrink:0">⬇ PDF</button>
   </nav>
 </header>
 
@@ -977,7 +1245,7 @@ window.addEventListener('load', () => {
 
   </div>
 
-  <!-- RIGHT column -- pipe recommendation -->
+  <!-- RIGHT column — pipe recommendation -->
   <div class="col-R">
 
     <div class="rcol-hdr">Rohrdimensionsempfehlung</div>
@@ -1029,7 +1297,7 @@ window.addEventListener('load', () => {
 <div id="tab-luft" style="display:none">
   <div style="padding:12px;padding-left:calc(12px + var(--sal));padding-right:calc(12px + var(--sar));padding-bottom:calc(32px + var(--sab));display:flex;flex-direction:column;gap:var(--gap);max-width:640px;width:100%;margin:0 auto">
 
-    <!-- ① Zulufttemperatur + Raumtemperatur pill -- Heizen & Kühlen getrennt -->
+    <!-- ① Zulufttemperatur + Raumtemperatur pill — Heizen & Kühlen getrennt -->
     <div class="gc" style="padding:0;overflow:hidden">
       <div style="padding:12px 16px 6px;font-family:var(--f);font-size:11px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--t3)">Temperaturen</div>
       <!-- Header row -->
@@ -1079,7 +1347,7 @@ window.addEventListener('load', () => {
       <button class="hk-btn"      id="luft-btn-k" onclick="luftSwitch('k')"><div class="dot dot-c"></div>K&uuml;hlleistung</button>
     </div>
 
-    <!-- ③ Eingabe-Karte -- identisch zu Heizung/Kälte -->
+    <!-- ③ Eingabe-Karte — identisch zu Heizung/Kälte -->
     <div class="gc gc-h" id="luft-in-card">
       <div class="ptitle" id="luft-ptitle">
         <div class="dot dot-h"></div>
@@ -1093,7 +1361,7 @@ window.addEventListener('load', () => {
         <button class="mbtn"        data-lm="dt">&Delta;t&nbsp;Temperatur</button>
       </div>
 
-      <!-- Q-Eingabe -- getrennt für Heizen (h) und Kühlen (k) -->
+      <!-- Q-Eingabe — getrennt für Heizen (h) und Kühlen (k) -->
       <div class="igrp" id="luft-ig-q">
         <div class="ilbl ilbl-row">
           <span>Leistung Q</span>
@@ -1299,842 +1567,184 @@ window.addEventListener('load', () => {
 <!-- ═══════════════════════════════════════════════════════
    TAB: H,X-DIAGRAMM
 ═══════════════════════════════════════════════════════ -->
-<!-- ERSETZE DEN GESAMTEN BEREICH: <div id="tab-hx"> ... </div> -->
-
 <div id="tab-hx" style="display:none;">
 
   <div class="hx-layout">
 
-    <!-- STEP 1 -->
+    <!-- STEP 1: Ausgangszustand -->
 
     <div class="hx-card">
-
       <div class="hx-title">1. Ausgangszustand</div>
 
       <div class="hx-mode-switch">
-
         <button id="mode-rh" class="hx-mode active">φ [%]</button>
-
         <button id="mode-x" class="hx-mode">x [g/kg]</button>
-
       </div>
 
       <div class="hx-input-group">
-
         <label>Temperatur t</label>
-
-        <input id="hx-temp" class="hx-input" type="text" inputmode="decimal" placeholder="z.B. 22,0" />
-
+        <input
+          id="hx-temp"
+          class="hx-input"
+          type="text"
+          inputmode="decimal"
+          placeholder="z.B. -10 oder 22,5"
+        />
       </div>
 
       <div class="hx-input-group" id="wrap-rh">
-
         <label>Relative Feuchte φ</label>
-
-        <input id="hx-rh" class="hx-input" type="text" inputmode="decimal" placeholder="z.B. 50" />
-
+        <input
+          id="hx-rh"
+          class="hx-input"
+          type="text"
+          inputmode="decimal"
+          placeholder="z.B. 40"
+        />
       </div>
 
-      <div class="hx-input-group" id="wrap-x" style="display:none;">
-
-        <label>Absolute Feuchte x</label>
-
-        <input id="hx-x" class="hx-input" type="text" inputmode="decimal" placeholder="z.B. 8,5" />
-
+      <div class="hx-input-group" id="wrap-x">
+        <label>Feuchtegehalt x</label>
+        <input
+          id="hx-x"
+          class="hx-input"
+          type="text"
+          inputmode="decimal"
+          placeholder="z.B. 1,44"
+        />
       </div>
 
-      <button id="hx-set" class="hx-main-btn">Zustand setzen</button>
+      <button id="hx-set" class="hx-main-btn">
+        Zustand setzen
+      </button>
 
       <div id="hx-state" class="hx-state-box">
 
-        <div class="state-grid">
+         <div class="state-grid">
 
-          <div class="state-item"><span class="state-label">T</span><span class="state-value" id="state-temp">-- °C</span></div>
+            <div class="state-item">
+               <span class="state-label">T</span>
+               <span class="state-value" id="state-temp">-- °C</span>
+            </div>
 
-          <div class="state-item"><span class="state-label">φ</span><span class="state-value" id="state-rh">-- %</span></div>
+            <div class="state-item">
+               <span class="state-label">φ</span>
+               <span class="state-value" id="state-rh">-- %</span>
+            </div>
 
-          <div class="state-item"><span class="state-label">x</span><span class="state-value" id="state-x">-- g/kg</span></div>
+            <div class="state-item">
+               <span class="state-label">x</span>
+               <span class="state-value" id="state-x">-- g/kg</span>
+            </div>
 
-          <div class="state-item"><span class="state-label">h</span><span class="state-value" id="state-h">-- kJ/kg</span></div>
+            <div class="state-item">
+               <span class="state-label">h</span>
+               <span class="state-value" id="state-h">-- kJ/kg</span>
+            </div>
 
-        </div>
+         </div>
 
-      </div>
+      </div><!-- /hx-state -->
+    </div><!-- /hx-card Step 1 -->
 
-    </div>
-
-    <!-- DIAGRAMM -->
+    <!-- STEP 6: Diagramm -->
 
     <div class="hx-card hx-diagram-card">
-
       <div class="hx-title">h,x-Diagramm nach Mollier</div>
 
       <div class="hx-cvs-wrap">
-
         <canvas id="hxCanvas"></canvas>
+        <div id="hx-tip"></div>
+      </div>
+    </div>
 
+
+    <!-- STEP 2: Zielzustand -->
+
+    <div class="hx-card">
+      <div class="hx-title">2. Zielzustand</div>
+
+      <div class="hx-input-group">
+        <label>Zieltemperatur</label>
+        <input
+          id="hx-target-temp"
+          class="hx-input"
+          type="text"
+          inputmode="decimal"
+          placeholder="z.B. 22"
+        />
       </div>
 
+      <div class="hx-input-group">
+        <label>Zielfeuchte</label>
+        <input
+          id="hx-target-rh"
+          class="hx-input"
+          type="text"
+          inputmode="decimal"
+          placeholder="z.B. 50"
+        />
+      </div>
+    </div>
+
+
+    <!-- STEP 3: Luftbehandlung -->
+
+    <div class="hx-card">
+      <div class="hx-title">3. Luftbehandlung</div>
+
+      <select id="hx-process" class="hx-input">
+        <option value="">Bitte wählen</option>
+        <option value="heizen">Heizen</option>
+        <option value="kuehlen">Kühlen</option>
+        <option value="adiabat">Befeuchten adiabat</option>
+        <option value="dampf">Befeuchten Dampf</option>
+        <option value="entfeuchten">Entfeuchten</option>
+        <option value="mischluft">Mischluft</option>
+        <option value="wrg">WRG</option>
+        <option value="nachheizen">Nachheizen</option>
+      </select>
+    </div>
+
+
+    <!-- STEP 4: Berechnung -->
+
+    <div class="hx-card">
+      <div class="hx-title">4. Berechnung</div>
+
+      <div class="hx-mode-switch">
+        <button id="calc-auto" class="hx-mode active">
+          Automatisch
+        </button>
+
+        <button id="calc-manual" class="hx-mode">
+          Manuell
+        </button>
+      </div>
+
+      <button id="hx-calc" class="hx-main-btn">
+        Berechnung starten
+      </button>
+    </div>
+
+
+    <!-- STEP 5: Ergebnis -->
+
+    <div class="hx-card">
+      <div class="hx-title">5. Ergebnis</div>
+
+      <div id="hx-result" class="hx-state-box">
+        Noch keine Berechnung durchgeführt
+      </div>
     </div>
 
   </div>
 
 </div><!-- Tab-HX-Diagramm -->
 
-
-<script>
-'use strict';
-/* ═══════════════════════════════════════
-   DATA
-═══════════════════════════════════════ */
-const FL = {
-  water: { cp:4.180, rho:998,  frost:null,   label:'Wasser' },
-  // Ethylenglykol (bei 40\u00b0C Mitteltemp.)
-  eg25:  { cp:3.870, rho:1032, frost:'bis \u221212\u202f\u00b0C', label:'Ethylenglykol 25\u202f%' },
-  eg30:  { cp:3.740, rho:1038, frost:'bis \u221216\u202f\u00b0C', label:'Ethylenglykol 30\u202f%' },
-  eg35:  { cp:3.620, rho:1044, frost:'bis \u221221\u202f\u00b0C', label:'Ethylenglykol 35\u202f%' },
-  // Propylenglykol (bei 40\u00b0C Mitteltemp.)
-  pg25:  { cp:3.870, rho:1024, frost:'bis \u221210\u202f\u00b0C', label:'Propylenglykol 25\u202f%' },
-  pg30:  { cp:3.740, rho:1030, frost:'bis \u221213\u202f\u00b0C', label:'Propylenglykol 30\u202f%' },
-  pg35:  { cp:3.610, rho:1037, frost:'bis \u221218\u202f\u00b0C', label:'Propylenglykol 35\u202f%' },
-};
-
-/* [DN, di_s,da_s,wall_s,norm_s, di_m,da_m,wall_m]
-   Mapress: max DN100 (Geberit specification)
-   DN > 100: di_m = null → "Nicht verfügbar" */
-const PIPES = [
-  // [DN, di_s,da_s,wall_s,norm_s,  di_m,da_m,wall_m]  Mapress from Geberit PDF
-  [ 15,  16.1, 21.3,2.60,'DIN EN 10255',  16.0, 18.0,1.0],
-  [ 20,  21.6, 26.9,2.65,'DIN EN 10255',  19.6, 22.0,1.2],
-  [ 25,  27.2, 33.7,3.25,'DIN EN 10255',  25.6, 28.0,1.2],
-  [ 32,  35.9, 42.4,3.25,'DIN EN 10255',  32.0, 35.0,1.5],
-  [ 40,  41.8, 48.3,3.25,'DIN EN 10255',  39.0, 42.0,1.5],
-  [ 50,  53.0, 60.3,3.65,'DIN EN 10255',  51.0, 54.0,1.5],
-  [ 65,  69.6, 76.1,3.25,'DIN EN 10220',  72.1, 76.1,2.0],
-  [ 80,  82.5, 88.9,3.20,'DIN EN 10220',  84.9, 88.9,2.0],
-  [100, 107.1,114.3,3.60,'DIN EN 10220', 104.0,108.0,2.0],
-  [125, 131.7,139.7,4.00,'DIN EN 10220',  null, null,null],
-  [150, 155.8,168.3,4.50,'DIN EN 10220',  null, null,null],
-  [200, 203.1,219.1,8.00,'DIN EN 10220',  null, null,null],
-  [250, 254.5,273.0,8.80,'DIN EN 10220',  null, null,null],
-  [300, 303.1,323.9,9.50,'DIN EN 10220',  null, null,null],
-];
-
-const RHO=983.2, NU=0.474e-6, ES=0.046e-3, EM=0.015e-3, DP0=100;
-const MAPRESS_MAX_DN = 100; // Geberit Mapress Edelstahl max dimension
-
-/* ═══════════════════════════════════════
-   UTILS
-═══════════════════════════════════════ */
-const $ = id => document.getElementById(id);
-const show = (e,v) => { if(e) e.style.display = v ? '' : 'none'; };
-const loc  = (v,d) => v.toLocaleString('de-DE', {minimumFractionDigits:d, maximumFractionDigits:d});
-
-/* ═══════════════════════════════════════
-   HYDRAULICS
-═══════════════════════════════════════ */
-function lambdaCW(Re, eps, D) {
-  if (Re < 1e-9) return 0;
-  if (Re < 2300) return 64 / Re;
-  let l = 0.25 / Math.pow(Math.log10(eps/(3.7*D) + 5.74/Math.pow(Re,0.9)), 2);
-  for (let i=0; i<60; i++) {
-    const n = Math.pow(-2 * Math.log10(eps/(3.71*D) + 2.51/(Re*Math.sqrt(l))), -2);
-    if (Math.abs(n-l) < 1e-11) { l=n; break; }
-    l = n;
-  }
-  return l;
-}
-function pdrop(vol, diMm, eps) {
-  if (!vol || !diMm) return {dp:0, v:0, Re:0};
-  const D = diMm/1e3, A = Math.PI*D*D/4, v = (vol/3600)/A, Re = v*D/NU;
-  return { dp: lambdaCW(Re,eps,D)*RHO*v*v/(2*D), v, Re };
-}
-function dpCol(dp, mx) {
-  return dp <= mx*0.75 ? 'var(--ok)' : dp <= mx ? 'var(--warn)' : 'var(--danger)';
-}
-
-/* ═══════════════════════════════════════
-   PIPE CARD HTML
-═══════════════════════════════════════ */
-function pCardSteel(p, vol, mx, isBest, bestCls) {
-  bestCls = bestCls || 'best';
-  const {dp, v} = pdrop(vol, p[1], ES);
-  const col = dpCol(dp, mx);
-  const pct = Math.min(100, dp/mx*100).toFixed(1);
-  const cls = isBest ? bestCls : dp > mx ? 'over' : '';
-  const star = isBest ? '<span class="star">\u2605</span>' : '';
-  const dpTxt = dp < 10 ? dp.toFixed(1) : Math.round(dp);
-  return `<div class="pm ${cls}">
-    <div class="pm-std">${p[4]} ${star}</div>
-    <div class="pm-dn">DN\u2009${p[0]}</div>
-    <div class="pm-dim">\u00d8\u2009${p[2]}\u202f\u00d7\u202f${p[3]}\u202fmm<br>d\u1d62\u2009${p[1].toFixed(1)}\u202fmm</div>
-    <div class="pm-r"><span class="pm-k">\u0394p/m</span><span class="pm-v" style="color:${col}">${dpTxt}<span style="font-size:11px;color:var(--t3)"> Pa/m</span></span></div>
-    <div class="pm-r"><span class="pm-k">v</span><span class="pm-v" style="font-size:11px;color:var(--t2)">${v.toFixed(2)}\u202fm/s</span></div>
-    <div class="dpbar"><div class="dpfill" style="width:${pct}%;background:${col}"></div></div>
-  </div>`;
-}
-
-function pCardMapress(p, vol, mx, isBest, bestCls) {
-  bestCls = bestCls || 'best';
-  // Mapress not available above DN100
-  if (p[0] > MAPRESS_MAX_DN || p[5] === null) {
-    return `<div class="pm na">
-      <div class="pm-std mp">Mapress Edelstahl</div>
-      <div class="pm-dn">DN\u2009${p[0]}</div>
-      <div class="pm-na-txt">Nicht verf\u00fcgbar<br/>(max. DN\u2009${MAPRESS_MAX_DN})</div>
-    </div>`;
-  }
-  const {dp, v} = pdrop(vol, p[5], EM);
-  const col = dpCol(dp, mx);
-  const pct = Math.min(100, dp/mx*100).toFixed(1);
-  const cls = isBest ? bestCls : dp > mx ? 'over' : '';
-  const star = isBest ? '<span class="star">\u2605</span>' : '';
-  const dpTxt = dp < 10 ? dp.toFixed(1) : Math.round(dp);
-  return `<div class="pm ${cls}">
-    <div class="pm-std mp">Mapress Edelstahl ${star}</div>
-    <div class="pm-dn">DN\u2009${p[0]}</div>
-    <div class="pm-dim">\u00d8\u2009${p[6]}\u202f\u00d7\u202f${p[7]}\u202fmm<br>d\u1d62\u2009${p[5].toFixed(1)}\u202fmm</div>
-    <div class="pm-r"><span class="pm-k">\u0394p/m</span><span class="pm-v" style="color:${col}">${dpTxt}<span style="font-size:11px;color:var(--t3)"> Pa/m</span></span></div>
-    <div class="pm-r"><span class="pm-k">v</span><span class="pm-v" style="font-size:11px;color:var(--t2)">${v.toFixed(2)}\u202fm/s</span></div>
-    <div class="dpbar"><div class="dpfill" style="width:${pct}%;background:${col}"></div></div>
-  </div>`;
-}
-
-function renderPair(cid, vol, mx, bestCls) {
-  bestCls = bestCls || 'best';
-  const el = $(cid); if (!el) return;
-  if (!vol) { el.innerHTML = ''; return; }
-
-  // Best steel DN (first where dp ≤ mx)
-  const bS = PIPES.findIndex(p => pdrop(vol, p[1], ES).dp <= mx);
-  // Best Mapress DN (only among available ones, DN ≤ 100)
-  const bM = PIPES.findIndex(p => p[5] !== null && pdrop(vol, p[5], EM).dp <= mx);
-
-  const iS = bS < 0 ? PIPES.length-1 : bS;
-  // For Mapress: if best requires > DN100, show the max available (DN100)
-  const iM = bM < 0
-    ? PIPES.findIndex(p => p[0] === MAPRESS_MAX_DN)  // fallback to DN100
-    : bM;
-
-  el.innerHTML = pCardSteel(PIPES[iS], vol, mx, bS >= 0, bestCls)
-               + pCardMapress(PIPES[iM], vol, mx, bM >= 0, bestCls);
-}
-
-/* ═══════════════════════════════════════
-   STATE + LAYOUT
-═══════════════════════════════════════ */
-const ST = { h:{mode:'ms', qUnit:'W'}, k:{mode:'ms', qUnit:'W'} };
-
-function updateLayout(p) {
-  const m = ST[p].mode;
-  show($(p+'-ig-q'),  m !== 'q');
-  show($(p+'-ig-ms'), m !== 'ms');
-  show($(p+'-ig-dt'), m !== 'dt');
-
-  /* ΔT label adapts to the companion input being used */
-  const dtLbl = $(p+'-dt-lbl');
-  if (dtLbl) {
-    const heatWord = p === 'h' ? 'Heizlast' : 'K\u00fchllast';
-    if      (m === 'ms') dtLbl.textContent = '\u0394T -- ' + heatWord + ' [K]';
-    else if (m === 'q')  dtLbl.textContent = '\u0394T -- Massenstrom [K]';
-    else                 dtLbl.textContent = '\u0394T [K]';
-  }
-}
-
-/* W/kW toggle for Heizung/Kälte */
-function setQUnit(p, unit) {
-  ST[p].qUnit = unit;
-  const inp = $(p+'-q');
-  const unitSpan = $(p+'-q-unit');
-  const wBtn  = $(p+'-wu');
-  const kwBtn = $(p+'-kwu');
-  if (unit === 'kW') {
-    if(inp){ inp.step='0.1'; inp.placeholder='0.00'; }
-    if(unitSpan) unitSpan.textContent='kW';
-    if(wBtn)  wBtn.classList.remove('active');
-    if(kwBtn) kwBtn.classList.add('active');
-  } else {
-    if(inp){ inp.step='100'; inp.placeholder='0'; }
-    if(unitSpan) unitSpan.textContent='W';
-    if(kwBtn) kwBtn.classList.remove('active');
-    if(wBtn)  wBtn.classList.add('active');
-  }
-  calcAll();
-}
-
-/* ═══════════════════════════════════════
-   CALCULATION
-═══════════════════════════════════════ */
-function calcPanel(p) {
-  const f   = FL[$('medium').value];
-  const cp  = f.cp * 1e3;  // J/(kg·K)
-  const rho = f.rho;
-  const m   = ST[p].mode;
-
-  const qRaw  = parseFloat($(p+'-q')?.value)     || 0;
-  const qv    = ST[p].qUnit === 'kW' ? qRaw * 1000 : qRaw;   // always W
-  const msh   = parseFloat($(p+'-ms-in')?.value) || 0;  // kg/h input
-  const ms_in = msh / 3600;                              // → kg/s
-  const dtv   = parseFloat($(p+'-dt')?.value)    || 0;
-
-  let ms=0, q=0, dt=0, ok=false;
-  if (m==='ms' && qv>0  && dtv>0)    { ms=qv/(cp*dtv);    q=qv;  dt=dtv; ok=true; }
-  if (m==='q'  && ms_in>0 && dtv>0)  { q=ms_in*cp*dtv;  ms=ms_in; dt=dtv; ok=true; }
-  if (m==='dt' && qv>0  && ms_in>0)  { dt=qv/(ms_in*cp); q=qv; ms=ms_in; ok=true; }
-
-  const mh  = ms * 3600;   // kg/h
-  const m3h = mh / rho;    // m³/h
-
-  return { ok, ms, mh, m3h, q, dt };
-}
-
-/* Set output value -- preserve unit <span> */
-function setOut(id, on, txt) {
-  const el = $(id); if (!el) return;
-  let tn = el.firstChild;
-  if (!tn || tn.nodeType !== 3) {
-    tn = document.createTextNode(''); el.insertBefore(tn, el.firstChild);
-  }
-  tn.textContent = on ? txt : '\u2013';
-  el.classList.toggle('has', on);
-}
-
-/* Set output value AND update unit label */
-function setOutFull(valId, unitId, on, numTxt, unitTxt) {
-  setOut(valId, on, numTxt);
-  const uel = $(unitId); if (uel) uel.textContent = unitTxt;
-}
-
-/* Update one output block (h or k) based on its current mode */
-function updateOutBlock(p, res) {
-  const m = ST[p].mode;
-  const k1 = $(p+'-out-key1'), k2 = $(p+'-out-key2');
-
-  if (m === 'ms') {
-    if (k1) k1.textContent = 'kg/h';
-    if (k2) k2.textContent = 'm\u00b3/h';
-    setOutFull(p+'-out-v1', p+'-out-u1', res.ok, loc(res.mh,  1), 'kg/h');
-    setOutFull(p+'-out-v2', p+'-out-u2', res.ok, loc(res.m3h, 3), 'm\u00b3/h');
-  } else if (m === 'q') {
-    const isKw  = ST[p].qUnit === 'kW';
-    const qDisp = isKw ? res.q / 1000 : res.q;
-    const qDec  = isKw ? 3 : 0;
-    const uLbl  = ST[p].qUnit;
-    if (k1) k1.textContent = uLbl;
-    if (k2) k2.textContent = 'kg/h';
-    setOutFull(p+'-out-v1', p+'-out-u1', res.ok, loc(qDisp, qDec), uLbl);
-    setOutFull(p+'-out-v2', p+'-out-u2', res.ok, loc(res.mh, 1),   'kg/h');
-  } else {                          // dt
-    if (k1) k1.textContent = '\u0394T';
-    if (k2) k2.textContent = 'kg/h';
-    setOutFull(p+'-out-v1', p+'-out-u1', res.ok, loc(res.dt, 2), 'K');
-    setOutFull(p+'-out-v2', p+'-out-u2', res.ok, loc(res.mh, 1), 'kg/h');
-  }
-}
-
-function calcAll() {
-  const f = FL[$('medium').value];
-  $('cp-val').textContent  = f.cp.toFixed(3);
-  $('rho-val').textContent = f.rho;
-  const fc = $('frost-chip');
-  if (f.frost) { fc.style.display=''; $('frost-val').textContent=f.frost; }
-  else          { fc.style.display='none'; }
-
-  const rH = calcPanel('h');
-  const rK = calcPanel('k');
-
-  updateOutBlock('h', rH);
-  updateOutBlock('k', rK);
-
-  // Out-card title reflects active mode(s)
-  const slbl = $('out-card-slbl');
-  if (slbl) {
-    const mH = ST.h.mode, mK = ST.k.mode;
-    const same = mH === mK;
-    const label = same
-      ? { ms:'Ergebnis \u2014 Massenstrom', q:'Ergebnis \u2014 Leistung', dt:'Ergebnis \u2014 \u0394T' }[mH]
-      : 'Ergebnis';
-    slbl.textContent = label;
-  }
-
-  const any = rH.ok || rK.ok;
-  show($('pi-card'),        any);
-  show($('pi-placeholder'), !any);
-
-  if (rH.ok) {
-    show($('pi-h'), true);
-    $('pi-h-vol').textContent = '(' + loc(rH.m3h,3) + '\u202fm\u00b3/h)';
-    renderPair('pi-h-pair', rH.m3h, DP0, 'best-h');
-  } else { show($('pi-h'), false); }
-
-  if (rK.ok) {
-    show($('pi-k'), true);
-    $('pi-k-vol').textContent = '(' + loc(rK.m3h,3) + '\u202fm\u00b3/h)';
-    renderPair('pi-k-pair', rK.m3h, DP0, 'best-k');
-  } else { show($('pi-k'), false); }
-}
-
-/* ═══════════════════════════════════════
-   PIPE TAB
-═══════════════════════════════════════ */
-function calcPipeTab() {
-  const vol = parseFloat($('p-vol').value) || 0;
-  const mx  = parseFloat($('p-dp').value)  || 100;
-  const el  = $('pipe-results');
-  if (!vol) {
-    el.innerHTML = '<p style="font-family:Arial,sans-serif;color:var(--t3);font-size:12px;text-align:center;padding:18px 0">Volumenstrom eingeben \u2192</p>';
-    $('pipe-legend').style.display = 'none';
-    return;
-  }
-  const bS = PIPES.findIndex(p => pdrop(vol,p[1],ES).dp <= mx);
-  const bM = PIPES.findIndex(p => p[5]!==null && pdrop(vol,p[5],EM).dp <= mx);
-  const lo = Math.max(0, Math.min(bS<0?PIPES.length-1:bS, bM<0?PIPES.length-1:bM)-1);
-  const hi = Math.min(PIPES.length-1, Math.max(bS<0?PIPES.length-1:bS, bM<0?PIPES.length-1:bM)+1);
-  let h = '';
-  for (let i=lo; i<=hi; i++) {
-    const p = PIPES[i];
-    h += `<div style="margin-bottom:12px">
-      <div style="font-family:Arial,sans-serif;font-size:11px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--t3);margin-bottom:7px">DN ${p[0]}</div>
-      <div class="pipe-pair">
-        ${pCardSteel(p, vol, mx, i===bS)}
-        ${pCardMapress(p, vol, mx, i===bM)}
-      </div>
-    </div>`;
-  }
-  el.innerHTML = h;
-  $('pipe-legend').style.display = 'flex';
-}
-
-/* ═══════════════════════════════════════
-   EVENTS
-═══════════════════════════════════════ */
-document.querySelectorAll('.mbtn').forEach(b => b.addEventListener('click', () => {
-  const p=b.dataset.p, v=b.dataset.v;
-  ST[p].mode = v;
-  document.querySelectorAll(`.mbtn[data-p="${p}"]`).forEach(x => x.classList.remove('active'));
-  b.classList.add('active');
-  updateLayout(p);
-  calcAll();
-}));
-['medium','h-q','h-ms-in','h-dt','k-q','k-ms-in','k-dt']
-  .forEach(id => $(id)?.addEventListener('input', calcAll));
-['p-vol','p-dp']
-  .forEach(id => $(id)?.addEventListener('input', calcPipeTab));
-document.querySelectorAll('.tab-btn').forEach(b => b.addEventListener('click', () => {
-  document.querySelectorAll('.tab-btn').forEach(x => x.classList.remove('active'));
-  b.classList.add('active');
-  const t = b.dataset.tab;
-  show($('tab-flow'), t==='flow');
-  show($('tab-luft'), t==='luft');
-  show($('tab-pipe'), t==='pipe');
-  show($('tab-unit'), t==='unit');
-var hxTab = $("tab-hx");
-const isHx = String(t).toLowerCase() === "hx";
-
-if (hxTab) {
-  hxTab.style.display = isHx ? "block" : "none";
-}
-
-if (isHx) {
-  [
-    $("Tab-Flow"),
-    $("Tab-Luft"),
-    $("Tab-Peife"),
-    $("Tab-Einheit")
-  ].forEach(function(el){
-    if (el) el.style.display = "none";
-  });
-}
-}));
-
-/* ═══════════════════════════════════════
-   INIT
-═══════════════════════════════════════ */
-updateLayout('h');
-updateLayout('k');
-calcAll();
-
-/* ═══════════════════════════════════════
-   PWA
-═══════════════════════════════════════ */
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js')
-      .then(reg => {
-        // iOS: sofort auf Updates prüfen (WebKit cached sonst aggressiv)
-        reg.update();
-
-        // Pruefe beim Start ob ein neuer SW wartet
-        if (reg.waiting) {
-          reg.waiting.postMessage('SKIP_WAITING');
-        }
-        // Neuer SW installiert sich -> sofort aktivieren
-        reg.addEventListener('updatefound', () => {
-          const nw = reg.installing;
-          nw.addEventListener('statechange', () => {
-            if (nw.state === 'installed' && navigator.serviceWorker.controller) {
-              nw.postMessage('SKIP_WAITING');
-            }
-          });
-        });
-      })
-      .catch(() => {});
-
-    // Wenn SW gewechselt hat -> Seite einmalig neu laden
-    let refreshing = false;
-    navigator.serviceWorker.addEventListener('controllerchange', () => {
-      if (!refreshing) { refreshing = true; window.location.reload(); }
-    });
-  });
-}
-let _p = null;
-window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); _p=e; $('ib').style.display='flex'; });
-$('ib-y').addEventListener('click', () => { _p?.prompt(); $('ib').style.display='none'; });
-$('ib-n').addEventListener('click', () => { $('ib').style.display='none'; });
-window.addEventListener('appinstalled', () => { $('ib').style.display='none'; });
-
-/* ═══ LUFT ═══ */
-const CP_AIR = 1005;
-const LST = { hk:'h', mode:'v', qUnit:'W' };
-
-function rhoAir(t) { return 353.05 / (t + 273.15); }
-
-/* W/kW toggle for Luft */
-function setLuftQUnit(unit) {
-  LST.qUnit = unit;
-  ['luft-q-in-h','luft-q-in-k'].forEach(id => {
-    const inp = $(id);
-    if(inp){ inp.step = unit==='kW' ? '0.1' : '100'; inp.placeholder = unit==='kW' ? '0.00' : '0'; }
-  });
-  const badge  = $('luft-q-unit-badge');   if(badge)  badge.textContent  = unit;
-  const badge2 = $('luft-q-unit-badge-k'); if(badge2) badge2.textContent = unit;
-  const wBtn  = $('luft-wu');
-  const kwBtn = $('luft-kwu');
-  if (unit === 'kW') {
-    if(wBtn)  wBtn.classList.remove('active');
-    if(kwBtn) kwBtn.classList.add('active');
-  } else {
-    if(kwBtn) kwBtn.classList.remove('active');
-    if(wBtn)  wBtn.classList.add('active');
-  }
-  calcLuft();
-}
-
-/* Visibility -- identical logic to updateLayout(p) */
-function updateLuftLayout() {
-  const m = LST.mode;
-  show($('luft-ig-q'),       m !== 'q');
-  show($('luft-ig-v'),       m !== 'v');
-  show($('luft-temp-block'), m !== 'dt');
-}
-
-function luftSwitch(hk) {
-  LST.hk = hk;
-  $('luft-btn-h').className = 'hk-btn' + (hk==='h' ? ' on-h' : '');
-  $('luft-btn-k').className = 'hk-btn' + (hk==='k' ? ' on-k' : '');
-  const card = $('luft-in-card');
-  card.className = 'gc ' + (hk==='h' ? 'gc-h' : 'gc-c');
-  $('luft-ptitle').innerHTML = hk==='h'
-    ? '<div class="dot dot-h"></div><span class="ptitle-lbl">Heizleistung \u2014 Eingaben</span>'
-    : '<div class="dot dot-c"></div><span class="ptitle-lbl" style="color:var(--cold-t)">K\u00fchlleistung \u2014 Eingaben</span>';
-  const dtl = $('luft-dt-auto-lbl');
-  if(dtl) dtl.innerHTML = hk==='h'
-    ? '\u0394t = t<sub>ZL,H</sub> \u2212 t<sub>R,H</sub>'
-    : '\u0394t = t<sub>R,K</sub> \u2212 t<sub>ZL,K</sub>';
-  $('luft-out-title').textContent = hk==='h'
-    ? 'Ergebnis \u2014 Heizleistung Luft'
-    : 'Ergebnis \u2014 K\u00fchlleistung Luft';
-  /* Show the correct Q input for this mode */
-  show($('luft-q-wrap-h'), hk === 'h');
-  show($('luft-q-wrap-k'), hk === 'k');
-  calcLuft();
-}
-
-function luftMode(m) {
-  LST.mode = m;
-  document.querySelectorAll('.mbtn[data-lm]').forEach(b => b.classList.toggle('active', b.dataset.lm === m));
-  updateLuftLayout();
-  calcLuft();
-}
-
-function calcLuft() {
-  const hk = LST.hk, m = LST.mode;
-  const vv = parseFloat($('luft-v')?.value) || 0;
-  const tzlH = parseFloat($('luft-tzl-h')?.value);
-  const tzlK = parseFloat($('luft-tzl-k')?.value);
-  const tzl  = hk === 'h' ? tzlH : tzlK;
-  const trH  = parseFloat($('luft-tr-h')?.value) || 20;
-  const trK  = parseFloat($('luft-tr-k')?.value) || 26;
-  const tr   = hk === 'h' ? trH : trK;
-  const qInRaw = parseFloat($('luft-q-in-' + hk)?.value) || 0;
-  const qIn  = LST.qUnit === 'kW' ? qInRaw * 1000 : qInRaw;
-
-  let dtAuto = NaN;
-  if (!isNaN(tzl)) { dtAuto = hk==='h' ? tzl - tr : tr - tzl; }
-
-  const dtAutoEl = $('luft-dt-auto-val');
-  if (dtAutoEl) {
-    const valid = !isNaN(dtAuto) && dtAuto > 0;
-    dtAutoEl.textContent = valid ? loc(dtAuto, 1) : '\u2013';
-    dtAutoEl.className = 'inp-ro' + (valid ? '' : ' empty');
-    const bc  = hk==='h' ? 'rgba(255,107,53,.10)' : 'rgba(0,196,232,.10)';
-    const bc2 = hk==='h' ? 'rgba(255,107,53,.40)' : 'rgba(0,196,232,.40)';
-    const tc  = hk==='h' ? 'var(--heat-t)' : 'var(--cold-t)';
-    dtAutoEl.style.cssText = 'font-size:18px;padding:11px 52px 11px 14px;' +
-      (valid ? `background:${bc};border:1.5px solid ${bc2};color:${tc}` : '');
-  }
-
-  const dt   = m !== 'dt' ? (!isNaN(dtAuto) && dtAuto > 0 ? dtAuto : 0) : 0;
-  const tRef = !isNaN(tzl) && tzl > -273 ? tzl : 20;
-  const rho  = rhoAir(tRef);
-  const fac  = rho * CP_AIR / 3600;
-
-  const rd = $('luft-rho-display');    if(rd) rd.textContent = rho.toFixed(3) + '\u202fkg/m\u00b3';
-  const fd = $('luft-factor-display'); if(fd) fd.textContent = fac.toFixed(4) + '\u202fWh/(m\u00b3\u00b7K)';
-
-  let Q = 0, V = 0, dT = 0, ok = false;
-  if (m === 'v'  && qIn > 0 && dt > 0)  { V = qIn / (fac * dt);  Q = qIn; dT = dt; ok = true; }
-  if (m === 'q'  && vv  > 0 && dt > 0)  { Q = vv * fac * dt;     V = vv;  dT = dt; ok = true; }
-  if (m === 'dt' && vv  > 0 && qIn > 0) { dT = qIn / (vv * fac); Q = qIn; V = vv;  ok = true; }
-
-  const ms   = ok ? V * rho : 0;
-  const col  = hk==='h' ? 'var(--heat-t)' : 'var(--cold-t)';
-  const sub2 = hk==='h' ? 'rgba(255,170,122,.6)' : 'rgba(102,223,255,.6)';
-  const lbl  = { 'v':'Volumenstrom V\u0307', 'q':'Leistung Q', 'dt':'\u0394t' }[m];
-  const val  = ok ? (m==='v' ? loc(V,1) : m==='q' ? loc(Q,0) : loc(dT,2)) : '\u2013';
-  const unit = { 'v':'m\u00b3/h', 'q':'W', 'dt':'K' }[m];
-  const sub  = ok ? (
-    m==='v' ? loc(V*rho,1)+'\u202fkg/h' :
-    m==='q' ? loc(Q/1000,2)+'\u202fkW' : ''
-  ) : '';
-
-  $('luft-main-lbl').textContent = lbl;
-  const mv = $('luft-main-val');
-  mv.style.color = ok ? col : 'var(--t4)';
-  mv.innerHTML = val + '<span style="font-size:16px;font-weight:400;color:var(--t3)"> ' + unit + '</span>';
-  const ms2 = $('luft-main-sub');
-  ms2.style.color = sub2; ms2.textContent = sub;
-
-  function sv(id, on, v){ const e=$(id); if(e){ e.textContent=on?v:'\u2013'; e.style.color=on?'var(--t1)':'var(--t4)'; } }
-  sv('luft-kw',    ok && m!=='dt', loc(Q/1000,2)+'\u202fkW');
-  sv('luft-v-out', ok, loc(V,1));
-  sv('luft-dt-out', ok, loc(dT,2));
-  const msel = $('luft-ms');
-  if(msel){ msel.textContent = ok ? loc(ms,1) : '\u2013'; msel.style.color = ok ? 'var(--air-t)' : 'var(--t4)'; }
-}
-
-document.querySelectorAll('.mbtn[data-lm]').forEach(b => b.addEventListener('click', () => luftMode(b.dataset.lm)));
-['luft-v','luft-tzl-h','luft-tzl-k','luft-tr-h','luft-tr-k','luft-q-in-h','luft-q-in-k']
-  .forEach(id => $(id)?.addEventListener('input', calcLuft));
-luftSwitch('h');
-updateLuftLayout();
-calcLuft();
-
-
-/* ═══ FLOW HK-SWITCH ═══ */
-function flowSwitch(hk){
-  show($('flow-panel-h'), hk==='h');
-  show($('flow-panel-k'), hk==='k');
-  $('flow-btn-h').className='hk-btn'+(hk==='h'?' on-h':'');
-  $('flow-btn-k').className='hk-btn'+(hk==='k'?' on-k':'');
-}
-flowSwitch('h');
-
-/* ═══════════════════════════════════════════════════════
-   EINHEITENRECHNER
-═══════════════════════════════════════════════════════ */
-const UNITS = {
-  pressure: {
-    title: 'Druck \u2014 Umrechnung',
-    base: 'Pa',  // base unit: Pascal
-    units: [
-      { key:'bar',  label:'bar',  factor:1e5 },
-      { key:'mbar', label:'mbar', factor:1e2 },
-      { key:'mWs',  label:'mWs',  factor:9806.65, decimals:2 },
-      { key:'Pa',   label:'Pa',   factor:1 },
-      { key:'hPa',  label:'hPa',  factor:1e2 },
-      { key:'kPa',  label:'kPa',  factor:1e3 },
-    ],
-    defFrom:'mbar', defTo:'kPa',
-  },
-  power: {
-    title: 'Leistung \u2014 Umrechnung',
-    base: 'W',
-    units: [
-      { key:'W',    label:'W',    factor:1 },
-      { key:'kW',   label:'kW',   factor:1e3 },
-      { key:'MW',   label:'MW',   factor:1e6 },
-      { key:'Js',   label:'J/s',  factor:1 },
-      { key:'kJs',  label:'kJ/s', factor:1e3 },
-    ],
-    defFrom:'W', defTo:'kW',
-  },
-  energy: {
-    title: 'Energie \u2014 Umrechnung',
-    base: 'J',
-    units: [
-      { key:'J',    label:'J',    factor:1 },
-      { key:'kJ',   label:'kJ',   factor:1e3 },
-      { key:'Ws',   label:'Ws',   factor:1 },
-      { key:'Wh',   label:'Wh',   factor:3600 },
-      { key:'kWh',  label:'kWh',  factor:3.6e6 },
-    ],
-    defFrom:'kWh', defTo:'kJ',
-  },
-  flow: {
-    title: 'Volumenstrom \u2014 Umrechnung',
-    base: 'm3h',  // m³/h as base
-    units: [
-      { key:'m3h',  label:'m\u00b3/h',   factor:1 },
-      { key:'m3min',label:'m\u00b3/min', factor:60 },
-      { key:'m3s',  label:'m\u00b3/s',   factor:3600 },
-      { key:'ls',   label:'l/s',   factor:3.6 },
-      { key:'lmin', label:'l/min', factor:0.06 },
-      { key:'lh',   label:'l/h',   factor:0.001 },
-    ],
-    defFrom:'m3h', defTo:'ls',
-  },
-  mass: {
-    title: 'Gewicht \u2014 Umrechnung',
-    base: 'kg',
-    units: [
-      { key:'mg',  label:'mg',  factor:1e-6 },
-      { key:'g',   label:'g',   factor:1e-3 },
-      { key:'kg',  label:'kg',  factor:1 },
-      { key:'t',   label:'t',   factor:1e3 },
-    ],
-    defFrom:'kg', defTo:'g',
-  },
-  volume: {
-    title: 'Volumen \u2014 Umrechnung',
-    base: 'm3',
-    units: [
-      { key:'mm3', label:'mm\u00b3',  factor:1e-9 },
-      { key:'cm3', label:'cm\u00b3',  factor:1e-6 },
-      { key:'dm3', label:'dm\u00b3',  factor:1e-3 },
-      { key:'l',   label:'Liter',factor:1e-3 },
-      { key:'m3',  label:'m\u00b3',   factor:1 },
-    ],
-    defFrom:'m3', defTo:'l',
-  },
-  area: {
-    title: 'Fl\u00e4che \u2014 Umrechnung',
-    base: 'm2',
-    units: [
-      { key:'mm2', label:'mm\u00b2',  factor:1e-6 },
-      { key:'cm2', label:'cm\u00b2',  factor:1e-4 },
-      { key:'dm2', label:'dm\u00b2',  factor:1e-2 },
-      { key:'m2',  label:'m\u00b2',   factor:1 },
-      { key:'ha',  label:'ha',   factor:1e4 },
-      { key:'km2', label:'km\u00b2',  factor:1e6 },
-    ],
-    defFrom:'m2', defTo:'cm2',
-  },
-};
-
-let UCurrent = 'pressure';
-
-/**
- * Format number cleanly -- avoid scientific notation, show up to 8 sig figs
- */
-function ufmt(v, decimals) {
-  if (v === 0) return '0';
-  // Fixed decimals override (e.g. mWs always 2 dp)
-  if (decimals !== undefined) {
-    return v.toLocaleString('de-DE', {minimumFractionDigits:0, maximumFractionDigits:decimals});
-  }
-  const abs = Math.abs(v);
-  if (abs >= 1e9)  return v.toLocaleString('de-DE', {maximumFractionDigits:0});
-  if (abs >= 1)    return v.toLocaleString('de-DE', {maximumFractionDigits:6, maximumSignificantDigits:8});
-  // Small numbers: use up to 8 significant figures
-  const sig = parseFloat(v.toPrecision(8));
-  return sig.toLocaleString('de-DE', {maximumFractionDigits:10});
-}
-
-function buildSelects(cat) {
-  const d = UNITS[cat];
-  const fs = $('unit-from-sel');
-  const ts = $('unit-to-sel');
-  fs.innerHTML = '';
-  ts.innerHTML = '';
-  d.units.forEach(u => {
-    fs.innerHTML += `<option value="${u.key}"${u.key===d.defFrom?' selected':''}>${u.label}</option>`;
-    ts.innerHTML += `<option value="${u.key}"${u.key===d.defTo  ?' selected':''}>${u.label}</option>`;
-  });
-}
-
-function unitCat(cat) {
-  UCurrent = cat;
-  // Sync dropdown if called programmatically
-  const sel = $('unit-cat-sel');
-  if (sel && sel.value !== cat) sel.value = cat;
-  $('unit-card-title').textContent = UNITS[cat].title;
-  buildSelects(cat);
-  $('unit-from-val').value = '';
-  $('unit-to-val').textContent = '\u2013';
-  $('unit-to-val').style.color = 'var(--t4)';
-  $('unit-all-list').innerHTML = '<p style="color:var(--t3);font-size:12px;text-align:center;padding:12px 0">Wert eingeben \u2192</p>';
-}
-
-function unitCalc() {
-  const d    = UNITS[UCurrent];
-  const raw  = parseFloat($('unit-from-val').value);
-  const fKey = $('unit-from-sel').value;
-  const tKey = $('unit-to-sel').value;
-
-  if (isNaN(raw)) {
-    $('unit-to-val').textContent = '\u2013';
-    $('unit-to-val').style.color = 'var(--t4)';
-    $('unit-all-list').innerHTML = '<p style="color:var(--t3);font-size:12px;text-align:center;padding:12px 0">Wert eingeben \u2192</p>';
-    return;
-  }
-
-  const fUnit = d.units.find(u => u.key === fKey);
-  const tUnit = d.units.find(u => u.key === tKey);
-
-  // Convert: raw → base → target
-  const base   = raw * fUnit.factor;
-  const result = base / tUnit.factor;
-
-  $('unit-to-val').textContent = ufmt(result, tUnit.decimals);
-  $('unit-to-val').style.color = 'var(--grn)';
-
-  // All units list
-  let html = '';
-  d.units.forEach(u => {
-    const v = base / u.factor;
-    const isFrom = u.key === fKey;
-    const isTo   = u.key === tKey;
-    const cls    = (isFrom || isTo) ? 'unit-row uh' : 'unit-row';
-    const marker = isFrom ? ' \u2190' : isTo ? ' \u2192' : '';
-    html += `<div class="${cls}">
-      <span class="unit-k">${u.label}${marker}</span>
-      <span class="unit-v">${ufmt(v, u.decimals)}</span>
-    </div>`;
-  });
-  $('unit-all-list').innerHTML = html;
-}
-
-function unitSwap() {
-  const fs = $('unit-from-sel');
-  const ts = $('unit-to-sel');
-  const tmp = fs.value;
-  fs.value = ts.value;
-  ts.value = tmp;
-  // Also move result value to input
-  const resText = $('unit-to-val').textContent;
-  if (resText !== '\u2013') {
-    const cleaned = resText.replace(/\./g,'').replace(',','.');
-    const n = parseFloat(cleaned);
-    if (!isNaN(n)) $('unit-from-val').value = n;
-  }
-  unitCalc();
-}
-
-// Init unit tab
-unitCat('pressure');
-
-</script>
+<script src="./app.js"></script>
+<script src="./heating-cooling.js"></script>
+<script src="./ventilation.js"></script>
 
 <script>
 /* ── Cloudflare Worker Analytics ── */
@@ -2188,339 +1798,8 @@ unitCat('pressure');
 })();
 </script>
 
-<!-- ERSETZE DEN BISHERIGEN HX-JAVASCRIPT BLOCK KOMPLETT DURCH DIESEN BLOCK -->
-
-<script>
-
-const HX = {
-
-  mode: 'rh',
-
-  state: null,
-
-  canvas: null,
-
-  ctx: null,
-
-  pad: 60,
-
-  tMin: -10,
-
-  tMax: 50,
-
-  xMin: 0,
-
-  xMax: 30
-
-};
-
-function hxNum(v){
-
-  if(v == null) return NaN;
-
-  return parseFloat(String(v).replace(',', '.'));
-
-}
-
-function psat(t){
-
-  return 610.78 * Math.exp((17.2694 * t) / (t + 237.3));
-
-}
-
-function xFromTRH(t,rh){
-
-  const pws = psat(t);
-
-  const pw = (rh/100) * pws;
-
-  return 0.622 * pw / (101325 - pw) * 1000;
-
-}
-
-function rhFromTX(t,x){
-
-  const pws = psat(t);
-
-  const pw = (x/1000 * 101325) / (0.622 + x/1000);
-
-  return (pw / pws) * 100;
-
-}
-
-function hFromTX(t,x){
-
-  return 1.006 * t + (x/1000) * (2501 + 1.86 * t);
-
-}
-
-function hxResize(){
-
-  const c = document.getElementById('hxCanvas');
-
-  if(!c) return;
-
-  const wrap = c.parentElement;
-
-  c.width = wrap.clientWidth;
-
-  c.height = 520;
-
-  HX.canvas = c;
-
-  HX.ctx = c.getContext('2d');
-
-  drawHxChart();
-
-}
-
-function mapX(x){
-
-  const w = HX.canvas.width - HX.pad * 2;
-
-  return HX.pad + ((x - HX.xMin) / (HX.xMax - HX.xMin)) * w;
-
-}
-
-function mapT(t){
-
-  const h = HX.canvas.height - HX.pad * 2;
-
-  return HX.canvas.height - HX.pad - ((t - HX.tMin) / (HX.tMax - HX.tMin)) * h;
-
-}
-
-function drawAxes(){
-
-  const ctx = HX.ctx;
-
-  ctx.strokeStyle = 'rgba(255,255,255,.18)';
-
-  ctx.lineWidth = 1;
-
-  ctx.beginPath();
-
-  ctx.moveTo(HX.pad, HX.pad);
-
-  ctx.lineTo(HX.pad, HX.canvas.height - HX.pad);
-
-  ctx.lineTo(HX.canvas.width - HX.pad, HX.canvas.height - HX.pad);
-
-  ctx.stroke();
-
-  ctx.fillStyle = 'rgba(255,255,255,.55)';
-
-  ctx.font = '12px Arial';
-
-  for(let x=0;x<=30;x+=2){
-
-    const px = mapX(x);
-
-    ctx.fillText(x, px - 8, HX.canvas.height - 28);
-
-  }
-
-  for(let t=-10;t<=50;t+=5){
-
-    const py = mapT(t);
-
-    ctx.fillText(t + '°', 12, py + 4);
-
-  }
-
-}
-
-function drawRhCurves(){
-
-  const ctx = HX.ctx;
-
-  [10,20,30,40,50,60,70,80,90,100].forEach(rh => {
-
-    ctx.beginPath();
-
-    ctx.strokeStyle = rh === 100 ? 'rgba(120,170,255,.9)' : 'rgba(255,255,255,.12)';
-
-    ctx.lineWidth = rh === 100 ? 2 : 1;
-
-    let started = false;
-
-    for(let t=-10;t<=50;t+=0.5){
-
-      const x = xFromTRH(t, rh);
-
-      if(x < 0 || x > 30) continue;
-
-      const px = mapX(x);
-
-      const py = mapT(t);
-
-      if(!started){
-
-        ctx.moveTo(px, py);
-
-        started = true;
-
-      } else {
-
-        ctx.lineTo(px, py);
-
-      }
-
-    }
-
-    ctx.stroke();
-
-  });
-
-}
-
-function drawState(){
-
-  if(!HX.state) return;
-
-  const s = HX.state;
-
-  const ctx = HX.ctx;
-
-  const px = mapX(s.x);
-
-  const py = mapT(s.t);
-
-  ctx.strokeStyle = 'rgba(91,82,255,.8)';
-
-  ctx.lineWidth = 1.5;
-
-  ctx.beginPath();
-
-  ctx.moveTo(px, HX.canvas.height - HX.pad);
-
-  ctx.lineTo(px, py);
-
-  ctx.stroke();
-
-  ctx.beginPath();
-
-  ctx.moveTo(HX.pad, py);
-
-  ctx.lineTo(px, py);
-
-  ctx.stroke();
-
-  ctx.fillStyle = '#6d63ff';
-
-  ctx.beginPath();
-
-  ctx.arc(px, py, 6, 0, Math.PI * 2);
-
-  ctx.fill();
-
-}
-
-function drawHxChart(){
-
-  if(!HX.ctx) return;
-
-  HX.ctx.clearRect(0,0,HX.canvas.width,HX.canvas.height);
-
-  drawAxes();
-
-  drawRhCurves();
-
-  drawState();
-
-}
-
-function renderHxState(){
-
-  if(!HX.state) return;
-
-  $('state-temp').textContent = HX.state.t.toFixed(1) + ' °C';
-
-  $('state-rh').textContent = HX.state.rh.toFixed(1) + ' %';
-
-  $('state-x').textContent = HX.state.x.toFixed(2) + ' g/kg';
-
-  $('state-h').textContent = HX.state.h.toFixed(1) + ' kJ/kg';
-
-}
-
-function setHxState(){
-
-  const t = hxNum($('hx-temp').value);
-
-  let x;
-
-  let rh;
-
-  if(HX.mode === 'rh'){
-
-    rh = hxNum($('hx-rh').value);
-
-    if(isNaN(t) || isNaN(rh)) return;
-
-    x = xFromTRH(t, rh);
-
-  } else {
-
-    x = hxNum($('hx-x').value);
-
-    if(isNaN(t) || isNaN(x)) return;
-
-    rh = rhFromTX(t, x);
-
-  }
-
-  const h = hFromTX(t, x);
-
-  HX.state = { t, rh, x, h };
-
-  renderHxState();
-
-  drawHxChart();
-
-}
-
-function initHx(){
-
-  $('mode-rh').addEventListener('click', () => {
-
-    HX.mode = 'rh';
-
-    $('wrap-rh').style.display = '';
-
-    $('wrap-x').style.display = 'none';
-
-    $('mode-rh').classList.add('active');
-
-    $('mode-x').classList.remove('active');
-
-  });
-
-  $('mode-x').addEventListener('click', () => {
-
-    HX.mode = 'x';
-
-    $('wrap-rh').style.display = 'none';
-
-    $('wrap-x').style.display = '';
-
-    $('mode-x').classList.add('active');
-
-    $('mode-rh').classList.remove('active');
-
-  });
-
-  $('hx-set').addEventListener('click', setHxState);
-
-  window.addEventListener('resize', hxResize);
-
-  hxResize();
-
-}
-
-document.addEventListener('DOMContentLoaded', initHx);
-
-</script>
+<script src="./hx-engine.js"></script>
+<script src="./pdf-export.js"></script>
    
 </body>
 </html>

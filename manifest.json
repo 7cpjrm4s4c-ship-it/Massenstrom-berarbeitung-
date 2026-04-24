@@ -1,1 +1,20 @@
-{"name":"Massenstrom","short_name":"Massenstrom","display":"standalone","start_url":"/","background_color":"#000000","theme_color":"#000000"}
+{
+  "name": "Massenstromrechner",
+  "short_name": "Massenstrom",
+  "description": "HLK-Rechner für Heizung, Kälte, Lüftung und Rohrdimensionierung",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "start_url": "/",
+  "scope": "/",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "icons": [
+    {
+      "src": "icon-512.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["utilities", "productivity"]
+}
