@@ -1871,10 +1871,6 @@ input[type=number]::-webkit-outer-spin-button { -webkit-appearance:none; }
   <!-- 4. Berechnung -->
   <div class="gc">
     <div class="slbl">4. Berechnung</div>
-    <div class="modes" style="grid-template-columns:1fr 1fr;margin-bottom:var(--gap)">
-      <button class="mbtn active" id="calc-auto">Automatisch</button>
-      <button class="mbtn"        id="calc-manual">Manuell</button>
-    </div>
     <button id="hx-calc"
       style="width:100%;height:52px;border:none;border-radius:var(--r-m);
              background:linear-gradient(135deg,var(--grn),#28a87a);color:#000;
@@ -2129,16 +2125,6 @@ input[type=number]::-webkit-outer-spin-button { -webkit-appearance:none; }
   <div class="plus-title">Weitere Module</div>
   <div class="plus-grid">
 
-    <!-- h,x-Diagramm -->
-    <button class="plus-item" id="plus-hx" data-tab="hx">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-        <polyline points="3 20 7 10 11 14 15 6 21 6"/>
-        <path d="M3 20h18"/>
-        <path d="M3 20V4"/>
-      </svg>
-      h,x-Diagramm
-    </button>
-
     <!-- Rohr -->
     <button class="plus-item" id="plus-pipe" data-tab="pipe">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
@@ -2229,8 +2215,8 @@ input[type=number]::-webkit-outer-spin-button { -webkit-appearance:none; }
 })();
 </script>
 
-<script src="./hx-engine.js"></script>
 <script src="./pdf-export.js"></script>
+<script src="./hx-engine.js"></script>
    
 </body>
 </html>

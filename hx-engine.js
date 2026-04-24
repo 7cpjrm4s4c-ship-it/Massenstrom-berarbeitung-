@@ -155,17 +155,18 @@ function _drawHContours(ctx, W, H) {
     ctx.stroke();
     ctx.restore();
 
-    // Label: wo h-Linie die rechte Plot-Kante (x=xMax) schneidet
-    const T_right = (h - CFG.xMax * (2501 + 1.86 * 0) / 1000) / 1.006;
-    // Exakter: T aus h = 1.0618*T + 75.03 → T = (h-75.03)/1.0618 für x=30
+    // h-Linien Labels werden rechts außerhalb der Plot-Fläche (Randbereich) gezeichnet
+    // damit kein Overlap mit T-Achse oder φ-Labels
     const T_r = (h - CFG.xMax / 1000 * 2501) / (1.006 + CFG.xMax / 1000 * 1.86);
-    if (T_r >= CFG.tMin && T_r <= CFG.tMax) {
+    if (T_r >= CFG.tMin + 1 && T_r <= CFG.tMax - 1) {
       const { px, py } = toCanvas(CFG.xMax, T_r, W, H);
+      const { pad: p3 } = CFG;
+      // Nur im rechten Padding-Bereich zeichnen (außerhalb Plot-Box)
       ctx.save();
-      ctx.fillStyle = h === 0 ? 'rgba(255,255,255,0.45)' : 'rgba(255,255,255,0.28)';
+      ctx.fillStyle = h === 0 ? 'rgba(255,255,255,0.38)' : 'rgba(255,255,255,0.22)';
       ctx.font = '9px Arial,sans-serif';
       ctx.textAlign = 'left';
-      ctx.fillText(h + ' kJ', px + 3, py + 3);
+      ctx.fillText(h + ' kJ', px + 4, py + 3);
       ctx.restore();
     }
   });
@@ -207,25 +208,27 @@ function _drawPhiCurves(ctx, W, H) {
         if (x >= 0.3 && x <= CFG.xMax + 0.3) { Tlbl = T; break; }
       }
     }
-    /* φ-Labels halbkreisförmig: 10% bei T=45°C, 90% bei T=35°C
-       Alle Labels an der Sättigungskurve platziert, bogenförmig angeordnet */
+    /* φ-Labels: alle 9 Linien (10–90%) sicher im Diagramm
+       Arc von T=44°C bei 10% bis T=28°C bei 90%
+       Platzierung direkt auf der φ-Kurve an der gewählten T-Referenz */
     {
-      // T interpoliert: 10%→45°C, 90%→35°C (linearer Bogen)
-      const t = (phi - 10) / 80; // 0..1
-      const Tarc = 45 - t * 10;  // 45→35°C
-      const xlbl = calcX(Tarc, phi);
-      if (xlbl > 0.3 && xlbl <= CFG.xMax - 0.3) {
-        const { px, py } = toCanvas(xlbl, Tarc, W, H);
-        const { pad: p } = CFG;
-        if (px > p.left + 4 && py > p.top + 4 && py < H - p.bottom - 4) {
+      const t   = (phi - 10) / 80;         // 0..1
+      const Tref = 44 - t * 16;            // 44°C→28°C
+      const xlbl = calcX(Tref, phi);
+      const { pad: p2 } = CFG;
+      // Sicherstellen dass Label im Plot-Bereich liegt
+      if (xlbl >= 0.2 && xlbl <= CFG.xMax - 0.5) {
+        const { px, py } = toCanvas(xlbl, Tref, W, H);
+        if (px > p2.left + 4 && px < W - p2.right - 4 &&
+            py > p2.top + 4  && py < H - p2.bottom - 10) {
           ctx.save();
           ctx.font = (acc ? 'bold ' : '') + '9px Arial,sans-serif';
           ctx.textAlign = 'left';
           const lbl = phi + '%';
-          const tw = ctx.measureText(lbl).width;
-          ctx.fillStyle = 'rgba(4,8,16,0.75)';
+          const tw  = ctx.measureText(lbl).width;
+          ctx.fillStyle = 'rgba(4,8,16,0.78)';
           ctx.fillRect(px + 2, py - 9, tw + 4, 12);
-          ctx.fillStyle = acc ? 'rgba(90,160,255,0.92)' : 'rgba(80,130,255,0.60)';
+          ctx.fillStyle = acc ? 'rgba(90,160,255,0.92)' : 'rgba(80,130,255,0.62)';
           ctx.fillText(lbl, px + 3, py);
           ctx.restore();
         }

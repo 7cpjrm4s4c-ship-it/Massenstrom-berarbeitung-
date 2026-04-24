@@ -5,7 +5,7 @@
 ═══════════════════════════════════════════════════════ */
 'use strict';
 
-const CACHE_NAME = 'massenstrom-v1.8';
+const CACHE_NAME = 'massenstrom-v1.9';
 
 /* Alle App-Ressourcen die offline verfügbar sein müssen */
 const PRECACHE = [

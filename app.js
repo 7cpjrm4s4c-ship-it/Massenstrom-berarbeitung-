@@ -48,6 +48,7 @@ function _updatePill(activeTab) {
     if (btn) btn.classList.toggle('active', id === activeTab);
   });
   // Plus-Sheet-Items (pipe, unit, wrg) — active-tab Markierung
+  // Plus sheet items (pipe, unit, wrg — hx is in main pill)
   ['pipe','unit','wrg'].forEach(id => {
     const btn = $('plus-' + id);
     if (btn) btn.classList.toggle('active-tab', id === activeTab);
@@ -115,6 +116,7 @@ document.addEventListener('DOMContentLoaded', () => {
   ['pipe','unit','wrg'].forEach(id => {
     $('plus-' + id)?.addEventListener('click', () => _switchFromPlus(id));
   });
+  // Note: plus-hx removed — h,x is now in main pill
 
   // Swipe-Down schließt Sheet
   let _touchStartY = 0;
