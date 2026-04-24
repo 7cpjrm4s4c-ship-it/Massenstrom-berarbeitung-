@@ -48,8 +48,8 @@ function _updatePill(activeTab) {
     if (btn) btn.classList.toggle('active', id === activeTab);
   });
   // Plus-Sheet-Items (pipe, unit, wrg) — active-tab Markierung
-  // Plus sheet items (pipe, unit, wrg — hx is in main pill)
-  ['pipe','wrg'].forEach(id => {
+  // Plus sheet items active state
+  ['pipe','unit','wrg'].forEach(id => {
     const btn = $('plus-' + id);
     if (btn) btn.classList.toggle('active-tab', id === activeTab);
   });

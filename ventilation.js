@@ -14,6 +14,7 @@ const LST = { hk: 'h', mode: 'v', qUnit: 'W' };
 
 /** Luftdichte nach idealer Gasgleichung [kg/m³] */
 function rhoAir(t) {
+  if (t <= -273.15) return NaN; // Absoluter Nullpunkt — unphysikalisch
   return 353.05 / (t + 273.15);
 }
 
@@ -101,15 +102,17 @@ function calcLuft() {
   const hk = LST.hk;
   const m  = LST.mode;
 
-  const vv    = parseFloat($('luft-v')?.value)        || 0;
+  const vv    = parseFloat($('luft-v')?.value);
+  const vvOk  = !isNaN(vv) && vv > 0;
   const tzlH  = parseFloat($('luft-tzl-h')?.value);
   const tzlK  = parseFloat($('luft-tzl-k')?.value);
   const tzl   = hk === 'h' ? tzlH : tzlK;
   const trH   = parseFloat($('luft-tr-h')?.value)     || 20;
   const trK   = parseFloat($('luft-tr-k')?.value)     || 26;
   const tr    = hk === 'h' ? trH : trK;
-  const qRaw  = parseFloat($('luft-q-in-' + hk)?.value) || 0;
-  const qIn   = LST.qUnit === 'kW' ? qRaw * 1000 : qRaw;
+  const qRaw  = parseFloat($('luft-q-in-' + hk)?.value);
+  const qIn   = (!isNaN(qRaw) && qRaw > 0) ? (LST.qUnit === 'kW' ? qRaw * 1000 : qRaw) : 0;
+  const qInOk = qIn > 0;
 
   // Automatische Temperaturdifferenz
   let dtAuto = NaN;
@@ -140,9 +143,9 @@ function calcLuft() {
 
   // Kernberechnung
   let Q = 0, V = 0, dT = 0, ok = false;
-  if (m === 'v'  && qIn > 0 && dt > 0)  { V = qIn / (fac * dt); Q = qIn; dT = dt; ok = true; }
-  if (m === 'q'  && vv  > 0 && dt > 0)  { Q = vv * fac * dt;    V = vv;  dT = dt; ok = true; }
-  if (m === 'dt' && vv  > 0 && qIn > 0) { dT = qIn / (vv * fac);Q = qIn; V = vv;  ok = true; }
+  if (m === 'v'  && qInOk && dt > 0)         { V = qIn / (fac * dt); Q = qIn; dT = dt; ok = true; }
+  if (m === 'q'  && vvOk  && dt > 0)         { Q = (vv||0) * fac * dt; V = vv||0; dT = dt; ok = true; }
+  if (m === 'dt' && vvOk  && qInOk)          { dT = qIn / ((vv||0) * fac); Q = qIn; V = vv||0; ok = true; }
 
   const ms   = ok ? V * rho : 0;
   const col  = hk === 'h' ? 'var(--heat-t)' : 'var(--cold-t)';
