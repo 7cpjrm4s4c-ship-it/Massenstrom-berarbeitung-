@@ -524,7 +524,7 @@ input[type=number]::-webkit-outer-spin-button { -webkit-appearance:none; }
 
 /* Install banner */
 #ib {
-  position:fixed; bottom:calc(18px + var(--sab)); left:50%; transform:translateX(-50%);
+  position:fixed; bottom:calc(90px + var(--sab)); left:50%; transform:translateX(-50%);
   background:rgba(10,10,10,0.94);
   border:1px solid var(--gb-mid);
   backdrop-filter:blur(24px); -webkit-backdrop-filter:blur(24px);
@@ -535,6 +535,154 @@ input[type=number]::-webkit-outer-spin-button { -webkit-appearance:none; }
 }
 #ib .y { background:var(--blue); border:none; color:#000; font-family:var(--f); font-size:12px; font-weight:700; padding:6px 14px; border-radius:9px; cursor:pointer; }
 #ib .n { background:none; border:none; color:var(--t3); font-size:18px; cursor:pointer; line-height:1; padding:0 2px; }
+
+/* ═══════════════════════════════════════════════════════
+   BOTTOM PILL NAVIGATION
+═══════════════════════════════════════════════════════ */
+
+/* Tablet/Desktop: top tab-bar bleibt */
+@media (min-width:900px) {
+  .bottom-pill, .plus-overlay, .plus-sheet { display:none !important; }
+}
+
+/* Mobile: Top-Tab-Bar ausblenden */
+@media (max-width:899px) {
+  .tab-bar { display:none !important; }
+  /* Inhalt nicht hinter Pill versteckt */
+  #tab-flow,#tab-luft,#tab-pipe,#tab-unit,#tab-hx,#tab-wrg {
+    padding-bottom:calc(96px + env(safe-area-inset-bottom)) !important;
+  }
+  .col-L { padding-bottom:0 !important; }
+}
+
+/* ── Pill Container ── */
+.bottom-pill {
+  display:none; /* per JS angezeigt wenn <900px */
+  position:fixed;
+  bottom:calc(18px + env(safe-area-inset-bottom));
+  left:50%; transform:translateX(-50%);
+  z-index:190;
+  align-items:center;
+  gap:2px;
+  background:rgba(14,14,22,0.92);
+  backdrop-filter:saturate(180%) blur(32px);
+  -webkit-backdrop-filter:saturate(180%) blur(32px);
+  border:1px solid rgba(255,255,255,0.16);
+  border-radius:100px;
+  padding:5px 5px 5px 6px;
+  box-shadow:
+    0 16px 56px rgba(0,0,0,0.75),
+    0 4px 12px rgba(0,0,0,0.50),
+    inset 0 1px 0 rgba(255,255,255,0.10);
+}
+
+/* ── Pill Buttons ── */
+.pill-btn {
+  display:flex; flex-direction:column; align-items:center; gap:3px;
+  padding:8px 13px;
+  border-radius:90px; border:none;
+  background:transparent;
+  color:rgba(255,255,255,0.38);
+  cursor:pointer; touch-action:manipulation;
+  font-family:var(--f); font-size:10px; font-weight:600; letter-spacing:.01em;
+  min-width:56px; transition:all .18s ease;
+  -webkit-tap-highlight-color:transparent;
+}
+.pill-btn.active {
+  background:rgba(79,168,255,0.15);
+  color:var(--blue);
+}
+.pill-btn svg { width:21px; height:21px; margin-bottom:1px; }
+
+/* ── Plus-Kreis ── */
+.pill-plus {
+  width:50px; height:50px; border-radius:50%; border:none; flex-shrink:0;
+  background:linear-gradient(135deg, #4fa8ff, #2b72e0);
+  color:#fff;
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer; touch-action:manipulation;
+  box-shadow:0 4px 22px rgba(79,168,255,0.42), inset 0 1px 0 rgba(255,255,255,0.22);
+  transition:all .22s cubic-bezier(0.34,1.56,0.64,1);
+  margin-left:2px;
+  -webkit-tap-highlight-color:transparent;
+}
+.pill-plus.open {
+  background:linear-gradient(135deg,#ff6b35,#d94d1a);
+  box-shadow:0 4px 22px rgba(255,107,53,0.45), inset 0 1px 0 rgba(255,255,255,0.18);
+}
+.pill-plus-icon {
+  font-size:26px; font-weight:200; line-height:1;
+  font-family:system-ui,-apple-system,sans-serif;
+  transition:transform .22s cubic-bezier(0.34,1.56,0.64,1);
+  display:block;
+}
+.pill-plus.open .pill-plus-icon { transform:rotate(45deg); }
+
+/* ── Plus-Overlay ── */
+.plus-overlay {
+  display:none; position:fixed; inset:0; z-index:250;
+  background:rgba(0,0,0,0.55);
+  backdrop-filter:blur(4px); -webkit-backdrop-filter:blur(4px);
+  animation:fadeIn .2s ease;
+}
+.plus-overlay.open { display:block; }
+@keyframes fadeIn { from{opacity:0} to{opacity:1} }
+
+/* ── Plus-Sheet ── */
+.plus-sheet {
+  position:fixed; bottom:0; left:0; right:0; z-index:260;
+  background:rgba(11,11,19,0.98);
+  backdrop-filter:blur(32px); -webkit-backdrop-filter:blur(32px);
+  border-radius:28px 28px 0 0;
+  border-top:1px solid rgba(255,255,255,0.14);
+  padding:14px 18px calc(24px + env(safe-area-inset-bottom));
+  transform:translateY(102%);
+  transition:transform .30s cubic-bezier(0.32,0.72,0,1);
+  box-shadow:0 -12px 60px rgba(0,0,0,0.65);
+}
+.plus-sheet.open { transform:translateY(0); }
+
+/* ── Sheet Handle ── */
+.plus-handle {
+  width:36px; height:4px; border-radius:2px;
+  background:rgba(255,255,255,0.22); margin:0 auto 18px;
+}
+
+/* ── Sheet Grid ── */
+.plus-grid {
+  display:grid; grid-template-columns:1fr 1fr; gap:10px;
+}
+
+/* ── Sheet Items ── */
+.plus-item {
+  display:flex; flex-direction:column; align-items:center; gap:8px;
+  padding:16px 10px;
+  border-radius:18px;
+  border:1px solid rgba(255,255,255,0.08);
+  background:rgba(255,255,255,0.04);
+  color:rgba(255,255,255,0.75);
+  cursor:pointer; touch-action:manipulation;
+  font-family:var(--f); font-size:12px; font-weight:600;
+  text-align:center; line-height:1.3;
+  transition:all .15s;
+  -webkit-tap-highlight-color:transparent;
+}
+.plus-item:active { transform:scale(0.96); background:rgba(255,255,255,0.09); }
+.plus-item.active-tab {
+  background:rgba(79,168,255,0.12);
+  border-color:rgba(79,168,255,0.28);
+  color:var(--blue);
+}
+.plus-item svg { width:28px; height:28px; }
+.plus-item-pdf { color:var(--grn); }
+.plus-item-pdf svg { color:var(--grn); }
+
+/* ── Sheet Titel ── */
+.plus-title {
+  font-family:var(--f); font-size:12px; font-weight:700;
+  letter-spacing:.10em; text-transform:uppercase;
+  color:rgba(255,255,255,0.32); margin-bottom:14px; text-align:center;
+}
 
 /* ═══════════════════════════════════════════════════════
    ANIMATIONS
@@ -1905,6 +2053,102 @@ input[type=number]::-webkit-outer-spin-button { -webkit-appearance:none; }
 
 </div>
 </div><!-- /tab-wrg -->
+
+<!-- ══════════════════════════════════════════════════════
+     BOTTOM PILL NAVIGATION (Mobile)
+══════════════════════════════════════════════════════ -->
+<nav class="bottom-pill" id="bottom-pill" role="navigation" aria-label="Hauptnavigation">
+
+  <!-- Heizung / Kälte -->
+  <button class="pill-btn active" id="pill-flow" data-tab="flow" aria-label="Heizung und Kälte">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 2c-1 2.5-2.5 4.5-2 7.5a4 4 0 108 0c0-1.5-.8-3-2-4 0 1.5-1 3-2.5 3S10 7 10 5"/>
+      <circle cx="12" cy="17" r="1.2" fill="currentColor" stroke="none"/>
+    </svg>
+    Heizung
+  </button>
+
+  <!-- Lüftung -->
+  <button class="pill-btn" id="pill-luft" data-tab="luft" aria-label="Lüftung">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="1.8"/>
+      <path d="M12 10.2C12 7 10 5 8 6s-2 4.5 1.5 5.5"/>
+      <path d="M13.8 12C17 12 19 10 18 8s-4.5-2-5.5 1.5"/>
+      <path d="M12 13.8C12 17 14 19 16 18s2-4.5-1.5-5.5"/>
+      <path d="M10.2 12C7 12 5 14 6 16s4.5 2 5.5-1.5"/>
+    </svg>
+    L&uuml;ftung
+  </button>
+
+  <!-- Rohr -->
+  <button class="pill-btn" id="pill-pipe" data-tab="pipe" aria-label="Rohrdimensionierung">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="2" y="8" width="5" height="8" rx="1.5"/>
+      <rect x="17" y="8" width="5" height="8" rx="1.5"/>
+      <line x1="7" y1="10.5" x2="17" y2="10.5"/>
+      <line x1="7" y1="13.5" x2="17" y2="13.5"/>
+    </svg>
+    Rohr
+  </button>
+
+  <!-- Plus -->
+  <button class="pill-plus" id="pill-plus" aria-label="Weitere Module" aria-expanded="false">
+    <span class="pill-plus-icon">+</span>
+  </button>
+
+</nav>
+
+<!-- ── Plus Overlay ── -->
+<div class="plus-overlay" id="plus-overlay"></div>
+
+<!-- ── Plus Sheet ── -->
+<div class="plus-sheet" id="plus-sheet" role="dialog" aria-label="Weitere Module">
+  <div class="plus-handle"></div>
+  <div class="plus-title">Weitere Module</div>
+  <div class="plus-grid">
+
+    <!-- h,x-Diagramm -->
+    <button class="plus-item" id="plus-hx" data-tab="hx">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="3 20 7 10 11 14 15 6 21 6"/>
+        <path d="M3 20h18"/>
+        <path d="M3 20V4"/>
+      </svg>
+      h,x-Diagramm
+    </button>
+
+    <!-- Einheiten -->
+    <button class="plus-item" id="plus-unit" data-tab="unit">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 4h2v16H4M8 4l8 16M16 4h4M16 12h3"/>
+        <circle cx="18" cy="20" r="2"/>
+      </svg>
+      Einheiten
+    </button>
+
+    <!-- WRG & Mischluft -->
+    <button class="plus-item" id="plus-wrg" data-tab="wrg">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 8h12M4 8l3-3M4 8l3 3"/>
+        <path d="M20 16H8M20 16l-3-3M20 16l-3 3"/>
+        <line x1="12" y1="8" x2="12" y2="16"/>
+      </svg>
+      WRG &amp; Mischluft
+    </button>
+
+    <!-- PDF Export -->
+    <button class="plus-item plus-item-pdf" id="plus-pdf">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M14 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V9z"/>
+        <polyline points="14 3 14 9 20 9"/>
+        <line x1="12" y1="13" x2="12" y2="17"/>
+        <polyline points="9 16 12 19 15 16"/>
+      </svg>
+      PDF Export
+    </button>
+
+  </div>
+</div>
 
 <script src="./app.js"></script>
 <script src="./heating-cooling.js"></script>

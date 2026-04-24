@@ -21,28 +21,121 @@ const loc  = (v, d) => v.toLocaleString('de-DE', {
 ─────────────────────────────────────── */
 const TABS = ['flow', 'luft', 'pipe', 'unit', 'hx', 'wrg'];
 
+/* ─── TAB WECHSELN ─── */
 function switchTab(t) {
-  // Buttons
+  // Desktop: Tab-Bar-Buttons
   document.querySelectorAll('.tab-btn[data-tab]').forEach(b =>
     b.classList.toggle('active', b.dataset.tab === t)
   );
-  // Panels
+  // Panel anzeigen
   TABS.forEach(id => {
     const el = $('tab-' + id);
     if (!el) return;
     el.style.display = (id === t) ? (id === 'hx' ? 'block' : '') : 'none';
   });
-  // h,x-Canvas neu zeichnen wenn Tab sichtbar wird
+  // h,x redraw
   if (t === 'hx' && typeof drawHxChart === 'function') {
     requestAnimationFrame(() => drawHxChart(window._hxState || null));
+  }
+  // Pill: Haupt-Buttons updaten
+  _updatePill(t);
+}
+
+function _updatePill(activeTab) {
+  // Haupt-Pill-Buttons (flow, luft, pipe)
+  ['flow','luft','pipe'].forEach(id => {
+    const btn = $('pill-' + id);
+    if (btn) btn.classList.toggle('active', id === activeTab);
+  });
+  // Plus-Sheet-Items (unit, hx, wrg) — active-tab Markierung
+  ['unit','hx','wrg'].forEach(id => {
+    const btn = $('plus-' + id);
+    if (btn) btn.classList.toggle('active-tab', id === activeTab);
+  });
+}
+
+/* ─── PLUS SHEET ─── */
+let _plusOpen = false;
+
+function togglePlusSheet() {
+  _plusOpen ? closePlusSheet() : openPlusSheet();
+}
+
+function openPlusSheet() {
+  _plusOpen = true;
+  $('plus-sheet')?.classList.add('open');
+  $('plus-overlay')?.classList.add('open');
+  $('pill-plus')?.classList.add('open');
+  $('pill-plus')?.setAttribute('aria-expanded', 'true');
+}
+
+function closePlusSheet() {
+  _plusOpen = false;
+  $('plus-sheet')?.classList.remove('open');
+  $('plus-overlay')?.classList.remove('open');
+  $('pill-plus')?.classList.remove('open');
+  $('pill-plus')?.setAttribute('aria-expanded', 'false');
+}
+
+function _switchFromPlus(tab) {
+  closePlusSheet();
+  switchTab(tab);
+}
+
+/* ─── PILL SICHTBARKEIT ─── */
+function _updatePillVisibility() {
+  const pill = $('bottom-pill');
+  if (!pill) return;
+  if (window.innerWidth < 900) {
+    pill.style.display = 'flex';
+  } else {
+    pill.style.display = 'none';
+    closePlusSheet();
   }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  // Desktop Tab-Bar
   document.querySelectorAll('.tab-btn[data-tab]').forEach(b => {
     b.addEventListener('click', () => switchTab(b.dataset.tab));
   });
-  // Initial: flow-Tab aktiv
+
+  // Pill Haupt-Buttons
+  ['flow','luft','pipe'].forEach(id => {
+    $('pill-' + id)?.addEventListener('click', () => switchTab(id));
+  });
+
+  // Plus Button
+  $('pill-plus')?.addEventListener('click', togglePlusSheet);
+
+  // Plus Overlay schließt Sheet
+  $('plus-overlay')?.addEventListener('click', closePlusSheet);
+
+  // Plus Sheet Items
+  ['unit','hx','wrg'].forEach(id => {
+    $('plus-' + id)?.addEventListener('click', () => _switchFromPlus(id));
+  });
+
+  // PDF aus Plus Sheet
+  $('plus-pdf')?.addEventListener('click', () => {
+    closePlusSheet();
+    if (typeof openPdfSheet === 'function') openPdfSheet();
+  });
+
+  // Swipe-Down schließt Sheet
+  let _touchStartY = 0;
+  $('plus-sheet')?.addEventListener('touchstart', e => {
+    _touchStartY = e.touches[0].clientY;
+  }, { passive: true });
+  $('plus-sheet')?.addEventListener('touchmove', e => {
+    if (e.touches[0].clientY - _touchStartY > 60) closePlusSheet();
+  }, { passive: true });
+
+  // Pill Sichtbarkeit
+  _updatePillVisibility();
+  window.addEventListener('resize', _updatePillVisibility);
+
+  // Initial Tab
   switchTab('flow');
 });
 
