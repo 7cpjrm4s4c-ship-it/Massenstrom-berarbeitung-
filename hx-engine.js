@@ -530,80 +530,291 @@ function _showHxError(msg) {
 }
 
 /* ─── BERECHNUNG PROZESS ─── */
+/* ═══════════════════════════════════════════════════════
+   PROZESSBERECHNUNG — physikalisch korrekte Prozessketten
+   Koordinatensystem (T,x): Erwärmen = vertikal, Befeuchten = horizontal,
+   Adiabat = diagonal entlang Isenthalpe (h=const)
+═══════════════════════════════════════════════════════ */
+
+/* ─ Hilfs-Zustandspunkt ─ */
+function _mkState(T, x) {
+  const ph = calcPhi(T, x);
+  return { T, x: +x.toFixed(3), phi: +ph.toFixed(1), h: +calcH(T, x).toFixed(2), tdew: calcTdew(x) };
+}
+
+/* ─ 1. Erwärmen / Kühlen sensibel (x = const) ─ */
+function _procHeat(s1, T2) {
+  const s2 = _mkState(T2, s1.x);
+  const col = T2 > s1.T ? '#ff9c3a' : '#4fa8ff';
+  return [{ from: s1, to: s2, name: T2 > s1.T ? 'Erwärmen' : 'Kühlen', color: col }];
+}
+
+/* ─ 2. Kühlen mit Kondensation ─ */
+function _procCoolDehumid(s1, T2) {
+  const Td = calcTdew(s1.x) || s1.T;
+  if (T2 >= Td - 0.05) return _procHeat(s1, T2); // kein Tau
+  // Kühlen bis Taupunkt
+  const sDew = _mkState(Td, s1.x);
+  // Weiter kühlen entlang φ=100% (x nimmt ab durch Kondensation)
+  const x2  = calcX(T2, 100);
+  const s2  = _mkState(T2, x2);
+  return [
+    { from: s1,   to: sDew, name: 'Kühlen bis Taupunkt', color: '#4fa8ff' },
+    { from: sDew, to: s2,   name: 'Kühlen + Kondensation (φ=100%)', color: '#00c4e8' },
+  ];
+}
+
+/* ─ 3. Dampfbefeuchtung: Vorwärmen → Dampf bei T2 (x↑, T≈const) ─ */
+function _procSteam(s1, T2, x2) {
+  if (isNaN(x2) || x2 <= s1.x) {
+    return _procHeat(s1, T2);
+  }
+  // Schritt 1: Vorwärmen T1→T2 bei x=x1
+  const sPre = _mkState(T2, s1.x);
+  // Schritt 2: Dampfbefeuchtung bei T2 von x1→x2
+  // Dampf bei ~100°C: h_steam ≈ 2676 kJ/kg
+  // Temperaturänderung: ΔT = Δx * h_steam / (cp * (1 + x_avg/1000)) / 1000 ≈ gering
+  const H_STEAM = 2676; // kJ/kg Dampfenthalpie
+  const dx     = x2 - s1.x;           // g/kg
+  const dT_steam = dx * H_STEAM / (1000 * (1.006 + s1.x / 1000 * 1.86) * 1000);
+  const T2end  = T2 + dT_steam;        // leichte Erwärmung durch Dampf
+  const s2     = _mkState(T2end, x2);
+  return [
+    { from: s1,  to: sPre, name: 'Vorwärmen', color: '#ff9c3a' },
+    { from: sPre, to: s2,  name: 'Dampfbefeuchtung (x↑, T≈const)', color: '#a78bfa' },
+  ];
+}
+
+/* ─ 4. Adiabate Befeuchtung: Vorwärmen → Adiabat bis φ=100% → Nachheizen ─
+   Physik:
+   · Adiabat = entlang h=const (Isenthalpe), x↑ T↓
+   · Endpunkt Adiabat: φ=100% bei Feuchtkugeltemperatur Twet, x=xSat(Twet)
+   · Twet hängt von h ab: Twet so dass xSat(Twet)=x_target
+   · Vorwärmtemperatur: h(T_pre, x1) = h(Twet, xSat(Twet))
+─────────────────────────────────────────────────────── */
+function _procAdiabat(s1, T2, x2) {
+  if (isNaN(x2) || x2 <= s1.x) return _procHeat(s1, T2);
+
+  // Twet (Taupunkt von x2 = Feuchtkugeltemperatur bei φ=100%, x=x2)
+  const Twet = calcTdew(x2);
+  const xWet = calcX(Twet, 100);      // ≈ x2
+  const hWet = calcH(Twet, xWet);     // Enthalpie am Sättigungspunkt
+
+  // Vorwärmtemperatur: h(T_pre, x1) = hWet  (adiabat = h=const)
+  // hWet = 1.006*T_pre + x1/1000*(2501+1.86*T_pre)
+  // hWet = T_pre*(1.006 + x1*1.86/1000) + x1*2501/1000
+  const x1    = s1.x;
+  const T_pre = (hWet - x1 * 2501 / 1000) / (1.006 + x1 * 1.86 / 1000);
+
+  // Sanity: T_pre muss > s1.T und > Twet
+  if (T_pre <= s1.T + 0.1) {
+    // Keine Vorwärmung nötig — direkte Adiabat möglich
+    const sSat = _mkState(Twet, xWet);
+    const s2   = _mkState(T2, xWet);
+    return [
+      { from: s1,  to: sSat, name: 'Adiabate Befeuchtung (h=const)', color: '#34d399' },
+      { from: sSat, to: s2,  name: 'Nachheizen', color: '#ff9c3a' },
+    ];
+  }
+
+  const sPre = _mkState(T_pre, x1);   // Zustand nach Vorwärmen
+  const sSat = _mkState(Twet, xWet);  // Zustand nach Adiabat (φ=100%)
+  const s2   = _mkState(T2, xWet);    // Endzustand nach Nachheizen
+
+  return [
+    { from: s1,  to: sPre, name: 'Vorwärmen', color: '#ff9c3a' },
+    { from: sPre, to: sSat, name: 'Adiabate Befeuchtung (h=const, φ→100%)', color: '#34d399' },
+    { from: sSat, to: s2,  name: 'Nachheizen', color: '#ff6b35' },
+  ];
+}
+
+/* ─ 5. Entfeuchten: Kühlen bis x2 → Nachheizen ─ */
+function _procDehumid(s1, T2, x2) {
+  if (isNaN(x2)) x2 = s1.x * 0.6; // fallback
+  const Tdew2 = calcTdew(x2) || 5;
+  const sCool = _mkState(Tdew2, x2);
+  const s2    = _mkState(T2, x2);
+  return [
+    { from: s1,   to: sCool, name: 'Kühlen + Kondensation bis x₂', color: '#4fa8ff' },
+    { from: sCool, to: s2,   name: 'Nachheizen', color: '#ff9c3a' },
+  ];
+}
+
+/* ─ 6. Wärmerückgewinnung (WRG): Vorwärmen mit Abluft ─ */
+function _procWRG(s1, T2, x2) {
+  // WRG erwärmt ohne Feuchtigkeitsänderung (Plattenwärmetauscher)
+  const steps = [];
+  if (T2 > s1.T) steps.push(..._procHeat(s1, T2));
+  // Falls noch Befeuchtung nötig
+  if (!isNaN(x2) && x2 > (steps[steps.length-1]?.to.x || s1.x) + 0.05) {
+    const last = steps[steps.length-1]?.to || s1;
+    steps[steps.length-1] && (steps[steps.length-1].name = 'WRG Vorwärmen (Plattentauscher)');
+    steps.push({ from: last, to: _mkState(T2, x2), name: 'Nachbefeuchten', color: '#a78bfa' });
+  }
+  return steps.length ? steps : _procHeat(s1, T2);
+}
+
+/* ─ 7. Mischluft: lineare Mischung ─ */
+function _procMix(s1, T2, x2) {
+  // Mischungsgerade: lineare Verbindung zweier Zustände
+  const s2 = _mkState(T2, isNaN(x2) ? s1.x : x2);
+  return [{ from: s1, to: s2, name: 'Mischluft (lineare Mischung)', color: '#ffd60a' }];
+}
+
+/* ─ HAUPTFUNKTION ─ */
 function calcHxProcess() {
   if (!_state) { _showHxError('Zuerst Ausgangszustand setzen'); return; }
+
   const T2   = numHx(document.getElementById('hx-target-temp')?.value);
   const phi2 = numHx(document.getElementById('hx-target-rh')?.value);
   const proc = document.getElementById('hx-process')?.value;
   const res  = document.getElementById('hx-result');
   if (!res) return;
 
-  if (isNaN(T2) && isNaN(phi2) && !proc) {
-    res.innerHTML = '<span style="color:var(--t3)">Zielzustand oder Prozess eingeben.</span>';
+  if (!proc) {
+    res.innerHTML = '<span style="color:var(--t3)">Prozessart wählen (Schritt 3).</span>';
+    return;
+  }
+  if (isNaN(T2)) {
+    res.innerHTML = '<span style="color:var(--t3)">Zieltemperatur eingeben.</span>';
     return;
   }
 
   const s1 = _state;
-  let s2 = null, procName = proc || 'Zustandsänderung';
+  const x2 = !isNaN(phi2) ? calcX(T2, phi2) : NaN;
 
-  // Zielzustand berechnen
-  if (!isNaN(T2) && !isNaN(phi2)) {
-    const x2 = calcX(T2, phi2);
-    s2 = { T: T2, phi: phi2, x: x2, h: calcH(T2, x2), tdew: calcTdew(x2) };
-  } else if (!isNaN(T2) && isNaN(phi2)) {
-    // Gleicher x-Wert (Erwärmen/Kühlen sensibel)
-    const x2 = s1.x;
-    const ph2 = calcPhi(T2, x2);
-    s2 = { T: T2, phi: ph2, x: x2, h: calcH(T2, x2), tdew: calcTdew(x2) };
-    procName = T2 > s1.T ? 'Erwärmen' : 'Kühlen';
+  let steps;
+  switch (proc) {
+    case 'heizen':      steps = _procHeat(s1, T2);                    break;
+    case 'kuehlen':     steps = _procCoolDehumid(s1, T2);             break;
+    case 'dampf':       steps = _procSteam(s1, T2, x2);               break;
+    case 'adiabat':     steps = _procAdiabat(s1, T2, x2);             break;
+    case 'entfeuchten': steps = _procDehumid(s1, T2, x2);             break;
+    case 'wrg':         steps = _procWRG(s1, T2, x2);                 break;
+    case 'mischluft':   steps = _procMix(s1, T2, x2);                 break;
+    case 'nachheizen':  steps = _procHeat(s1, T2);
+      if (steps[0]) steps[0].name = 'Nachheizen';                     break;
+    default:            steps = _procHeat(s1, T2);
   }
 
-  if (!s2) {
-    res.innerHTML = '<span style="color:var(--t3)">Bitte Zieltemperatur eingeben.</span>';
-    return;
-  }
+  _renderProcessSteps(steps, res);
+  _drawProcessOnChart(steps);
+}
 
-  const deltaT = s2.T - s1.T;
-  const deltaX = s2.x - s1.x;
-  const deltaH = s2.h - s1.h;
+/* ─ PROZESSSCHRITTE ANZEIGEN ─ */
+function _renderProcessSteps(steps, el) {
+  if (!steps || !steps.length) return;
+  const s0   = steps[0].from;
+  const sEnd = steps[steps.length - 1].to;
+  const sign = v => v >= 0 ? '+' : '';
+  const fmt  = (v, d) => isNaN(v) ? '--' : (sign(v) + (+v).toFixed(d));
 
-  const sign = v => v > 0 ? '+' : '';
-  const fmt  = (v, d) => sign(v) + v.toFixed(d);
+  let html = '<div style="font-family:var(--f);font-size:12px">';
 
-  res.innerHTML = `
-    <div style="font-family:var(--fm);font-size:12px;line-height:1.8">
-      <div style="color:var(--t2);margin-bottom:8px;font-size:13px;font-weight:700">${procName}</div>
-      <div>Δt =&nbsp;<span style="color:var(--blue)">${fmt(deltaT,1)} K</span></div>
-      <div>Δx =&nbsp;<span style="color:var(--blue)">${fmt(deltaX,2)} g/kg</span></div>
-      <div>Δh =&nbsp;<span style="color:var(--blue)">${fmt(deltaH,1)} kJ/kg</span></div>
-      <div style="margin-top:6px;color:var(--t3);font-size:11px">
-        Z1: ${s1.T.toFixed(1)}\u00b0C / ${s1.phi.toFixed(0)}% → Z2: ${s2.T.toFixed(1)}\u00b0C / ${s2.phi.toFixed(0)}%
+  // Schritte
+  steps.forEach((step, i) => {
+    const dT = step.to.T - step.from.T;
+    const dx = step.to.x - step.from.x;
+    const dh = step.to.h - step.from.h;
+    html += `
+      <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:7px;
+                  padding:8px 10px;background:rgba(255,255,255,.04);
+                  border-radius:10px;border-left:3px solid ${step.color}">
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:700;font-size:12px;color:var(--t1);margin-bottom:3px">
+            ${i + 1}.&nbsp;${step.name}
+          </div>
+          <div style="font-family:var(--fm);font-size:11px;color:var(--t3);line-height:1.7">
+            ΔT ${fmt(dT,1)} K&emsp;
+            Δx ${fmt(dx,2)} g/kg&emsp;
+            Δh ${fmt(dh,1)} kJ/kg
+          </div>
+          <div style="font-size:10px;color:var(--t3);margin-top:2px">
+            ${step.from.T.toFixed(1)}°C / ${step.from.phi.toFixed(0)}% / ${step.from.x.toFixed(2)} g/kg
+            →
+            ${step.to.T.toFixed(1)}°C / ${step.to.phi.toFixed(0)}% / ${step.to.x.toFixed(2)} g/kg
+          </div>
+        </div>
+      </div>`;
+  });
+
+  // Gesamtbilanz
+  const dT_tot = sEnd.T - s0.T;
+  const dx_tot = sEnd.x - s0.x;
+  const dh_tot = sEnd.h - s0.h;
+  html += `
+    <div style="margin-top:6px;padding:8px 10px;background:rgba(79,168,255,.08);
+                border:1px solid rgba(79,168,255,.20);border-radius:10px">
+      <div style="font-size:11px;font-weight:700;color:var(--blue);margin-bottom:3px">Gesamtbilanz</div>
+      <div style="font-family:var(--fm);font-size:11px;color:var(--t2);line-height:1.7">
+        ΔT ${fmt(dT_tot,1)} K&emsp;
+        Δx ${fmt(dx_tot,2)} g/kg&emsp;
+        Δh ${fmt(dh_tot,1)} kJ/kg
+      </div>
+      <div style="font-size:10px;color:var(--t3);margin-top:2px">
+        Endzustand: ${sEnd.T.toFixed(1)}°C • φ ${sEnd.phi.toFixed(0)}% • x ${sEnd.x.toFixed(2)} g/kg
       </div>
     </div>`;
 
-  // Zielzustand im Diagramm einzeichnen
-  _drawTargetOnChart(s2);
+  html += '</div>';
+  el.innerHTML = html;
 }
 
-function _drawTargetOnChart(s2) {
+/* ─ PROZESSLINIE IM DIAGRAMM ─ */
+function _drawProcessOnChart(steps) {
+  if (!steps || !steps.length) return;
   const canvas = document.getElementById('hxCanvas');
-  if (!canvas || !_state) return;
+  if (!canvas) return;
+
+  // Redraw base chart first
+  drawHxChart(_state);
+
   const ctx = canvas.getContext('2d');
   const dpr = window.devicePixelRatio || 1;
-  const W   = parseInt(canvas.style.width)  || canvas.width / dpr;
+  const W   = parseInt(canvas.style.width)  || canvas.width  / dpr;
   const H   = parseInt(canvas.style.height) || canvas.height / dpr;
-  // Verbindungslinie
-  const p1 = toCanvas(_state.x, _state.T, W, H);
-  const p2 = toCanvas(s2.x, s2.T, W, H);
-  ctx.save();
-  ctx.strokeStyle = 'rgba(255,140,60,0.65)';
-  ctx.lineWidth = 1.5;
-  ctx.setLineDash([4, 4]);
-  ctx.beginPath(); ctx.moveTo(p1.px, p1.py); ctx.lineTo(p2.px, p2.py); ctx.stroke();
-  ctx.setLineDash([]);
-  ctx.beginPath(); ctx.arc(p2.px, p2.py, 5, 0, Math.PI * 2);
-  ctx.fillStyle = '#ff9c3a'; ctx.shadowColor = '#ff9c3a'; ctx.shadowBlur = 14;
-  ctx.fill(); ctx.restore();
+
+  steps.forEach((step, idx) => {
+    const p1 = toCanvas(step.from.x, step.from.T, W, H);
+    const p2 = toCanvas(step.to.x,   step.to.T,   W, H);
+
+    // Linie
+    ctx.save();
+    ctx.strokeStyle = step.color;
+    ctx.lineWidth   = 2.2;
+    ctx.setLineDash([5, 4]);
+    ctx.shadowColor = step.color;
+    ctx.shadowBlur  = 4;
+    ctx.beginPath(); ctx.moveTo(p1.px, p1.py); ctx.lineTo(p2.px, p2.py); ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Pfeilspitze am Ende
+    const angle = Math.atan2(p2.py - p1.py, p2.px - p1.px);
+    const aLen  = 8;
+    ctx.beginPath();
+    ctx.moveTo(p2.px, p2.py);
+    ctx.lineTo(p2.px - aLen * Math.cos(angle - 0.4), p2.py - aLen * Math.sin(angle - 0.4));
+    ctx.lineTo(p2.px - aLen * Math.cos(angle + 0.4), p2.py - aLen * Math.sin(angle + 0.4));
+    ctx.closePath();
+    ctx.fillStyle = step.color; ctx.shadowBlur = 0;
+    ctx.fill();
+    ctx.restore();
+
+    // Zwischenpunkt (außer Startpunkt)
+    if (idx > 0) {
+      ctx.save();
+      ctx.beginPath(); ctx.arc(p1.px, p1.py, 4, 0, Math.PI * 2);
+      ctx.fillStyle = step.color; ctx.shadowColor = step.color; ctx.shadowBlur = 8;
+      ctx.fill(); ctx.restore();
+    }
+    // Endpunkt letzter Schritt
+    if (idx === steps.length - 1) {
+      ctx.save();
+      ctx.beginPath(); ctx.arc(p2.px, p2.py, 5, 0, Math.PI * 2);
+      ctx.fillStyle = step.color; ctx.shadowColor = step.color; ctx.shadowBlur = 14;
+      ctx.fill(); ctx.restore();
+    }
+  });
 }
 
 /* ─── MODUS φ ↔ x ─── */
