@@ -190,7 +190,9 @@ function _openPrintWindow(bodyHtml) {
     .msr-pbar {
       position:sticky;top:0;background:#fff;
       border-bottom:1px solid #dde3ee;
-      padding:10px 16px;display:flex;gap:8px;align-items:center;
+      padding-top:max(env(safe-area-inset-top), 14px);
+      padding-bottom:10px;padding-left:16px;padding-right:16px;
+      display:flex;gap:8px;align-items:center;
       box-shadow:0 2px 8px rgba(0,0,0,.10);z-index:2;
     }
     .msr-pbtn-print {

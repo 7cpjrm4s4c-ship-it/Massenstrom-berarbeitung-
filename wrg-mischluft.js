@@ -3,10 +3,18 @@
 function wrgToggleSign(inputId) {
   const inp = document.getElementById(inputId);
   if (!inp) return;
-  const v = parseFloat(String(inp.value).replace(',', '.').trim());
-  if (isNaN(v) || v === 0) return;
+  const raw = String(inp.value).replace(',', '.').trim();
+  const v = parseFloat(raw);
+  if (isNaN(v) || v === 0) {
+    // No value yet — insert minus as prefix
+    if (!raw.startsWith('-')) inp.value = '-';
+    inp.focus();
+    return;
+  }
   inp.value = String(-v).replace('.', ',');
   inp.dispatchEvent(new Event('input', { bubbles: true }));
+  inp.dispatchEvent(new Event('change', { bubbles: true }));
+  calcWRG();
 }
 
 /* ═══════════════════════════════════════════════════════
@@ -31,8 +39,13 @@ const _phi = (T, x) => {
   return +(100 * pw / _pws(T)).toFixed(1);
 };
 const _rho = T => +(353.05 / (T + 273.15)).toFixed(4);
-const _n   = v => isNaN(v) || v === null || String(v).trim() === '' ? NaN
-             : parseFloat(String(v).replace(',', '.').trim());
+const _n   = v => {
+  if (v === null || v === undefined) return NaN;
+  const s = String(v).replace(',', '.').trim();
+  if (s === '' || s === '-') return NaN;
+  const n = parseFloat(s);
+  return isNaN(n) ? NaN : n;
+};
 const _fmt = (v, d) => isNaN(v) || v == null ? '\u2013' : (+v).toFixed(d);
 const _$   = id => document.getElementById(id);
 
@@ -235,6 +248,9 @@ function calcMix() {
 document.addEventListener('DOMContentLoaded', () => {
   ['wrg-ab-t','wrg-ab-phi','wrg-au-t','wrg-au-phi','wrg-eta']
     .forEach(id => _$(id)?.addEventListener('input', calcWRG));
+  // Also listen for change events (handles autofill and programmatic changes)
+  ['wrg-ab-t','wrg-ab-phi','wrg-au-t','wrg-au-phi','wrg-eta']
+    .forEach(id => _$(id)?.addEventListener('change', calcWRG));
   ['mix-ls1-t','mix-ls1-phi','mix-ls1-vol','mix-ls2-t','mix-ls2-phi','mix-ls2-vol']
     .forEach(id => _$(id)?.addEventListener('input', calcMix));
 });
