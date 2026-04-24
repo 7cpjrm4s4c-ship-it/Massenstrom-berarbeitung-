@@ -114,12 +114,36 @@ function calcWRG() {
   const dQ_zl = +(s_zl.h - s_au.h).toFixed(1);
   const dT_zl = +(T_zl - T_au).toFixed(1);
 
+  // Kondensatprüfung: Fortluft φ > 100% → Kondensatmenge berechnen
+  const phi_fl_raw = _phi(T_fl, x_ab);
+  const kondensiert = phi_fl_raw > 100;
+  // Kondensat: Differenz zwischen eingehendem x_ab und gesättigtem x_sat(T_fl)
+  const x_sat_fl = _x(T_fl, 100);
+  const delta_x_kond = kondensiert ? +(x_ab - x_sat_fl).toFixed(2) : 0;
+  // Kondensatmasse (bei bekanntem Massenstrom — hier pro kg Luft: g/kg → g/kg·h bei 1 kg/h)
+  const kondText = kondensiert
+    ? `<div style="margin-top:8px;padding:8px 10px;background:rgba(0,196,232,.09);
+         border:1px solid rgba(0,196,232,.30);border-radius:var(--r-s)">
+         <div style="font-family:var(--f);font-size:10px;font-weight:700;
+                     letter-spacing:.10em;text-transform:uppercase;
+                     color:var(--cold-t);margin-bottom:3px">&#128167; Kondensat (Fortluft)</div>
+         <div style="font-family:var(--fm);font-size:14px;font-weight:700;color:var(--cold-t)">
+           Δx = ${_fmt(delta_x_kond, 2)} g/kg
+         </div>
+         <div style="font-size:10px;color:var(--t3);margin-top:2px;font-family:var(--f)">
+           Fortluft wird gesättigt (φ=100%) · Restfeuchte kondensiert aus<br>
+           Entwässerung im Tauscher erforderlich
+         </div>
+       </div>`
+    : '';
+
   el.innerHTML = `
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--gap-s);margin-bottom:var(--gap-s)">
       ${_stateBox('LS3 — Zuluft', s_zl, 'var(--heat-t)', 'Außenluft vorgewärmt')}
-      ${_stateBox('LS4 — Fortluft', s_fl, 'var(--cold-t)', 'Abluft abgekühlt')}
+      ${_stateBox('LS4 — Fortluft', s_fl, 'var(--cold-t)', kondensiert ? '⚠ Kondensation!' : 'Abluft abgekühlt')}
     </div>
-    <div style="background:var(--blue-t);border:1px solid var(--blue-b);border-radius:var(--r-m);padding:10px 12px">
+    ${kondText}
+    <div style="background:var(--blue-t);border:1px solid var(--blue-b);border-radius:var(--r-m);padding:10px 12px;margin-top:${kondensiert?'8':'0'}px">
       <div style="font-family:var(--f);font-size:11px;font-weight:700;color:var(--blue);margin-bottom:4px">Bilanz WRG</div>
       <div style="font-family:var(--fm);font-size:12px;color:var(--t2);line-height:1.7">
         η<sub>t</sub> = ${_fmt(eta*100,0)} %

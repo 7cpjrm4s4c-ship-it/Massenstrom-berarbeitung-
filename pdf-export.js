@@ -135,7 +135,17 @@ function triggerPdfPrint() {
   closePdfSheet();
 
   // Aktiven Tab ermitteln
-  const activeTab = document.querySelector('.tab-btn.active')?.dataset?.tab || 'flow';
+  // Aktiven Tab ermitteln — aus DOM oder URL
+  let activeTab = 'flow';
+  // Check which tab panel is visible
+  ['flow','luft','pipe','unit','hx','wrg'].forEach(id => {
+    const el = document.getElementById('tab-' + id);
+    if (el && el.style.display !== 'none' && el.style.display !== '') activeTab = id;
+    if (el && !el.style.display && id === 'flow') activeTab = 'flow';
+  });
+  // Fallback: check pill active button
+  const pillActive = document.querySelector('.pill-btn.active');
+  if (pillActive?.dataset?.tab) activeTab = pillActive.dataset.tab;
 
   let html = '';
   if      (activeTab === 'flow') html = _buildFlowPage(meta);

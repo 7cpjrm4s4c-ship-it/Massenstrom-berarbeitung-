@@ -559,7 +559,7 @@ input[type=number]::-webkit-outer-spin-button { -webkit-appearance:none; }
 .bottom-pill {
   display:none; /* per JS angezeigt wenn <900px */
   position:fixed;
-  bottom:calc(18px + env(safe-area-inset-bottom));
+  bottom:calc(16px + env(safe-area-inset-bottom));
   left:50%; transform:translateX(-50%);
   z-index:200;
   align-items:center;
@@ -594,21 +594,24 @@ input[type=number]::-webkit-outer-spin-button { -webkit-appearance:none; }
 }
 .pill-btn svg { width:21px; height:21px; margin-bottom:1px; }
 
-/* ── Plus-Kreis ── */
+/* ── Plus-Kreis — grauer Hintergrund + blauer Rand (wie Kälte Ergebnis) ── */
 .pill-plus {
-  width:50px; height:50px; border-radius:50%; border:none; flex-shrink:0;
-  background:linear-gradient(135deg, #4fa8ff, #2b72e0);
-  color:#fff;
+  width:50px; height:50px; border-radius:50%; flex-shrink:0;
+  background:rgba(0,196,232,0.10);
+  border:1.5px solid rgba(0,196,232,0.45);
+  color:rgba(0,196,232,0.90);
   display:flex; align-items:center; justify-content:center;
   cursor:pointer; touch-action:manipulation;
-  box-shadow:0 4px 22px rgba(79,168,255,0.42), inset 0 1px 0 rgba(255,255,255,0.22);
+  box-shadow:0 0 14px rgba(0,196,232,0.12), inset 0 1px 0 rgba(0,196,232,0.10);
   transition:all .22s cubic-bezier(0.34,1.56,0.64,1);
   margin-left:2px;
   -webkit-tap-highlight-color:transparent;
 }
 .pill-plus.open {
-  background:linear-gradient(135deg,#ff6b35,#d94d1a);
-  box-shadow:0 4px 22px rgba(255,107,53,0.45), inset 0 1px 0 rgba(255,255,255,0.18);
+  background:rgba(255,107,53,0.15);
+  border-color:rgba(255,107,53,0.50);
+  color:rgba(255,107,53,0.90);
+  box-shadow:0 0 14px rgba(255,107,53,0.15);
 }
 .pill-plus-icon {
   font-size:26px; font-weight:200; line-height:1;
@@ -1246,7 +1249,7 @@ input[type=number]::-webkit-outer-spin-button { -webkit-appearance:none; }
 <!-- ══════════════════════════════════════════════════════
      TAB: MASSENSTROM
 ══════════════════════════════════════════════════════ -->
-<div id="tab-flow" style="padding-top:calc(var(--hdr) + 16px)">
+<div id="tab-flow" style="padding-top:calc(var(--hdr) + 36px)">
 
   <!-- LEFT column -->
   <div class="col-L">
@@ -1446,7 +1449,7 @@ input[type=number]::-webkit-outer-spin-button { -webkit-appearance:none; }
 ══════════════════════════════════════════════════════ -->
 
 <!-- ══ TAB: LUFT ══ -->
-<div id="tab-luft" style="padding-top:calc(var(--hdr) + 16px);display:none">
+<div id="tab-luft" style="padding-top:calc(var(--hdr) + 36px);display:none">
   <div style="padding:12px;padding-left:calc(12px + var(--sal));padding-right:calc(12px + var(--sar));padding-bottom:calc(32px + var(--sab));display:flex;flex-direction:column;gap:var(--gap);max-width:640px;width:100%;margin:0 auto">
 
     <!-- ① Zulufttemperatur + Raumtemperatur pill — Heizen & Kühlen getrennt -->
@@ -1597,7 +1600,7 @@ input[type=number]::-webkit-outer-spin-button { -webkit-appearance:none; }
   </div>
 </div>
 
-<div id="tab-pipe" style="padding-top:calc(var(--hdr) + 16px);display:none">
+<div id="tab-pipe" style="padding-top:calc(var(--hdr) + 36px);display:none">
 
   <div class="pipe-params">
     <div class="igrp" style="margin-bottom:0">
@@ -1641,7 +1644,7 @@ input[type=number]::-webkit-outer-spin-button { -webkit-appearance:none; }
 <!-- ══════════════════════════════════════════════════════
      TAB: EINHEITENRECHNER
 ══════════════════════════════════════════════════════ -->
-<div id="tab-unit" style="padding-top:calc(var(--hdr) + 16px);display:none">
+<div id="tab-unit" style="padding-top:calc(var(--hdr) + 36px);display:none">
   <div style="padding:12px;padding-left:calc(12px + var(--sal));padding-right:calc(12px + var(--sar));padding-bottom:calc(32px + var(--sab));display:flex;flex-direction:column;gap:var(--gap);max-width:640px;width:100%;margin:0 auto">
 
     <!-- Category grid -->
@@ -1719,7 +1722,7 @@ input[type=number]::-webkit-outer-spin-button { -webkit-appearance:none; }
 <!-- ═══════════════════════════════════════════════════════
    TAB: H,X-DIAGRAMM
 ═══════════════════════════════════════════════════════ -->
-<div id="tab-hx" style="padding-top:calc(var(--hdr) + 16px);display:none">
+<div id="tab-hx" style="padding-top:calc(var(--hdr) + 36px);display:none">
 <div style="padding:12px;padding-left:calc(12px + var(--sal));padding-right:calc(12px + var(--sar));padding-bottom:calc(32px + var(--sab));display:flex;flex-direction:column;gap:var(--gap);max-width:640px;width:100%;margin:0 auto">
 
   <!-- 1. Ausgangszustand -->
@@ -1863,7 +1866,7 @@ input[type=number]::-webkit-outer-spin-button { -webkit-appearance:none; }
       <option value="kuehlen" id="opt-kuehlen">K&uuml;hlen (sensibel)</option>
       <option value="dampf" id="opt-dampf">Befeuchten &mdash; Dampf</option>
       <option value="adiabat" id="opt-adiabat">Befeuchten &mdash; adiabat</option>
-      <option value="entfeuchten" id="opt-entfeuchten">Entfeuchten + Nachheizen</option>
+      <option value="entfeuchten" id="opt-entfeuchten">Kühlen + Entfeuchten</option>
       <option value="nachheizen" id="opt-nachheizen">Nachheizen</option>
     </select>
   </div>
@@ -1911,7 +1914,7 @@ input[type=number]::-webkit-outer-spin-button { -webkit-appearance:none; }
 </div><!-- /tab-hx -->
 
 <!-- ══ TAB: WRG / MISCHLUFT ══ -->
-<div id="tab-wrg" style="padding-top:calc(var(--hdr) + 16px);display:none">
+<div id="tab-wrg" style="padding-top:calc(var(--hdr) + 36px);display:none">
 <div style="padding:12px;padding-left:calc(12px + var(--sal));padding-right:calc(12px + var(--sar));
             padding-bottom:calc(32px + var(--sab));display:flex;flex-direction:column;
             gap:var(--gap);max-width:640px;width:100%;margin:0 auto">
@@ -2109,7 +2112,16 @@ input[type=number]::-webkit-outer-spin-button { -webkit-appearance:none; }
     h,x
   </button>
 
-  <!-- Plus -->
+  <!-- Einheiten -->
+  <button class="pill-btn" id="pill-unit" data-tab="unit" aria-label="Einheitenrechner">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M4 4h2v16H4M8 4l8 16M16 4h4M16 12h3"/>
+      <circle cx="18" cy="20" r="2"/>
+    </svg>
+    Einheiten
+  </button>
+
+  <!-- Plus — grauer Hintergrund, blauer Rand (wie Kälte-Ergebnis-Grid) -->
   <button class="pill-plus" id="pill-plus" aria-label="Weitere Module" aria-expanded="false">
     <span class="pill-plus-icon">+</span>
   </button>

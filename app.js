@@ -102,7 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Pill Haupt-Buttons
-  ['flow','luft','hx'].forEach(id => {
+  ['flow','luft','hx','unit'].forEach(id => {
     $('pill-' + id)?.addEventListener('click', () => switchTab(id));
   });
 
@@ -113,7 +113,7 @@ document.addEventListener('DOMContentLoaded', () => {
   $('plus-overlay')?.addEventListener('click', closePlusSheet);
 
   // Plus Sheet Items
-  ['pipe','unit','wrg'].forEach(id => {
+  ['pipe','wrg'].forEach(id => {
     $('plus-' + id)?.addEventListener('click', () => _switchFromPlus(id));
   });
   // Note: plus-hx removed — h,x is now in main pill
