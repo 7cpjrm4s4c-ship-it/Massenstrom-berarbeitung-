@@ -252,7 +252,7 @@ tr:nth-child(even) td{background:#f9fafc}
   width:100%;border:1px solid #dee4ef;border-radius:6px;
   overflow:hidden;margin:6px 0 10px;background:#f8f9fb;
 }
-.diag img{width:auto;max-width:100%;max-height:90mm;display:block;margin:0 auto}
+.diag img{width:auto;max-width:100%;height:auto;max-height:148mm;display:block;margin:0 auto;object-fit:contain}
 
 /* ── Ergebnis-Grid (Heizung/Kälte) ── */
 .res-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
@@ -594,7 +594,7 @@ function _buildHxPage(meta) {
   // Diagramm: volle Breite, Höhe dynamisch (max ~140mm für A4)
   const imgBlock = imgSrc
     ? `<div class="diag"><img src="${imgSrc}" alt="h,x-Diagramm nach Mollier"
-         style="width:100%;height:auto;max-height:148mm;display:block"/></div>`
+         style="width:auto;max-width:100%;max-height:148mm;display:block;margin:0 auto"/></div>`
     : `<div class="diag" style="height:80mm;display:flex;align-items:center;
          justify-content:center;color:#bbb;font-size:9pt">
          Kein Diagramm verfügbar — Zustand setzen und erneut exportieren

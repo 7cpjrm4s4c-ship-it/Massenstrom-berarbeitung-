@@ -829,16 +829,68 @@ function _hxModeSwitch(mode) {
 }
 
 /* ─── INIT ─── */
+/* ─── PROZESSFILTER — nur sinnvolle Prozesse anzeigen ─── */
+function _filterProcessOptions() {
+  if (!_state) return;
+  const T2   = numHx(document.getElementById('hx-target-temp')?.value);
+  const phi2 = numHx(document.getElementById('hx-target-rh')?.value);
+  const sel  = document.getElementById('hx-process');
+  if (!sel || isNaN(T2)) return;
+
+  const s1 = _state;
+  const x2 = !isNaN(phi2) ? calcX(T2, phi2) : NaN;
+  const needHeat    = T2 > s1.T + 0.3;
+  const needCool    = T2 < s1.T - 0.3;
+  const needHumid   = !isNaN(x2) && x2 > s1.x + 0.1;
+  const needDehumid = !isNaN(x2) && x2 < s1.x - 0.1;
+  const neutral     = !needHumid && !needDehumid;
+
+  // Bedingungen je Option
+  const show = {
+    'heizen':      needHeat  && (neutral || needHumid),
+    'kuehlen':     needCool  && (neutral || needDehumid),
+    'dampf':       needHumid,
+    'adiabat':     needHumid,
+    'entfeuchten': needDehumid,
+    'nachheizen':  needHeat,
+  };
+
+  let anyVisible = false;
+  Array.from(sel.options).forEach(opt => {
+    if (!opt.value) return;
+    const visible = show[opt.value] !== false && show.hasOwnProperty(opt.value)
+                    ? show[opt.value] : true;
+    opt.hidden   = !visible;
+    opt.disabled = !visible;
+    if (visible) anyVisible = true;
+  });
+
+  // Aktive Auswahl zurücksetzen wenn nicht mehr sinnvoll
+  if (sel.value && sel.selectedOptions[0]?.hidden) sel.value = '';
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('mode-rh') ?.addEventListener('click', () => _hxModeSwitch('rh'));
   document.getElementById('mode-x')  ?.addEventListener('click', () => _hxModeSwitch('x'));
-  document.getElementById('hx-set')  ?.addEventListener('click', setHxState);
   document.getElementById('hx-calc') ?.addEventListener('click', calcHxProcess);
 
+  // Bug 2: Zustand automatisch setzen bei Eingabe (debounced)
+  let _debTimer;
+  function _autoState() {
+    clearTimeout(_debTimer);
+    _debTimer = setTimeout(() => { setHxState(); _filterProcessOptions(); }, 450);
+  }
+
   ['hx-temp','hx-rh','hx-x'].forEach(id => {
-    document.getElementById(id)?.addEventListener('keydown', e => {
-      if (e.key === 'Enter') setHxState();
-    });
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener('input', _autoState);
+    el.addEventListener('keydown', e => { if (e.key === 'Enter') { clearTimeout(_debTimer); setHxState(); } });
+  });
+
+  // Prozessfilter bei Zieländerung aktualisieren
+  ['hx-target-temp','hx-target-rh'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', _filterProcessOptions);
   });
 
   const canvas = document.getElementById('hxCanvas');

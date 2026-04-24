@@ -19,7 +19,7 @@ const loc  = (v, d) => v.toLocaleString('de-DE', {
 /* ───────────────────────────────────────
    TAB-STEUERUNG
 ─────────────────────────────────────── */
-const TABS = ['flow', 'luft', 'pipe', 'unit', 'hx'];
+const TABS = ['flow', 'luft', 'pipe', 'unit', 'hx', 'wrg'];
 
 function switchTab(t) {
   // Buttons

@@ -5,7 +5,7 @@
 ═══════════════════════════════════════════════════════ */
 'use strict';
 
-const CACHE_NAME = 'massenstrom-v1.1';
+const CACHE_NAME = 'massenstrom-v1.5';
 
 /* Alle App-Ressourcen die offline verfügbar sein müssen */
 const PRECACHE = [
@@ -15,6 +15,7 @@ const PRECACHE = [
   '/heating-cooling.js',
   '/ventilation.js',
   '/pdf-export.js',
+  '/wrg-mischluft.js',
   '/app.js',
   '/styles.css',
   '/manifest.json',
