@@ -207,24 +207,28 @@ function _drawPhiCurves(ctx, W, H) {
         if (x >= 0.3 && x <= CFG.xMax + 0.3) { Tlbl = T; break; }
       }
     }
-    if (!isNaN(Tlbl)) {
-      const xlbl = Math.min(calcX(Tlbl, phi), CFG.xMax);
-      const { px, py } = toCanvas(xlbl, Tlbl, W, H);
-      const { pad: p } = CFG;
-      // Nur zeichnen wenn innerhalb des Plot-Bereichs
-      if (px > p.left + 10 && px < W - p.right + 2 &&
-          py > p.top + 5 && py < H - p.bottom - 5) {
-        ctx.save();
-        ctx.font = (acc ? 'bold ' : '') + '9px Arial,sans-serif';
-        ctx.textAlign = 'left';
-        const lbl = phi + ' %';
-        const tw = ctx.measureText(lbl).width;
-        // Hintergrund clearing
-        ctx.fillStyle = 'rgba(4,8,16,0.72)';
-        ctx.fillRect(px + 2, py - 9, tw + 4, 12);
-        ctx.fillStyle = acc ? 'rgba(90,160,255,0.90)' : 'rgba(80,130,255,0.58)';
-        ctx.fillText(lbl, px + 3, py);
-        ctx.restore();
+    /* φ-Labels halbkreisförmig: 10% bei T=45°C, 90% bei T=35°C
+       Alle Labels an der Sättigungskurve platziert, bogenförmig angeordnet */
+    {
+      // T interpoliert: 10%→45°C, 90%→35°C (linearer Bogen)
+      const t = (phi - 10) / 80; // 0..1
+      const Tarc = 45 - t * 10;  // 45→35°C
+      const xlbl = calcX(Tarc, phi);
+      if (xlbl > 0.3 && xlbl <= CFG.xMax - 0.3) {
+        const { px, py } = toCanvas(xlbl, Tarc, W, H);
+        const { pad: p } = CFG;
+        if (px > p.left + 4 && py > p.top + 4 && py < H - p.bottom - 4) {
+          ctx.save();
+          ctx.font = (acc ? 'bold ' : '') + '9px Arial,sans-serif';
+          ctx.textAlign = 'left';
+          const lbl = phi + '%';
+          const tw = ctx.measureText(lbl).width;
+          ctx.fillStyle = 'rgba(4,8,16,0.75)';
+          ctx.fillRect(px + 2, py - 9, tw + 4, 12);
+          ctx.fillStyle = acc ? 'rgba(90,160,255,0.92)' : 'rgba(80,130,255,0.60)';
+          ctx.fillText(lbl, px + 3, py);
+          ctx.restore();
+        }
       }
     }
   });
@@ -392,27 +396,7 @@ function _drawStatePoint(ctx, W, H, state) {
   ctx.strokeStyle = 'rgba(109,99,255,0.48)'; ctx.lineWidth = 1.5; ctx.stroke();
   ctx.restore();
 
-  // Tooltip-Box
-  const h = calcH(state.T, state.x);
-  const lines = [
-    'T  ' + state.T.toFixed(1) + ' \u00b0C',
-    '\u03c6  ' + (isNaN(state.phi) ? '--' : state.phi.toFixed(1)) + ' %',
-    'x  ' + state.x.toFixed(2) + ' g/kg',
-    'h  ' + h.toFixed(1) + ' kJ/kg',
-    'Td ' + (state.tdew != null && !isNaN(state.tdew) ? state.tdew.toFixed(1) : '--') + ' \u00b0C',
-  ];
-  const bw = 132, bh = lines.length * 16 + 14;
-  let bx = px + 13, by = py - bh - 8;
-  if (bx + bw > W - p.right - 4) bx = px - bw - 13;
-  if (by < p.top + 4)             by = py + 14;
-
-  ctx.save();
-  ctx.fillStyle = 'rgba(8,10,22,0.92)'; ctx.strokeStyle = 'rgba(109,99,255,0.52)'; ctx.lineWidth = 1;
-  _rr(ctx, bx, by, bw, bh, 8); ctx.fill(); ctx.stroke();
-  ctx.fillStyle = 'rgba(255,255,255,0.85)';
-  ctx.font = '12px "Courier New",Courier,monospace'; ctx.textAlign = 'left';
-  lines.forEach((l, i) => ctx.fillText(l, bx + 9, by + 17 + i * 16));
-  ctx.restore();
+  // Kein Tooltip-Text im Diagramm — Werte im Ergebnis-Panel
 }
 
 /* ─── HOVER-TOOLTIP ─── */
@@ -452,27 +436,13 @@ function _setupInteraction(canvas) {
 }
 
 function _drawHover(ctx, W, H, s) {
+  // Nur Punkt anzeigen — kein Tooltip-Text im Diagramm
   const { px, py } = toCanvas(s.x, s.T, W, H);
   ctx.save();
-  ctx.beginPath(); ctx.arc(px, py, 4, 0, Math.PI * 2);
-  ctx.fillStyle = s.inFog ? 'rgba(255,150,50,0.70)' : 'rgba(255,210,80,0.70)';
-  ctx.shadowColor = 'rgba(255,200,60,0.55)'; ctx.shadowBlur = 10;
+  ctx.beginPath(); ctx.arc(px, py, 5, 0, Math.PI * 2);
+  ctx.fillStyle = s.inFog ? 'rgba(255,150,50,0.75)' : 'rgba(255,210,80,0.75)';
+  ctx.shadowColor = 'rgba(255,200,60,0.60)'; ctx.shadowBlur = 12;
   ctx.fill(); ctx.restore();
-  const lines = [
-    'T ' + s.T.toFixed(1) + ' \u00b0C',
-    '\u03c6 ' + (s.inFog ? 'Nebel' : s.phi + ' %'),
-    'x ' + s.x.toFixed(2) + ' g/kg',
-  ];
-  const bw = 100, bh = lines.length * 15 + 10;
-  let bx = px + 9, by = py - bh - 5;
-  if (bx + bw > W - CFG.pad.right) bx = px - bw - 9;
-  if (by < CFG.pad.top) by = py + 9;
-  ctx.save();
-  ctx.fillStyle = 'rgba(18,18,38,0.88)'; ctx.strokeStyle = 'rgba(255,200,60,0.38)'; ctx.lineWidth = 0.8;
-  _rr(ctx, bx, by, bw, bh, 6); ctx.fill(); ctx.stroke();
-  ctx.fillStyle = 'rgba(255,255,255,0.80)'; ctx.font = '11px "Courier New",Courier,monospace'; ctx.textAlign = 'left';
-  lines.forEach((l, i) => ctx.fillText(l, bx + 7, by + 14 + i * 15));
-  ctx.restore();
 }
 
 /* ─── HILFSFUNKTIONEN ─── */
@@ -506,7 +476,7 @@ function setHxState() {
 
   let state;
   if (modeRH) {
-    if (isNaN(phi) || phi <= 0 || phi > 100) { _showHxError('φ: 1\u2013100 %'); return; }
+    if (isNaN(phi) || phi <= 0 || phi > 100) { return; } // Kein Fehler — einfach nicht berechnen
     const x = calcX(T, phi);
     state = { T, phi, x, h: calcH(T, x), tdew: calcTdew(x), twet: calcTwet(T, x) };
   } else {
@@ -648,15 +618,26 @@ function _procAdiabat(s1, T2, x2) {
   ];
 }
 
-/* ─ 5. Entfeuchten: Kühlen bis x2 → Nachheizen ─ */
+/* ─ 5. Entfeuchten — physikalisch korrekte Prozesskette:
+   1. Kühlen sensibel bis Taupunkt von s1  (x=const, T↓)
+   2. Kühlen entlang Sättigungslinie φ=100% bis T_kühl < T2
+      → x nimmt durch Kondensation ab bis x=x2
+   3. Nachheizen sensibel von T_kühl auf T2  (x=const=x2)
+─ */
 function _procDehumid(s1, T2, x2) {
-  if (isNaN(x2)) x2 = s1.x * 0.6; // fallback
-  const Tdew2 = calcTdew(x2) || 5;
-  const sCool = _mkState(Tdew2, x2);
-  const s2    = _mkState(T2, x2);
+  if (isNaN(x2) || x2 >= s1.x) x2 = calcX(T2, 55);
+  // Schritt 1: sensibel kühlen bis Taupunkt von Ausgangszustand
+  const Td1   = calcTdew(s1.x) || (s1.T - 3);
+  const sDew1 = _mkState(Td1, s1.x);
+  // Schritt 2: entlang φ=100% kühlen bis T_kühl (= Taupunkt von Ziel-x)
+  const T_cool = calcTdew(x2) || (T2 - 3);
+  const sSat   = _mkState(T_cool, calcX(T_cool, 100));
+  // Schritt 3: Nachheizen
+  const s2 = _mkState(T2, x2);
   return [
-    { from: s1,   to: sCool, name: 'Kühlen + Kondensation bis x₂', color: '#4fa8ff' },
-    { from: sCool, to: s2,   name: 'Nachheizen', color: '#ff9c3a' },
+    { from: s1,    to: sDew1, name: 'Kühlen bis Taupunkt (x const)', color: '#4fa8ff', sat: false },
+    { from: sDew1, to: sSat,  name: 'Kühlen entlang φ = 100 % (Kondensation)', color: '#00c4e8', sat: true },
+    { from: sSat,  to: s2,    name: 'Nachheizen (x const)', color: '#ff9c3a', sat: false },
   ];
 }
 
@@ -798,14 +779,28 @@ function _drawProcessOnChart(steps) {
     const p1 = toCanvas(step.from.x, step.from.T, W, H);
     const p2 = toCanvas(step.to.x,   step.to.T,   W, H);
 
-    // Linie
     ctx.save();
     ctx.strokeStyle = step.color;
     ctx.lineWidth   = 2.2;
     ctx.setLineDash([5, 4]);
     ctx.shadowColor = step.color;
     ctx.shadowBlur  = 4;
-    ctx.beginPath(); ctx.moveTo(p1.px, p1.py); ctx.lineTo(p2.px, p2.py); ctx.stroke();
+
+    // Sättigungslinie-Schritt: entlang φ=100% zeichnen
+    if (step.sat) {
+      ctx.beginPath();
+      let satFirst = true;
+      const T_start = step.from.T, T_end = step.to.T;
+      const step_dir = T_end < T_start ? -0.2 : 0.2;
+      for (let T = T_start; (step_dir < 0 ? T >= T_end : T <= T_end); T += step_dir) {
+        const xs = calcX(T, 100);
+        const { px: spx, py: spy } = toCanvas(xs, T, W, H);
+        satFirst ? (ctx.moveTo(spx, spy), satFirst = false) : ctx.lineTo(spx, spy);
+      }
+      ctx.stroke();
+    } else {
+      ctx.beginPath(); ctx.moveTo(p1.px, p1.py); ctx.lineTo(p2.px, p2.py); ctx.stroke();
+    }
     ctx.setLineDash([]);
 
     // Pfeilspitze am Ende
@@ -835,6 +830,19 @@ function _drawProcessOnChart(steps) {
       ctx.fill(); ctx.restore();
     }
   });
+}
+
+
+/* ─── PDF EXPORT WRAPPER ─── */
+function hxOpenPdf() {
+  if (typeof openPdfSheet === 'function') {
+    openPdfSheet();
+  } else {
+    // pdf-export.js noch nicht geladen — kurz warten
+    setTimeout(() => {
+      if (typeof openPdfSheet === 'function') openPdfSheet();
+    }, 200);
+  }
 }
 
 /* ─── MODUS φ ↔ x ─── */
