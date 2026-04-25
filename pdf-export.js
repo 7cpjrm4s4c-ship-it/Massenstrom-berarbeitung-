@@ -696,32 +696,30 @@ function _buildWrgPage(meta) {
    TAB: H,X-DIAGRAMM
 ─────────────────────────────────────── */
 function _buildHxPage(meta) {
-  // Render fresh hi-res canvas for PDF (avoids mobile canvas distortion)
+  // Capture existing canvas AS-IS (includes process lines already drawn)
+  // Do NOT re-render — that would erase the process visualization
   const srcCanvas = document.getElementById('hxCanvas');
   let imgSrc = null;
-  if (srcCanvas && window._hxState) {
+  if (srcCanvas) {
     try {
-      const pdfCanvas = document.createElement('canvas');
-      pdfCanvas.width  = 900;
-      pdfCanvas.height = 620;
-      pdfCanvas.style.width  = '900px';
-      pdfCanvas.style.height = '620px';
-      // Temporarily replace canvas for drawing
-      const origW = srcCanvas.style.width, origH = srcCanvas.style.height;
-      const origCW = srcCanvas.width, origCH = srcCanvas.height;
-      srcCanvas.width = 900; srcCanvas.height = 620;
-      srcCanvas.style.width = '900px'; srcCanvas.style.height = '620px';
-      if (typeof drawHxChart === 'function') drawHxChart(window._hxState);
-      imgSrc = srcCanvas.toDataURL('image/png');
-      // Restore original
-      srcCanvas.width = origCW; srcCanvas.height = origCH;
-      srcCanvas.style.width = origW; srcCanvas.style.height = origH;
-      if (typeof drawHxChart === 'function') drawHxChart(window._hxState);
+      // Scale up by drawing current canvas content into a larger offscreen canvas
+      const dpr = window.devicePixelRatio || 1;
+      const srcW = srcCanvas.width  / dpr;
+      const srcH = srcCanvas.height / dpr;
+      // Create hi-res offscreen canvas
+      const offscreen = document.createElement('canvas');
+      const scale = Math.max(2, 900 / srcW);
+      offscreen.width  = Math.round(srcW * scale);
+      offscreen.height = Math.round(srcH * scale);
+      const octx = offscreen.getContext('2d');
+      octx.imageSmoothingEnabled = true;
+      octx.imageSmoothingQuality = 'high';
+      // Draw current canvas content scaled up
+      octx.drawImage(srcCanvas, 0, 0, offscreen.width, offscreen.height);
+      imgSrc = offscreen.toDataURL('image/png');
     } catch(e) {
-      imgSrc = srcCanvas ? srcCanvas.toDataURL('image/png') : null;
+      imgSrc = srcCanvas.toDataURL('image/png');
     }
-  } else if (srcCanvas) {
-    imgSrc = srcCanvas.toDataURL('image/png');
   }
 
   // Ausgangszustand

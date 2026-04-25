@@ -852,17 +852,19 @@ function _filterProcessOptions() {
   };
 
   let anyVisible = false;
+  // iOS Safari doesn't support option.hidden — use disabled + style instead
+  let currentVal = sel.value;
   Array.from(sel.options).forEach(opt => {
     if (!opt.value) return;
-    const visible = show[opt.value] !== false && show.hasOwnProperty(opt.value)
-                    ? show[opt.value] : true;
-    opt.hidden   = !visible;
+    const visible = show.hasOwnProperty(opt.value) ? show[opt.value] : true;
     opt.disabled = !visible;
+    opt.style.display = visible ? '' : 'none'; // Chrome/Firefox
+    opt.style.color = visible ? '' : 'transparent'; // iOS fallback
     if (visible) anyVisible = true;
   });
-
-  // Aktive Auswahl zurücksetzen wenn nicht mehr sinnvoll
-  if (sel.value && sel.selectedOptions[0]?.hidden) sel.value = '';
+  // Reset if selected option is now hidden
+  const curOpt = sel.options[sel.selectedIndex];
+  if (curOpt && curOpt.disabled) sel.value = '';
 }
 
 document.addEventListener('DOMContentLoaded', () => {

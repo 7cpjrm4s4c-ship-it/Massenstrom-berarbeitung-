@@ -125,8 +125,8 @@ function calcWRG() {
   const dT_zl = +(T_zl - T_au).toFixed(1);
 
   // Kondensatprüfung: Fortluft φ > 100% → Kondensatmenge berechnen
-  const phi_fl_raw = _phi(T_fl, x_ab);
-  const kondensiert = phi_fl_raw > 100;
+  const phi_fl_check = _phi(T_fl, x_ab);
+  const kondensiert = phi_fl_check > 100;
   // Kondensat: Differenz zwischen eingehendem x_ab und gesättigtem x_sat(T_fl)
   const x_sat_fl = _x(T_fl, 100);
   const delta_x_kond = kondensiert ? +(x_ab - x_sat_fl).toFixed(2) : 0;
