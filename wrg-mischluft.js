@@ -247,7 +247,13 @@ document.addEventListener('DOMContentLoaded', () => {
   const mixIds = ['mix-ls1-t','mix-ls1-phi','mix-ls1-vol','mix-ls2-t','mix-ls2-phi','mix-ls2-vol'];
   wrgIds.forEach(id => {
     _$(id)?.addEventListener('input',  calcWRG);
-    _$(id)?.addEventListener('change', calcWRG);  // covers type=text programmatic changes
+    _$(id)?.addEventListener('change', calcWRG);
   });
-  mixIds.forEach(id => _$(id)?.addEventListener('input', calcMix));
+  mixIds.forEach(id => {
+    _$(id)?.addEventListener('input',  calcMix);
+    _$(id)?.addEventListener('change', calcMix);
+  });
+  // Initial calc with default values (e.g. eta=70 is pre-filled)
+  // Use setTimeout to ensure all other scripts have loaded
+  setTimeout(() => { calcWRG(); calcMix(); }, 100);
 });

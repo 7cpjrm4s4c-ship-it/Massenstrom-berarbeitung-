@@ -42,8 +42,8 @@ function switchTab(t) {
 }
 
 function _updatePill(activeTab) {
-  // Haupt-Pill-Buttons (flow, luft, pipe)
-  ['flow','luft','hx'].forEach(id => {
+  // Haupt-Pill-Buttons (flow, luft, hx, unit)
+  ['flow','luft','hx','unit'].forEach(id => {
     const btn = $('pill-' + id);
     if (btn) btn.classList.toggle('active', id === activeTab);
   });
