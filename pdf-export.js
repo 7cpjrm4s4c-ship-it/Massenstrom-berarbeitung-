@@ -699,39 +699,86 @@ function _buildHxPage(meta) {
   const canvas = document.getElementById('hxCanvas');
   const imgSrc = canvas ? canvas.toDataURL('image/png') : null;
 
-  // Werte aus neuem State-Layout lesen
+  // Ausgangszustand
   const T    = _txt('state-temp');
   const phi  = _txt('state-phi');
   const x    = _txt('state-x');
   const h    = _txt('state-h');
   const tdew = _txt('state-tdew');
 
-  // Diagramm: volle Breite, Höhe dynamisch (max ~140mm für A4)
+  // Zielzustand
+  const T2val   = document.getElementById('hx-target-temp')?.value?.trim() || '';
+  const phi2val = document.getElementById('hx-target-rh')?.value?.trim()   || '';
+  const procEl  = document.getElementById('hx-process');
+  const procLabel = procEl?.options[procEl.selectedIndex]?.text || '–';
+
+  // Prozessergebnis
+  const resultEl  = document.getElementById('hx-result');
+  const resultTxt = resultEl?.innerText?.trim()?.replace(/\n\s*\n/g, '\n') || '';
+
+  // Zielzustand berechnen (wenn Werte vorhanden)
+  let targetRows = '';
+  const T2n = parseFloat(T2val), phi2n = parseFloat(phi2val);
+  if (!isNaN(T2n)) {
+    let x2row = '', h2row = '';
+    if (!isNaN(phi2n) && phi2n > 0 && phi2n <= 100) {
+      const pws2 = 6.112 * Math.exp(17.62 * T2n / (243.12 + T2n));
+      const pw2  = phi2n / 100 * pws2;
+      const x2n  = +(1000 * 0.622 * pw2 / (1013.25 - pw2)).toFixed(2);
+      const h2n  = +(1.006 * T2n + x2n / 1000 * (2501 + 1.86 * T2n)).toFixed(1);
+      x2row = `<tr><td>Feuchtegehalt x</td><td>x₂</td><td class="num">${x2n} g/kg</td></tr>`;
+      h2row = `<tr><td>Enthalpie</td><td>h₂</td><td class="num">${h2n} kJ/kg</td></tr>`;
+    }
+    targetRows = `
+  <div class="sec">2. Zielzustand &amp; Prozess</div>
+  <table>
+    <thead><tr><th>Größe</th><th>Symbol</th><th class="num">Wert</th></tr></thead>
+    <tbody>
+      <tr><td>Prozessart</td><td>–</td><td class="num">${procLabel}</td></tr>
+      <tr><td>Zieltemperatur</td><td>T₂</td><td class="num">${T2val} °C</td></tr>
+      ${phi2val ? `<tr><td>Zielfeuchte</td><td>φ₂</td><td class="num">${phi2val} %</td></tr>` : ''}
+      ${x2row}${h2row}
+    </tbody>
+  </table>`;
+  }
+
+  // Prozessbilanz
+  const bilanzBlock = resultTxt && resultTxt !== 'Noch keine Berechnung durchgeführt'
+    ? `<div class="sec">3. Prozessbilanz</div>
+       <div style="font-size:8pt;color:#2a3a4a;line-height:1.7;
+                   background:#f5f7fa;border:1px solid #e0e6ef;
+                   border-radius:5px;padding:8px 10px;
+                   white-space:pre-line">${resultTxt}</div>`
+    : '';
+
   const imgBlock = imgSrc
-    ? `<div class="diag"><img src="${imgSrc}" alt="h,x-Diagramm nach Mollier"
-         style="width:100%;height:auto;max-height:148mm;display:block"/></div>`
-    : `<div class="diag" style="height:80mm;display:flex;align-items:center;
+    ? `<div class="diag"><img src="${imgSrc}" alt="h,x-Diagramm"
+         style="width:100%;height:auto;max-height:110mm;display:block;margin:0 auto"/></div>`
+    : `<div class="diag" style="height:50mm;display:flex;align-items:center;
          justify-content:center;color:#bbb;font-size:9pt">
-         Kein Diagramm verfügbar — Zustand setzen und erneut exportieren
-       </div>`;
+         Kein Diagramm — Zustand setzen und erneut exportieren</div>`;
 
   return `
   ${_header(meta, 'h,x-Diagramm nach Mollier')}
 
   ${imgBlock}
 
-  <div class="sec" style="margin-top:8px">Luftzustand</div>
+  <div class="sec" style="margin-top:8px">1. Ausgangszustand</div>
   <table>
     <thead><tr><th>Größe</th><th>Symbol</th><th class="num">Wert</th></tr></thead>
     <tbody>
-      <tr><td>Temperatur</td>        <td>T</td>  <td class="num">${T} °C</td></tr>
-      <tr><td>Relative Feuchte</td>  <td>φ</td>  <td class="num">${phi} %</td></tr>
-      <tr><td>Feuchtegehalt</td>     <td>x</td>  <td class="num">${x} g/kg</td></tr>
-      <tr><td>Enthalpie</td>         <td>h</td>  <td class="num">${h} kJ/kg</td></tr>
-      <tr><td>Taupunkttemperatur</td><td>Td</td> <td class="num">${tdew} °C</td></tr>
+      <tr><td>Temperatur</td>         <td>T</td>  <td class="num">${T} °C</td></tr>
+      <tr><td>Relative Feuchte</td>   <td>φ</td>  <td class="num">${phi} %</td></tr>
+      <tr><td>Feuchtegehalt</td>      <td>x</td>  <td class="num">${x} g/kg</td></tr>
+      <tr><td>Enthalpie</td>          <td>h</td>  <td class="num">${h} kJ/kg</td></tr>
+      <tr><td>Taupunkttemperatur</td> <td>Td</td> <td class="num">${tdew} °C</td></tr>
     </tbody>
   </table>
-  <p style="font-size:7pt;color:#aaa;margin-top:4px">
+
+  ${targetRows}
+  ${bilanzBlock}
+
+  <p style="font-size:7pt;color:#aaa;margin-top:8px">
     Luftdruck 1013,25 hPa · Magnus-Formel · h = 1,006·t + x·(2501 + 1,86·t) kJ/kg
   </p>`;
 }
